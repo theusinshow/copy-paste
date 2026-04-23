@@ -43,3 +43,20 @@
 - não inventar regra
 - não mudar estrutura
 - não salvar PDF permanente
+
+## Changelog obrigatório
+
+Toda alteração feita no projeto deve atualizar o arquivo CHANGELOG.md.
+
+Regras:
+- registrar apenas mudanças relevantes
+- escrever de forma clara e objetiva
+- classificar em:
+  - Added
+  - Changed
+  - Fixed
+- adicionar sempre na seção [Unreleased]
+
+Nunca:
+- ignorar atualização do changelog
+- escrever logs genéricos
