@@ -10,9 +10,10 @@
 - Preparacao de migrations com Alembic
 - Models `AnalysisRun`, `InputDocument`, `DocumentPage`, `ExtractedField`, `Issue`, `IssueEvidence` e `ReviewDecision`
 - Endpoints base de `/api/v1` preparados como stubs sem logica de negocio
+- Rotas iniciais de analise implementadas: `POST /api/v1/analysis`, `GET /api/v1/analysis` e `GET /api/v1/analysis/{id}`
 
 ### Changed
--
+- `docs/API.md` atualizado para incluir `GET /analysis` para a tela de lista de analises
 
 ### Fixed
 -

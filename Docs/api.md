@@ -5,6 +5,9 @@
 
 ## Endpoints
 
+GET /analysis
+→ lista análises
+
 POST /analysis
 → cria análise
 
