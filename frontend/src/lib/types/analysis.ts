@@ -68,6 +68,43 @@ export type PackageSummaryDocument = {
   volume: string | null;
 };
 
+export type PackageMap = {
+  documents: PackageMapDocument[];
+  identity: PackageSummary["identity"];
+  stats: {
+    document_count: number;
+    ld_section_count: number;
+    section_count: number;
+    sheet_count: number;
+  };
+};
+
+export type PackageMapDocument = {
+  classification: string;
+  discipline: string | null;
+  document_id: number;
+  filename: string;
+  page_count: number;
+  sections: PackageMapSection[];
+  tipo: string;
+  tomo: string | null;
+  volume: string | null;
+};
+
+export type PackageMapSection = {
+  document_id: number;
+  document_filename: string;
+  end_page: number;
+  ld_codes: string[];
+  ld_page: number | null;
+  ld_row_count: number;
+  scope_id: number;
+  sheet_codes: string[];
+  sheet_count: number;
+  start_page: number;
+  title: string;
+};
+
 export type DrawingLists = {
   alerts: DrawingListAlert[];
   lists: DrawingListDocument[];
@@ -152,6 +189,7 @@ export type LdSheetCrosscheckResult = {
   ld_filename: string;
   ld_item: string;
   ld_page: number;
+  ld_scope_id: number | null;
   ld_source_text: string;
   matched_sheet: LdSheetMatchedSheet | null;
   message: string;
@@ -165,6 +203,7 @@ export type LdSheetMatchedSheet = {
   filename: string;
   item: string | null;
   page: number;
+  scope_id: number | null;
   sheet_code: string;
   source_text: string;
 };

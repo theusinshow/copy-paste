@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { AnalysisModeConfigPanel } from "@/components/analysis/analysis-mode-config-panel";
@@ -18,6 +19,7 @@ import { runNewAnalysisFlow } from "@/lib/analysis/run-new-analysis-flow";
 import { initialNewAnalysisActionState } from "@/lib/types/new-analysis-action";
 
 export function NewAnalysisForm() {
+  const router = useRouter();
   const [state, setState] = useState(initialNewAnalysisActionState);
   const [selectedMode, setSelectedMode] =
     useState<AnalysisMode>(ANALYSIS_MODE_DEFAULT);
@@ -73,7 +75,7 @@ export function NewAnalysisForm() {
     setIsSubmitting(true);
 
     try {
-      await runNewAnalysisFlow({
+      const nextState = await runNewAnalysisFlow({
         analysisMode: selectedMode,
         config,
         files: selectedFiles,
@@ -82,6 +84,9 @@ export function NewAnalysisForm() {
         },
         tipo,
       });
+      if (nextState.analysis && nextState.status === "created") {
+        router.push(`/analysis/${nextState.analysis.id}/processing`);
+      }
     } finally {
       setIsSubmitting(false);
     }

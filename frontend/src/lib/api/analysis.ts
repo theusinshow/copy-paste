@@ -8,6 +8,7 @@ import type {
   InputDocument,
   LdSheetCrosscheck,
   MemorialAudit,
+  PackageMap,
   PackageSummary,
 } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
@@ -43,6 +44,12 @@ export async function getPackageSummary(analysisId: number) {
       cache: "no-store",
     },
   );
+}
+
+export async function getPackageMap(analysisId: number) {
+  return apiFetch<PackageMap>(`/api/v1/analysis/${analysisId}/package-map`, {
+    cache: "no-store",
+  });
 }
 
 export async function getDrawingLists(analysisId: number) {
@@ -90,6 +97,12 @@ export async function createAnalysis(payload?: {
 
 export async function startAnalysis(analysisId: number) {
   return apiFetch<AnalysisRun>(`/api/v1/analysis/${analysisId}/start`, {
+    method: "POST",
+  });
+}
+
+export async function cancelAnalysis(analysisId: number) {
+  return apiFetch<AnalysisRun>(`/api/v1/analysis/${analysisId}/cancel`, {
     method: "POST",
   });
 }

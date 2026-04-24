@@ -57,6 +57,16 @@
 - severidade: atencao quando a prancha não é confirmada dentro da seção correta
 - observação: evita misturar LDs de fundação, concreto ou outros subvolumes dentro do mesmo arquivo
 
+### Prancha encontrada fora da seção da LD
+- condição: o código declarado na LD não aparece na seção correta do mapa do pacote, mas aparece em outra seção do mesmo PDF
+- severidade: relevante
+- observação: indica possível mistura entre subvolumes ou separatriz/LD fora de ordem
+
+### Prancha encontrada em outro documento
+- condição: o código declarado na LD não aparece na seção correta, mas aparece em outro PDF do pacote
+- severidade: atencao
+- observação: usado quando o pacote pode estar dividido em arquivos diferentes e exige revisão humana
+
 ### LD com código de projeto divergente
 - condição: item da LD declara número de projeto diferente do predominante nas LDs
 - severidade: atencao

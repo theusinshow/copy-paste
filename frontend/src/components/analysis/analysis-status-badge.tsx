@@ -19,6 +19,11 @@ const statusMap: Record<string, { label: string; className: string }> = {
     className:
       "border-[var(--cp-error)]/40 bg-[var(--cp-error)]/12 text-[var(--cp-error)]",
   },
+  cancelled: {
+    label: "Cancelada",
+    className:
+      "border-[var(--cp-warning)]/40 bg-[var(--cp-warning)]/12 text-[var(--cp-warning)]",
+  },
 };
 
 export function AnalysisStatusBadge({ status }: { status: string }) {

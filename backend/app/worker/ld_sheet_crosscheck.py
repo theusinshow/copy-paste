@@ -93,43 +93,73 @@ def _compare_ld_row_with_sheets(
     ld_row: dict[str, Any],
     matching_sheets: list[dict[str, Any]],
 ) -> dict[str, Any]:
+    ld_scope_id = ld_row.get("scope_id")
     base_result = {
         "ld_description": ld_row["description"],
         "ld_document_code": ld_row["document_code"],
         "ld_filename": ld_filename,
         "ld_item": ld_row["item"],
         "ld_page": ld_row["page"],
+        "ld_scope_id": ld_scope_id,
         "ld_source_text": ld_row["source_text"],
         "matched_sheet": None,
     }
 
-    matching_sheets = _filter_scope_candidates(
+    scoped_matching_sheets = _filter_scope_candidates(
         ld_document_id=ld_document_id,
         ld_row=ld_row,
         matching_sheets=matching_sheets,
     )
-    if not matching_sheets:
+    if not scoped_matching_sheets:
+        out_of_scope_sheet = _select_out_of_scope_sheet(
+            ld_document_id=ld_document_id,
+            ld_row=ld_row,
+            matching_sheets=matching_sheets,
+        )
+        if out_of_scope_sheet:
+            matched_sheet = _build_matched_sheet(out_of_scope_sheet)
+            if out_of_scope_sheet.get("document_id") == ld_document_id:
+                return {
+                    **base_result,
+                    "category": "probable_issue",
+                    "matched_sheet": matched_sheet,
+                    "message": (
+                        f"{ld_row['document_code']} esta declarado na LD da secao "
+                        f"{ld_scope_id}, mas foi encontrado em outra secao do mesmo PDF "
+                        f"(pagina {out_of_scope_sheet['page']})."
+                    ),
+                    "reason": "sheet_code_found_outside_ld_section",
+                    "severity": "relevante",
+                    "type": "ld_sheet_outside_section",
+                }
+
+            return {
+                **base_result,
+                "category": "needs_review",
+                "matched_sheet": matched_sheet,
+                "message": (
+                    f"{ld_row['document_code']} nao foi confirmado na secao da LD, "
+                    "mas apareceu em outro documento do pacote."
+                ),
+                "reason": "sheet_code_found_in_other_document_context",
+                "severity": "atencao",
+                "type": "ld_sheet_other_document_context",
+            }
+
         return {
             **base_result,
             "category": "extraction_limit",
             "message": (
                 f"{ld_row['document_code']} esta declarado na LD, mas nao foi "
-                "confirmado em nenhuma prancha fora das paginas de LD."
+                "confirmado em nenhuma prancha dentro da mesma secao do mapa do pacote."
             ),
-            "reason": "sheet_code_not_detected_outside_ld",
+            "reason": "sheet_code_not_detected_in_ld_section",
             "severity": "atencao",
             "type": "ld_sheet_missing_sheet",
         }
 
-    best_sheet = _select_best_sheet(ld_document_id, ld_row, matching_sheets)
-    matched_sheet = {
-        "description": best_sheet.get("description"),
-        "filename": best_sheet["filename"],
-        "item": best_sheet.get("item"),
-        "page": best_sheet["page"],
-        "sheet_code": best_sheet["sheet_code"],
-        "source_text": best_sheet["source_text"],
-    }
+    best_sheet = _select_best_sheet(scoped_matching_sheets, ld_row)
+    matched_sheet = _build_matched_sheet(best_sheet)
 
     if best_sheet.get("item") and best_sheet["item"] != ld_row["item"]:
         return {
@@ -189,9 +219,8 @@ def _compare_ld_row_with_sheets(
 
 
 def _select_best_sheet(
-    ld_document_id: int,
-    ld_row: dict[str, Any],
     matching_sheets: list[dict[str, Any]],
+    ld_row: dict[str, Any],
 ) -> dict[str, Any]:
     with_same_item = [
         sheet for sheet in matching_sheets if sheet.get("item") == ld_row["item"]
@@ -221,6 +250,45 @@ def _filter_scope_candidates(
         for sheet in same_document_sheets
         if sheet.get("scope_id") == ld_scope_id
     ]
+
+
+def _select_out_of_scope_sheet(
+    ld_document_id: int,
+    ld_row: dict[str, Any],
+    matching_sheets: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    if not matching_sheets:
+        return None
+
+    ld_scope_id = ld_row.get("scope_id")
+    same_document_other_scope = [
+        sheet
+        for sheet in matching_sheets
+        if sheet.get("document_id") == ld_document_id
+        and sheet.get("scope_id") != ld_scope_id
+    ]
+    if same_document_other_scope:
+        return _select_best_sheet(same_document_other_scope, ld_row)
+
+    other_document_sheets = [
+        sheet for sheet in matching_sheets if sheet.get("document_id") != ld_document_id
+    ]
+    if other_document_sheets:
+        return _select_best_sheet(other_document_sheets, ld_row)
+
+    return None
+
+
+def _build_matched_sheet(sheet: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "description": sheet.get("description"),
+        "filename": sheet["filename"],
+        "item": sheet.get("item"),
+        "page": sheet["page"],
+        "scope_id": sheet.get("scope_id"),
+        "sheet_code": sheet["sheet_code"],
+        "source_text": sheet["source_text"],
+    }
 
 
 def _compare_descriptions(

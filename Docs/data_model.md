@@ -5,6 +5,7 @@
 ### AnalysisRun
 - id
 - status
+- status pode ser `created`, `processing`, `completed`, `failed` ou `cancelled`
 - analysis_mode
 - config
 - config e um objeto json flexivel
@@ -58,6 +59,14 @@
 - issue_id
 - decision
 - comment
+
+### PackageMap
+- entidade derivada, não persistida nesta fase
+- agrupa documentos em secoes internas com:
+  - intervalo de paginas
+  - pagina da LD
+  - codigos declarados na LD
+  - pranchas detectadas no mesmo contexto
 
 ---
 

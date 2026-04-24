@@ -5,6 +5,7 @@ export type NewAnalysisFlowStatus =
   | "created"
   | "processing"
   | "completed"
+  | "cancelled"
   | "failed";
 
 export type NewAnalysisActionState = {

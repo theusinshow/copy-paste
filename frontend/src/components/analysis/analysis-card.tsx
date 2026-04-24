@@ -7,6 +7,8 @@ import type { AnalysisRun } from "@/lib/types/analysis";
 
 export function AnalysisCard({ analysis }: { analysis: AnalysisRun }) {
   const canViewResult = analysis.status === "completed";
+  const canTrackProgress =
+    analysis.status === "created" || analysis.status === "processing";
 
   return (
     <article
@@ -56,6 +58,14 @@ export function AnalysisCard({ analysis }: { analysis: AnalysisRun }) {
               Ver resultado
             </Link>
           ) : null}
+          {canTrackProgress ? (
+            <Link
+              href={`/analysis/${analysis.id}/processing`}
+              className="inline-flex items-center font-medium text-[var(--cp-accent)]"
+            >
+              Acompanhar
+            </Link>
+          ) : null}
           <Link
             href="/analysis/new"
             className="inline-flex items-center font-medium text-[var(--cp-muted)] transition-colors hover:text-[var(--cp-text)]"
@@ -73,6 +83,7 @@ function getAnalysisStepLabel(status: string) {
     completed: "Resultado disponivel",
     created: "Aguardando processamento",
     failed: "Falha no processamento",
+    cancelled: "Processamento cancelado",
     processing: "Processando documentos",
   };
 
@@ -84,6 +95,7 @@ function getAnalysisFootnote(status: string) {
     completed: "Resultado tecnico disponivel sem viewer PDF e sem highlight visual.",
     created: "Analise criada e pronta para iniciar ou concluir o processamento.",
     failed: "Processamento finalizado com falha. O resultado nao foi liberado.",
+    cancelled: "Analise cancelada antes da liberacao do resultado.",
     processing: "Processamento em andamento. O resultado sera liberado ao concluir.",
   };
 

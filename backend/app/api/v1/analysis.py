@@ -3,9 +3,13 @@ from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile, stat
 from app.core.analysis_modes import validate_analysis_payload
 
 from app.db.analysis_runs import (
+    ANALYSIS_STATUS_CANCELLED,
+    ANALYSIS_STATUS_COMPLETED,
+    ANALYSIS_STATUS_FAILED,
     create_analysis_run,
     get_analysis_run_by_id,
     list_analysis_runs,
+    set_analysis_run_status,
 )
 from app.db.dependencies import DbSession
 from app.db.detected_sheets import get_detected_sheets_by_analysis_id
@@ -15,6 +19,7 @@ from app.db.input_documents import create_input_documents
 from app.db.issues import list_issues_with_evidences_by_analysis_id
 from app.db.ld_sheet_crosscheck import get_ld_sheet_crosscheck_by_analysis_id
 from app.db.memorial_audit import get_memorial_audit_by_analysis_id
+from app.db.package_map import get_package_map_by_analysis_id
 from app.db.package_summary import get_package_summary_by_analysis_id
 from app.schemas.analysis import (
     AnalysisCreateSchema,
@@ -25,6 +30,7 @@ from app.schemas.analysis import (
     InputDocumentSchema,
     LdSheetCrosscheckSchema,
     MemorialAuditSchema,
+    PackageMapSchema,
     PackageSummarySchema,
 )
 from app.schemas.issue import IssueWithEvidencesSchema
@@ -164,6 +170,21 @@ def start_analysis(analysis_id: int, session: DbSession) -> AnalysisRunSchema:
         ) from exc
 
 
+@router.post("/{analysis_id}/cancel", response_model=AnalysisRunSchema)
+def cancel_analysis(analysis_id: int, session: DbSession) -> AnalysisRunSchema:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+
+    if analysis_run.status in {ANALYSIS_STATUS_COMPLETED, ANALYSIS_STATUS_FAILED}:
+        return analysis_run
+
+    return set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_CANCELLED)
+
+
 @router.get("/{analysis_id}", response_model=AnalysisRunSchema)
 def get_analysis(analysis_id: int, session: DbSession) -> AnalysisRunSchema:
     analysis_run = get_analysis_run_by_id(session, analysis_id)
@@ -215,6 +236,20 @@ def get_analysis_package_summary(
             detail="Analysis not found",
         )
     return get_package_summary_by_analysis_id(session, analysis_id)
+
+
+@router.get("/{analysis_id}/package-map", response_model=PackageMapSchema)
+def get_analysis_package_map(
+    analysis_id: int,
+    session: DbSession,
+) -> PackageMapSchema:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+    return get_package_map_by_analysis_id(session, analysis_id)
 
 
 @router.get("/{analysis_id}/drawing-lists", response_model=DrawingListsSchema)

@@ -8,12 +8,14 @@ import { ExtractedFieldList } from "@/components/analysis/extracted-field-list";
 import { IssueList } from "@/components/analysis/issue-list";
 import { LdSheetCrosscheckPanel } from "@/components/analysis/ld-sheet-crosscheck-panel";
 import { MemorialAuditPanel } from "@/components/analysis/memorial-audit-panel";
+import { PackageMapPanel } from "@/components/analysis/package-map-panel";
 import { PackageSummaryPanel } from "@/components/analysis/package-summary-panel";
 import {
   getDetectedSheets,
   getDrawingLists,
   getLdSheetCrosscheck,
   getMemorialAudit,
+  getPackageMap,
   getPackageSummary,
   getAnalysis,
   listAnalysisFields,
@@ -27,6 +29,7 @@ import type {
   ExtractedField,
   LdSheetCrosscheck,
   MemorialAudit,
+  PackageMap,
   PackageSummary,
 } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
@@ -67,6 +70,8 @@ export default async function AnalysisResultPage({
   let fieldsLoadError: string | null = null;
   let packageSummary: PackageSummary | null = null;
   let packageSummaryLoadError: string | null = null;
+  let packageMap: PackageMap | null = null;
+  let packageMapLoadError: string | null = null;
   let drawingLists: DrawingLists | null = null;
   let drawingListsLoadError: string | null = null;
   let detectedSheets: DetectedSheets | null = null;
@@ -81,6 +86,7 @@ export default async function AnalysisResultPage({
       issues,
       fields,
       packageSummary,
+      packageMap,
       drawingLists,
       detectedSheets,
       ldSheetCrosscheck,
@@ -89,6 +95,7 @@ export default async function AnalysisResultPage({
       listAnalysisIssues(analysisId),
       listAnalysisFields(analysisId),
       getPackageSummary(analysisId),
+      getPackageMap(analysisId),
       getDrawingLists(analysisId),
       getDetectedSheets(analysisId),
       getLdSheetCrosscheck(analysisId),
@@ -110,6 +117,10 @@ export default async function AnalysisResultPage({
     packageSummaryLoadError = extractApiErrorMessage(
       error,
       "Nao foi possivel carregar o resumo do pacote desta analise agora.",
+    );
+    packageMapLoadError = extractApiErrorMessage(
+      error,
+      "Nao foi possivel carregar o mapa do pacote desta analise agora.",
     );
     drawingListsLoadError = extractApiErrorMessage(
       error,
@@ -165,6 +176,9 @@ export default async function AnalysisResultPage({
               summary={packageSummary}
               loadError={packageSummaryLoadError}
             />
+          </section>
+          <section id="mapa">
+            <PackageMapPanel map={packageMap} loadError={packageMapLoadError} />
           </section>
           <section id="ld">
             <LdSheetCrosscheckPanel
@@ -231,6 +245,7 @@ function ExecutiveSummary({
 function ResultNavigation() {
   const links = [
     ["#resumo", "Resumo"],
+    ["#mapa", "Mapa"],
     ["#ld", "LD x Pranchas"],
     ["#memoriais", "Memoriais"],
     ["#detalhes", "Detalhes"],

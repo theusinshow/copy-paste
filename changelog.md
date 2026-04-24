@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Added
+- Painel `Mapa do pacote` na tela de resultado para revisar secoes internas, LDs e pranchas por contexto documental.
+- Endpoint `GET /api/v1/analysis/{id}/package-map` para expor o mapa estrutural de documentos e secoes internas do pacote.
+- Endpoint `POST /api/v1/analysis/{id}/cancel` para solicitar cancelamento de analises criadas ou em processamento.
+- Tela `/analysis/{id}/processing` para acompanhar o processamento da analise, iniciar o `start` e liberar o resultado ao concluir.
 - Endpoint `GET /api/v1/analysis/{id}/memorial-audit` para auditar enderecos e campos de identidade em memoriais com evidencia textual.
 - Painel `LD x Pranchas` na tela de resultado com status por item da LD e evidencias comparadas.
 - Endpoint `GET /api/v1/analysis/{id}/ld-sheet-crosscheck` para cruzar itens da LD com pranchas detectadas por codigo, folha e descricao.
@@ -40,6 +44,9 @@
 - Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
+- Cruzamento `LD x Pranchas` agora usa o contexto do mapa do pacote para diferenciar prancha ausente, prancha em outra secao e prancha em outro documento.
+- Tela de acompanhamento agora exibe botao para parar o processamento e reconhece o status `cancelled`.
+- Fluxo de nova analise agora envia os PDFs e abre a tela de acompanhamento antes de executar o processamento.
 - Layout inicial e tela de resultado refinados com hierarquia executiva, navegacao por secoes e paineis mais compactos.
 - Painel de memoriais reorganizado para agrupar conflitos, pontos de revisao e valores extraidos sem repeticao excessiva.
 - Cruzamento `LD x Pranchas` agora separa resultados em `compatible`, `needs_review`, `probable_issue` e `extraction_limit`, com `reason` tecnico por item.

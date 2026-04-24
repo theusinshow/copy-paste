@@ -90,6 +90,12 @@ function getStatusAppearance(state: NewAnalysisActionState) {
     };
   }
 
+  if (state.status === "cancelled") {
+    return {
+      className: "border-[var(--cp-warning)]/40 bg-[var(--cp-warning)]/10",
+    };
+  }
+
   if (state.status === "processing") {
     return {
       className: "border-[var(--cp-info)]/40 bg-[var(--cp-info)]/10",

@@ -47,6 +47,11 @@ POST /analysis/{id}/files
 POST /analysis/{id}/start
 → inicia processamento
 
+POST /analysis/{id}/cancel
+→ solicita cancelamento da análise
+- retorna a análise com `status = cancelled` quando ainda não está finalizada
+- se a análise já estiver `completed` ou `failed`, retorna o status atual
+
 GET /analysis/{id}
 → status
 - retorna `id`, `status`, `analysis_mode`, `config`, `created_at`
@@ -65,6 +70,12 @@ GET /analysis/{id}/fields
 GET /analysis/{id}/package-summary
 → resume o pacote documental analisado
 - retorna identidade principal detectada, documentos, contadores, paginas com LD e alertas iniciais
+- derivado de `InputDocument`, `DocumentPage` e `TextSpan`, sem reler PDFs permanentes
+
+GET /analysis/{id}/package-map
+→ monta o mapa estrutural do pacote
+- retorna documentos e secoes internas por intervalo de paginas, LD, linhas da LD e pranchas detectadas
+- usado para reduzir comparacoes fora de contexto entre volumes ou subvolumes
 - derivado de `InputDocument`, `DocumentPage` e `TextSpan`, sem reler PDFs permanentes
 
 GET /analysis/{id}/drawing-lists
@@ -87,6 +98,7 @@ GET /analysis/{id}/ld-sheet-crosscheck
 - retorna `reason` técnico para explicar a classificação sem depender de interpretação subjetiva
 - compara codigo, folha e descricao normalizada com evidencias da LD e da prancha
 - quando um mesmo PDF possui mais de uma LD, o cruzamento respeita a seção interna da LD antes de buscar correspondências fora dela
+- quando um codigo aparece fora da seção correta, retorna motivo específico para contexto errado
 
 GET /analysis/{id}/memorial-audit
 → audita campos de identidade encontrados em memoriais

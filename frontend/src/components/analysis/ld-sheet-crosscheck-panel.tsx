@@ -140,6 +140,7 @@ function CrosscheckCard({ result }: { result: LdSheetCrosscheckResult }) {
           item={result.ld_item}
           label="LD"
           page={result.ld_page}
+          scopeId={result.ld_scope_id}
           title={result.ld_source_text}
         />
         {result.matched_sheet ? (
@@ -149,6 +150,7 @@ function CrosscheckCard({ result }: { result: LdSheetCrosscheckResult }) {
             item={result.matched_sheet.item || "-"}
             label="Prancha"
             page={result.matched_sheet.page}
+            scopeId={result.matched_sheet.scope_id}
             title={result.matched_sheet.source_text}
           />
         ) : (
@@ -171,6 +173,7 @@ function EvidenceBlock({
   item,
   label,
   page,
+  scopeId,
   title,
 }: {
   description: string;
@@ -178,6 +181,7 @@ function EvidenceBlock({
   item: string;
   label: string;
   page: number;
+  scopeId: number | null;
   title: string;
 }) {
   return (
@@ -193,6 +197,7 @@ function EvidenceBlock({
       </p>
       <p className="mt-1 text-xs text-[var(--cp-muted)]">
         folha {item} · p{page}
+        {scopeId ? ` · secao ${scopeId}` : ""}
       </p>
       <p className="mt-2 leading-6 text-[var(--cp-text)]">{description}</p>
     </div>
@@ -247,6 +252,11 @@ function formatReason(reason: string) {
   const labels: Record<string, string> = {
     description_mismatch: "descricao divergente",
     matched_code_item_and_description: "codigo, folha e descricao compativeis",
+    sheet_code_found_in_other_document_context:
+      "codigo encontrado em outro documento",
+    sheet_code_found_outside_ld_section: "codigo encontrado fora da secao da LD",
+    sheet_code_not_detected_in_ld_section:
+      "codigo nao confirmado na secao da LD",
     sheet_code_not_detected_outside_ld: "codigo nao confirmado fora da LD",
     sheet_description_low_confidence: "descricao da prancha com baixa confianca",
     sheet_item_mismatch: "folha divergente",

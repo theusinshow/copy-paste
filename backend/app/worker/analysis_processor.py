@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.db.analysis_runs import (
+    ANALYSIS_STATUS_CANCELLED,
     ANALYSIS_STATUS_COMPLETED,
     ANALYSIS_STATUS_FAILED,
     ANALYSIS_STATUS_PROCESSING,
@@ -36,11 +37,21 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
     set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_PROCESSING)
 
     try:
+        if _is_cancelled(session, analysis_run):
+            return analysis_run
+
         execution_plan = build_analysis_execution_plan(analysis_run, input_documents)
-        extracted_pages_by_document = [
-            (input_document.id, read_pdf_pages(input_document.file_path))
-            for input_document in input_documents
-        ]
+        extracted_pages_by_document = []
+        for input_document in input_documents:
+            if _is_cancelled(session, analysis_run):
+                return analysis_run
+            extracted_pages_by_document.append(
+                (input_document.id, read_pdf_pages(input_document.file_path))
+            )
+
+        if _is_cancelled(session, analysis_run):
+            return analysis_run
+
         pages_by_document = [
             (
                 document_id,
@@ -49,6 +60,9 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
             for document_id, extracted_pages in extracted_pages_by_document
         ]
         document_pages = replace_document_pages(session, pages_by_document)
+        if _is_cancelled(session, analysis_run):
+            return analysis_run
+
         document_page_ids = {
             (document_page.document_id, document_page.page_number): document_page.id
             for document_page in document_pages
@@ -71,6 +85,9 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
                 for extracted_page in extracted_pages
             ],
         )
+        if _is_cancelled(session, analysis_run):
+            return analysis_run
+
         extracted_fields = replace_extracted_fields(
             session,
             [input_document.id for input_document in input_documents],
@@ -95,6 +112,9 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
                 )
             ],
         )
+        if _is_cancelled(session, analysis_run):
+            return analysis_run
+
         if execution_plan.run_rules:
             evaluation_document_ids = {
                 input_document.id for input_document in execution_plan.evaluation_documents
@@ -126,6 +146,9 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
             )
         else:
             replace_analysis_issues(session, analysis_id, [])
+        if _is_cancelled(session, analysis_run):
+            return analysis_run
+
         session.commit()
     except ValueError:
         session.rollback()
@@ -141,3 +164,8 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
         raise AnalysisProcessingError("Analysis processing failed") from exc
 
     return set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_COMPLETED)
+
+
+def _is_cancelled(session: Session, analysis_run: AnalysisRun) -> bool:
+    session.refresh(analysis_run)
+    return analysis_run.status == ANALYSIS_STATUS_CANCELLED

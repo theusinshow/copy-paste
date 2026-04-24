@@ -4,7 +4,7 @@
 Web app
 
 ## Fluxo
-Upload → Extração → Normalização → Regras → Resultado → Revisão
+Upload → Acompanhamento → Extração → Normalização → Regras → Resultado → Revisão
 
 ## Camadas
 

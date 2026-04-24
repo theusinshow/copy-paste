@@ -109,6 +109,45 @@ class PackageSummarySchema(BaseModel):
     alerts: list[PackageSummaryAlertSchema]
 
 
+class PackageMapSectionSchema(BaseModel):
+    document_id: int
+    document_filename: str
+    end_page: int
+    ld_codes: list[str]
+    ld_page: int | None
+    ld_row_count: int
+    scope_id: int
+    sheet_codes: list[str]
+    sheet_count: int
+    start_page: int
+    title: str
+
+
+class PackageMapDocumentSchema(BaseModel):
+    classification: str
+    discipline: str | None
+    document_id: int
+    filename: str
+    page_count: int
+    sections: list[PackageMapSectionSchema]
+    tipo: str
+    tomo: str | None
+    volume: str | None
+
+
+class PackageMapStatsSchema(BaseModel):
+    document_count: int
+    ld_section_count: int
+    section_count: int
+    sheet_count: int
+
+
+class PackageMapSchema(BaseModel):
+    documents: list[PackageMapDocumentSchema]
+    identity: PackageSummaryIdentitySchema
+    stats: PackageMapStatsSchema
+
+
 class DrawingListRowSchema(BaseModel):
     description: str
     document_code: str
@@ -181,6 +220,7 @@ class LdSheetMatchedSheetSchema(BaseModel):
     filename: str
     item: str | None
     page: int
+    scope_id: int | None = None
     sheet_code: str
     source_text: str
 
@@ -192,6 +232,7 @@ class LdSheetCrosscheckResultSchema(BaseModel):
     ld_filename: str
     ld_item: str
     ld_page: int
+    ld_scope_id: int | None = None
     ld_source_text: str
     matched_sheet: LdSheetMatchedSheetSchema | None
     message: str

@@ -1,7 +1,6 @@
 import {
   createAnalysis,
   getAnalysis,
-  startAnalysis,
   uploadAnalysisFiles,
 } from "@/lib/api/analysis";
 import {
@@ -41,33 +40,15 @@ export async function runNewAnalysisFlow({
     });
     documents = await uploadAnalysisFiles(analysis.id, { files, tipo });
 
-    await emitState(onStateChange, {
+    const createdState: NewAnalysisActionState = {
       analysis,
       documents,
-      message: `${modeLabel}: analise #${analysis.id} criada e upload concluido. Iniciando processamento.`,
+      message: `${modeLabel}: analise #${analysis.id} criada e upload concluido. Abrindo acompanhamento do processamento.`,
       status: "created",
       tone: "default",
-    });
-
-    await waitForNextTick();
-
-    await emitState(onStateChange, {
-      analysis: { ...analysis, status: "processing" },
-      documents,
-      message: `${modeLabel}: analise #${analysis.id} em processamento. Aguarde a conclusao do start sincronico.`,
-      status: "processing",
-      tone: "default",
-    });
-
-    const startedAnalysis = await startAnalysis(analysis.id);
-    const finalAnalysis =
-      startedAnalysis.status === "created" || startedAnalysis.status === "processing"
-        ? await getAnalysis(analysis.id)
-        : startedAnalysis;
-
-    const finalState = buildFinalState(finalAnalysis, documents);
-    await emitState(onStateChange, finalState);
-    return finalState;
+    };
+    await emitState(onStateChange, createdState);
+    return createdState;
   } catch (error) {
     const fallbackMessage = extractApiErrorMessage(
       error,
@@ -107,39 +88,6 @@ export async function runNewAnalysisFlow({
   }
 }
 
-function buildFinalState(
-  analysis: AnalysisRun,
-  documents: InputDocument[],
-): NewAnalysisActionState {
-  if (analysis.status === "completed") {
-    return {
-      analysis,
-      documents,
-      message: `Analise #${analysis.id} concluida. O resultado ja esta disponivel para consulta.`,
-      status: "completed",
-      tone: "default",
-    };
-  }
-
-  if (analysis.status === "failed") {
-    return {
-      analysis,
-      documents,
-      message: `Analise #${analysis.id} falhou durante o processamento.`,
-      status: "failed",
-      tone: "error",
-    };
-  }
-
-  return {
-    analysis,
-    documents,
-    message: `Analise #${analysis.id} retornou com status ${analysis.status}.`,
-    status: normalizeFlowStatus(analysis.status),
-    tone: "default",
-  };
-}
-
 async function emitState(
   onStateChange: RunNewAnalysisFlowOptions["onStateChange"],
   state: NewAnalysisActionState,
@@ -155,17 +103,12 @@ async function safeGetAnalysis(analysisId: number) {
   }
 }
 
-function waitForNextTick() {
-  return new Promise<void>((resolve) => {
-    setTimeout(resolve, 0);
-  });
-}
-
 function normalizeFlowStatus(status: string): NewAnalysisFlowStatus {
   if (
     status === "created" ||
     status === "processing" ||
     status === "completed" ||
+    status === "cancelled" ||
     status === "failed"
   ) {
     return status;

@@ -11,6 +11,7 @@ ANALYSIS_STATUS_CREATED = "created"
 ANALYSIS_STATUS_PROCESSING = "processing"
 ANALYSIS_STATUS_COMPLETED = "completed"
 ANALYSIS_STATUS_FAILED = "failed"
+ANALYSIS_STATUS_CANCELLED = "cancelled"
 
 
 def create_analysis_run(
