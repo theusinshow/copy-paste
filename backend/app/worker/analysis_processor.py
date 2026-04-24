@@ -120,6 +120,8 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
                         for field in extracted_fields
                         if field.input_document_id in evaluation_document_ids
                     ],
+                    analysis_mode=analysis_run.analysis_mode,
+                    config=analysis_run.config,
                 ),
             )
         else:

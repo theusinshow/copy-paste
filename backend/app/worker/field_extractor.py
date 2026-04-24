@@ -7,6 +7,7 @@ from app.worker.pdf_reader import ExtractedPdfPage, ExtractedTextSpan
 
 LINE_TOP_TOLERANCE = 3.0
 VALUE_PREFIX_PATTERN = re.compile(r"^[\s:\-–—]+")
+LABEL_SEPARATOR_PATTERN = re.compile(r"\s*[:：]\s*|\s+[–—-]\s+")
 WHITESPACE_PATTERN = re.compile(r"\s+")
 NON_ALNUM_PATTERN = re.compile(r"[^A-Z0-9]+")
 
@@ -69,19 +70,26 @@ def _find_field_candidate(
     lines: list[_TextLine],
 ) -> _MatchedValue | None:
     all_aliases = {
-        alias
+        _normalize_for_match(alias)
         for definition in FIELD_DEFINITIONS
         for alias in definition.aliases
     }
+    normalized_aliases = tuple(
+        sorted(
+            {_normalize_for_match(alias) for alias in aliases},
+            key=lambda alias: len(alias.split()),
+            reverse=True,
+        )
+    )
 
     for index, line in enumerate(lines):
-        for alias in aliases:
+        for alias in normalized_aliases:
             alias_tokens = alias.split()
             normalized_line = _normalize_for_match(line.text)
             if not normalized_line.startswith(alias):
                 continue
 
-            inline_value = _extract_inline_value(line, alias_tokens)
+            inline_value = _extract_inline_value(line, alias_tokens, normalized_line)
             if inline_value is not None:
                 return inline_value
 
@@ -99,7 +107,21 @@ def _find_field_candidate(
 def _extract_inline_value(
     line: _TextLine,
     alias_tokens: list[str],
+    normalized_line: str,
 ) -> _MatchedValue | None:
+    raw_value = _extract_inline_value_from_text(
+        line.text,
+        alias_token_count=len(alias_tokens),
+        normalized_alias=" ".join(alias_tokens),
+        normalized_line=normalized_line,
+    )
+    if raw_value:
+        return _MatchedValue(
+            bbox=line.bbox,
+            page_number=line.page_number,
+            raw_value=raw_value,
+        )
+
     start_index = _find_value_start_index(line.spans, alias_tokens)
     if start_index is None:
         return None
@@ -207,6 +229,40 @@ def _find_value_start_index(
     return None
 
 
+def _extract_inline_value_from_text(
+    text: str,
+    alias_token_count: int,
+    normalized_alias: str,
+    normalized_line: str,
+) -> str | None:
+    separated_value = _extract_value_after_separator(text, normalized_alias)
+    if separated_value:
+        return separated_value
+
+    normalized_tokens = normalized_line.split()
+    if len(normalized_tokens) <= alias_token_count:
+        return None
+
+    raw_tokens = text.split()
+    if len(raw_tokens) <= alias_token_count:
+        return None
+
+    raw_value = " ".join(raw_tokens[alias_token_count:])
+    return _clean_value_text(raw_value)
+
+
+def _extract_value_after_separator(text: str, normalized_alias: str) -> str | None:
+    parts = LABEL_SEPARATOR_PATTERN.split(text, maxsplit=1)
+    if len(parts) != 2:
+        return None
+
+    label, value = parts
+    if _normalize_for_match(label) != normalized_alias:
+        return None
+
+    return _clean_value_text(value)
+
+
 def _looks_like_label(text: str, aliases: set[str]) -> bool:
     normalized_text = _normalize_for_match(text)
     return any(normalized_text.startswith(alias) for alias in aliases)
@@ -221,7 +277,7 @@ def _normalize_for_match(value: str) -> str:
 
 
 def _normalize_value(value: str) -> str:
-    return WHITESPACE_PATTERN.sub(" ", value).strip()
+    return _normalize_for_match(value)
 
 
 def _clean_value_text(value: str) -> str:

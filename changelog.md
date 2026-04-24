@@ -25,6 +25,12 @@
 - Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
+- Pagina de entrada reorganizada para iniciar direto pelo fluxo de nova analise, com anexo de PDFs como primeira acao.
+- Formulario de nova analise reordenado para exibir as opcoes de verificacao abaixo do anexo e manter `full_check` como modo padrao.
+- Historico de analises movido para uma area discreta ao final da pagina de entrada, mantendo consulta pelo endpoint atual.
+- Tela `/analysis/new` simplificada para reutilizar o mesmo layout operacional da pagina de entrada.
+- Componentes de upload, selecao de modo, configuracao e acoes ajustados para uma interface mais discreta e menos promocional.
+- Fundo global do frontend reduzido para um gradiente simples, sem elementos visuais chamativos.
 - `docs/API.md` atualizado para incluir `GET /analysis` para a tela de lista de analises
 - `InputDocument` documentado e modelado com `original_filename` e `file_path`, mantendo `file_hash`
 - Frontend configurado com tokens CSS derivados de `docs/DESIGN.md` e base da API centralizada via `NEXT_PUBLIC_API_URL`
@@ -39,6 +45,10 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Extracao de campos flexibilizada para reconhecer labels com separadores na mesma linha, acentos e variacoes como `Nº Projeto`.
+- Regra de divergencia ajustada para comparar tambem `bairro`, conforme regras MVP documentadas.
+- Comparacao de valores normalizada para reduzir falsos negativos por maiusculas, acentos e pontuacao.
+- Modos `check_address`, `check_project_number` e `check_work_name` agora geram incongruencia quando o valor extraido diverge do valor esperado configurado.
 - Tipagem de `DATABASE_URL` em `backend/app/core/config.py` para compatibilidade com `pydantic-settings` no Pydantic v2
 - Inicializacao do schema em ambiente dev para evitar erro 500 nas rotas de `analysis` quando o banco SQLite ainda nao possui tabelas
 - Assinatura do upload em `POST /api/v1/analysis/{id}/files` ajustada para o Swagger expor `files` como upload de arquivo multipart

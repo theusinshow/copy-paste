@@ -39,9 +39,7 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, var(--cp-accent-glow) 0, transparent 28%),
-    radial-gradient(circle at bottom right, var(--cp-fog) 0, transparent 32%),
-    linear-gradient(180deg, var(--cp-bg-elevated) 0%, var(--cp-bg) 50%, #262626 100%);
+    linear-gradient(180deg, var(--cp-bg-elevated) 0%, var(--cp-bg) 54%, #262626 100%);
   color: var(--cp-text);
   font-family: var(--font-sans);
 }

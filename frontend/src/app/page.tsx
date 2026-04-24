@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { AnalysisList } from "@/components/analysis/analysis-list";
+import { NewAnalysisForm } from "@/components/analysis/new-analysis-form";
 import { listAnalyses } from "@/lib/api/analysis";
 import { extractApiErrorMessage } from "@/lib/api/fetcher";
 import type { AnalysisRun } from "@/lib/types/analysis";
@@ -22,84 +21,24 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
-        <div
-          className="rounded-[2rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/90 p-8"
-          style={{ boxShadow: "var(--cp-shadow)" }}
-        >
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--cp-border)] bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-[0.28em] text-[var(--cp-accent)]">
+      <section className="space-y-5">
+        <div className="max-w-3xl space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--cp-accent)]">
             Copy&amp;Paste
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--cp-accent)]" />
-            Frontend Base
-          </div>
-
-          <div className="space-y-4">
-            <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-[var(--cp-text)] sm:text-5xl">
-              Auditoria documental com leitura rapida e fluxo tecnico.
-            </h1>
-            <p className="max-w-2xl text-base leading-7 text-[var(--cp-muted)] sm:text-lg">
-              A interface agora organiza a criacao de analises como uma Central
-              de Analise, com modos configuraveis, upload de PDFs e inicio do
-              processamento sincronico pelo backend atual.
-            </p>
-          </div>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/analysis/new"
-              className="inline-flex items-center justify-center rounded-full bg-[var(--cp-accent)] px-6 py-3 text-sm font-semibold text-[var(--cp-accent-ink)] transition-transform duration-200 hover:-translate-y-0.5"
-            >
-              Abrir Central
-            </Link>
-            <div className="inline-flex items-center rounded-full border border-[var(--cp-border)] px-4 py-3 text-sm text-[var(--cp-muted)]">
-              Backend alvo: <span className="ml-2 font-mono">/api/v1</span>
-            </div>
-          </div>
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight text-[var(--cp-text)] sm:text-4xl">
+            Anexe o documento e escolha as verificacoes.
+          </h1>
+          <p className="max-w-2xl text-sm leading-6 text-[var(--cp-muted)] sm:text-base">
+            O fluxo cria a analise, envia os PDFs e inicia o processamento com
+            as regras explicitas do sistema.
+          </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <OverviewCard
-            label="Analises registradas"
-            value={analyses.length.toString().padStart(2, "0")}
-            helper="Carregadas via GET /api/v1/analysis"
-          />
-          <OverviewCard
-            label="Etapa atual"
-            value="Central"
-            helper="Selecao de modo, configuracao e upload integrados ao contrato atual da API"
-          />
-          <OverviewCard
-            label="Identidade visual"
-            value="90/10"
-            helper="Base escura com destaque pontual em amarelo"
-          />
-        </div>
+        <NewAnalysisForm />
       </section>
 
-      <AnalysisList analyses={analyses} loadError={loadError} />
+      <AnalysisList analyses={analyses} loadError={loadError} variant="compact" />
     </div>
-  );
-}
-
-function OverviewCard(props: {
-  helper: string;
-  label: string;
-  value: string;
-}) {
-  return (
-    <article
-      className="rounded-[1.75rem] border border-[var(--cp-border)] bg-black/15 p-5"
-      style={{ boxShadow: "var(--cp-shadow-soft)" }}
-    >
-      <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-muted)]">
-        {props.label}
-      </p>
-      <p className="mt-4 font-mono text-3xl font-semibold text-[var(--cp-text)]">
-        {props.value}
-      </p>
-      <p className="mt-3 text-sm leading-6 text-[var(--cp-muted)]">
-        {props.helper}
-      </p>
-    </article>
   );
 }

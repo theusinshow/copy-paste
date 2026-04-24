@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 
 import { AnalysisModeConfigPanel } from "@/components/analysis/analysis-mode-config-panel";
@@ -20,8 +19,11 @@ import { initialNewAnalysisActionState } from "@/lib/types/new-analysis-action";
 
 export function NewAnalysisForm() {
   const [state, setState] = useState(initialNewAnalysisActionState);
-  const [selectedMode, setSelectedMode] = useState<AnalysisMode>(ANALYSIS_MODE_DEFAULT);
-  const [configValues, setConfigValues] = useState(getInitialConfigValues(ANALYSIS_MODE_DEFAULT));
+  const [selectedMode, setSelectedMode] =
+    useState<AnalysisMode>(ANALYSIS_MODE_DEFAULT);
+  const [configValues, setConfigValues] = useState(
+    getInitialConfigValues(ANALYSIS_MODE_DEFAULT),
+  );
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [manualTipo, setManualTipo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -87,28 +89,49 @@ export function NewAnalysisForm() {
 
   return (
     <section
-      className="rounded-[2rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/85 p-8"
+      className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel)]/92 p-5 sm:p-6"
       style={{ boxShadow: "var(--cp-shadow)" }}
     >
       <form onSubmit={handleSubmit} className="grid gap-6">
-        <AnalysisModeSelector
-          selectedMode={selectedMode}
-          onSelect={(mode) => {
-            setSelectedMode(mode);
-            setConfigValues(getInitialConfigValues(mode));
-          }}
+        <AnalysisUploadDropzone
+          files={selectedFiles}
+          onFilesChange={setSelectedFiles}
         />
 
-        <AnalysisModeConfigPanel
-          selectedMode={selectedMode}
-          configValues={configValues}
-          onChange={(fieldKey, value) => {
-            setConfigValues((currentValues) => ({
-              ...currentValues,
-              [fieldKey]: value,
-            }));
-          }}
-        />
+        <section className="grid gap-5 border-t border-[var(--cp-border)] pt-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--cp-accent)]">
+                Opcoes de verificacao
+              </p>
+              <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
+                Escolha como o arquivo deve ser conferido.
+              </h2>
+            </div>
+            <p className="max-w-sm text-sm leading-6 text-[var(--cp-muted)]">
+              A verificacao completa segue como padrao.
+            </p>
+          </div>
+
+          <AnalysisModeSelector
+            selectedMode={selectedMode}
+            onSelect={(mode) => {
+              setSelectedMode(mode);
+              setConfigValues(getInitialConfigValues(mode));
+            }}
+          />
+
+          <AnalysisModeConfigPanel
+            selectedMode={selectedMode}
+            configValues={configValues}
+            onChange={(fieldKey, value) => {
+              setConfigValues((currentValues) => ({
+                ...currentValues,
+                [fieldKey]: value,
+              }));
+            }}
+          />
+        </section>
 
         <div className="grid gap-2">
           <label
@@ -122,7 +145,7 @@ export function NewAnalysisForm() {
               id="tipo"
               value={getLockedTipoForMode(selectedMode) ?? ""}
               readOnly
-              className="w-full rounded-2xl border border-[var(--cp-border)] bg-white/6 px-4 py-3 text-sm text-[var(--cp-text)] outline-none"
+              className="w-full rounded-lg border border-[var(--cp-border)] bg-white/6 px-4 py-3 text-sm text-[var(--cp-text)] outline-none"
             />
           ) : (
             <input
@@ -133,7 +156,7 @@ export function NewAnalysisForm() {
               onChange={(event) => setManualTipo(event.target.value)}
               required
               placeholder="Ex.: planta, memorial, levantamento"
-              className="w-full rounded-2xl border border-[var(--cp-border)] bg-black/20 px-4 py-3 text-sm text-[var(--cp-text)] outline-none transition-colors placeholder:text-[var(--cp-muted)] focus:border-[var(--cp-accent)]"
+              className="w-full rounded-lg border border-[var(--cp-border)] bg-black/20 px-4 py-3 text-sm text-[var(--cp-text)] outline-none transition-colors placeholder:text-[var(--cp-muted)] focus:border-[var(--cp-accent)]"
             />
           )}
           <p className="text-sm leading-6 text-[var(--cp-muted)]">
@@ -143,19 +166,8 @@ export function NewAnalysisForm() {
           </p>
         </div>
 
-        <AnalysisUploadDropzone
-          files={selectedFiles}
-          onFilesChange={setSelectedFiles}
-        />
-
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 border-t border-[var(--cp-border)] pt-5">
           <FormSubmitButton pending={isSubmitting} />
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-full border border-[var(--cp-border)] px-5 py-3 text-sm font-medium text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)]"
-          >
-            Cancelar
-          </Link>
         </div>
       </form>
 

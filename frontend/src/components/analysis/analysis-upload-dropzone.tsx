@@ -43,7 +43,7 @@ export function AnalysisUploadDropzone({
           setIsDragging(false);
           onFilesChange(mergeFiles(files, Array.from(event.dataTransfer.files)));
         }}
-        className={`rounded-[1.5rem] border border-dashed p-6 transition-colors ${
+        className={`rounded-lg border border-dashed p-6 transition-colors sm:p-8 ${
           isDragging
             ? "border-[var(--cp-accent)] bg-[var(--cp-accent)]/10"
             : "border-[var(--cp-border)] bg-black/10 hover:border-[var(--cp-accent)]/40"
@@ -62,15 +62,14 @@ export function AnalysisUploadDropzone({
         />
 
         <div className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
-            Upload
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--cp-accent)]">
+            Anexar arquivo
           </p>
-          <h3 className="text-2xl font-semibold text-[var(--cp-text)]">
+          <h3 className="text-2xl font-semibold text-[var(--cp-text)] sm:text-3xl">
             Arraste PDFs aqui ou clique para selecionar.
           </h3>
           <p className="max-w-2xl text-sm leading-6 text-[var(--cp-muted)]">
-            O backend continua recebendo apenas multipart/form-data com PDFs.
-            O conteudo do arquivo nao vai para o banco.
+            Envie um ou mais PDFs para criar a analise.
           </p>
         </div>
       </div>
@@ -80,7 +79,7 @@ export function AnalysisUploadDropzone({
           {files.map((file) => (
             <article
               key={buildFileKey(file)}
-              className="rounded-2xl border border-[var(--cp-border)] bg-white/4 p-4"
+              className="rounded-lg border border-[var(--cp-border)] bg-white/4 p-4"
             >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -96,7 +95,7 @@ export function AnalysisUploadDropzone({
                   onClick={() =>
                     onFilesChange(files.filter((item) => buildFileKey(item) !== buildFileKey(file)))
                   }
-                  className="inline-flex items-center justify-center rounded-full border border-[var(--cp-border)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-muted)] transition-colors hover:border-[var(--cp-error)] hover:text-[var(--cp-error)]"
+                  className="inline-flex items-center justify-center rounded-lg border border-[var(--cp-border)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-muted)] transition-colors hover:border-[var(--cp-error)] hover:text-[var(--cp-error)]"
                 >
                   Remover
                 </button>

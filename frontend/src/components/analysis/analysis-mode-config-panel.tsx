@@ -14,7 +14,7 @@ export function AnalysisModeConfigPanel(props: {
   const definition = getAnalysisModeDefinition(props.selectedMode);
 
   return (
-    <section className="rounded-[1.5rem] border border-[var(--cp-border)] bg-black/10 p-6">
+    <section className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-5">
       <div className="space-y-2">
         <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
           Configuracao do modo
@@ -28,7 +28,7 @@ export function AnalysisModeConfigPanel(props: {
       </div>
 
       {definition.configFields.length === 0 ? (
-        <div className="mt-5 rounded-2xl border border-dashed border-[var(--cp-border)] bg-white/3 p-4 text-sm leading-6 text-[var(--cp-muted)]">
+        <div className="mt-5 rounded-lg border border-dashed border-[var(--cp-border)] bg-white/3 p-4 text-sm leading-6 text-[var(--cp-muted)]">
           Este modo nao exige configuracao adicional. O contrato sera enviado
           com config vazio e `analysis_mode = {definition.value}`.
         </div>
@@ -43,7 +43,7 @@ export function AnalysisModeConfigPanel(props: {
                 value={props.configValues[field.key] ?? ""}
                 onChange={(event) => props.onChange(field.key, event.target.value)}
                 placeholder={field.placeholder}
-                className="w-full rounded-2xl border border-[var(--cp-border)] bg-black/20 px-4 py-3 text-sm text-[var(--cp-text)] outline-none transition-colors placeholder:text-[var(--cp-muted)] focus:border-[var(--cp-accent)]"
+                className="w-full rounded-lg border border-[var(--cp-border)] bg-black/20 px-4 py-3 text-sm text-[var(--cp-text)] outline-none transition-colors placeholder:text-[var(--cp-muted)] focus:border-[var(--cp-accent)]"
               />
               <span className="text-sm leading-6 text-[var(--cp-muted)]">
                 {field.description}
