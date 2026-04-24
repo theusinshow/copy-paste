@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- Documento `docs/PRODUCT_ROADMAP.md` com plano completo para evoluir o sistema ate auditoria documental de pacotes tecnicos.
 - Fixture `tests/fixtures/pdfs/ALL_IN_ONE_TEST.md` com cenario unico maior para validar multiplas divergencias em um PDF.
 - Guia `tests/fixtures/pdfs/TEST_CASES.md` com conteudos controlados para gerar PDFs de teste do rules engine.
 - Endpoint `GET /api/v1/analysis/{id}/fields` para listar campos extraidos com pagina e contexto do documento.
