@@ -12,7 +12,9 @@ POST /analysis
 → cria análise
 
 POST /analysis/{id}/files
-→ upload
+→ upload multipart/form-data
+- tipo: string aplicado aos arquivos enviados na requisição
+- files: múltiplos PDFs
 
 POST /analysis/{id}/start
 → inicia processamento

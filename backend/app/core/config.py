@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "Copy&Paste Backend"
     API_V1_PREFIX: str = "/api/v1"
     DATABASE_URL: str = "sqlite:///./test.db"
+    UPLOAD_DIR: str = "./uploads"
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

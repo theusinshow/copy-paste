@@ -11,9 +11,11 @@
 - Models `AnalysisRun`, `InputDocument`, `DocumentPage`, `ExtractedField`, `Issue`, `IssueEvidence` e `ReviewDecision`
 - Endpoints base de `/api/v1` preparados como stubs sem logica de negocio
 - Rotas iniciais de analise implementadas: `POST /api/v1/analysis`, `GET /api/v1/analysis` e `GET /api/v1/analysis/{id}`
+- Upload inicial de PDFs em `POST /api/v1/analysis/{id}/files` com suporte a multiplos arquivos, `file_hash`, `file_path` e `original_filename`
 
 ### Changed
 - `docs/API.md` atualizado para incluir `GET /analysis` para a tela de lista de analises
+- `InputDocument` documentado e modelado com `original_filename` e `file_path`, mantendo `file_hash`
 
 ### Fixed
 - Tipagem de `DATABASE_URL` em `backend/app/core/config.py` para compatibilidade com `pydantic-settings` no Pydantic v2

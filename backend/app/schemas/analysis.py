@@ -18,6 +18,8 @@ class InputDocumentSchema(BaseModel):
     id: int
     analysis_run_id: int
     tipo: str
+    original_filename: str
+    file_path: str
     file_hash: str
 
 

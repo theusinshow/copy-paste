@@ -11,6 +11,8 @@
 - id
 - analysis_run_id
 - tipo
+- original_filename
+- file_path
 - file_hash
 
 ### DocumentPage

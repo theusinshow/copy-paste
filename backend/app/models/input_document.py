@@ -10,4 +10,6 @@ class InputDocument(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     analysis_run_id: Mapped[int] = mapped_column(ForeignKey("analysis_runs.id"))
     tipo: Mapped[str] = mapped_column(String(100))
+    original_filename: Mapped[str] = mapped_column(String(255))
+    file_path: Mapped[str] = mapped_column(String(1024))
     file_hash: Mapped[str] = mapped_column(String(255))
