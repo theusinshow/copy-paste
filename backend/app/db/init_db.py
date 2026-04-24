@@ -9,6 +9,7 @@ from app.db.session import engine
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     _sync_sqlite_input_documents_schema()
+    _sync_sqlite_extracted_fields_schema()
 
 
 def _sync_sqlite_input_documents_schema() -> None:
@@ -32,6 +33,37 @@ def _sync_sqlite_input_documents_schema() -> None:
         statements.append(
             "ALTER TABLE input_documents "
             "ADD COLUMN file_path VARCHAR(1024) NOT NULL DEFAULT ''"
+        )
+
+    if not statements:
+        return
+
+    with engine.begin() as connection:
+        for statement in statements:
+            connection.execute(text(statement))
+
+
+def _sync_sqlite_extracted_fields_schema() -> None:
+    if not engine.url.drivername.startswith("sqlite"):
+        return
+
+    inspector = inspect(engine)
+    if "extracted_fields" not in inspector.get_table_names():
+        return
+
+    columns = {column["name"] for column in inspector.get_columns("extracted_fields")}
+    statements: list[str] = []
+
+    if "input_document_id" not in columns:
+        statements.append(
+            "ALTER TABLE extracted_fields "
+            "ADD COLUMN input_document_id INTEGER"
+        )
+
+    if "document_page_id" not in columns:
+        statements.append(
+            "ALTER TABLE extracted_fields "
+            "ADD COLUMN document_page_id INTEGER"
         )
 
     if not statements:

@@ -44,7 +44,9 @@ class ExtractedFieldSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    input_document_id: int | None
+    document_page_id: int | None
     field_name: str
     raw_value: str
     normalized_value: str
-    bbox: Any
+    bbox: Any | None

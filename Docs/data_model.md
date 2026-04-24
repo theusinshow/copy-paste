@@ -29,10 +29,13 @@
 
 ### ExtractedField
 - id
+- input_document_id
+- document_page_id
 - field_name
 - raw_value
 - normalized_value
 - bbox
+- bbox pode ser null
 
 ### Issue
 - id
