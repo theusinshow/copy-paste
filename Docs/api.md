@@ -62,6 +62,17 @@ GET /analysis/{id}/fields
 - retorna `ExtractedField` com contexto de `page`, `document_filename` e `document_tipo`
 - usado para revisar evidências mesmo quando nenhuma issue é gerada
 
+GET /analysis/{id}/package-summary
+→ resume o pacote documental analisado
+- retorna identidade principal detectada, documentos, contadores, paginas com LD e alertas iniciais
+- derivado de `InputDocument`, `DocumentPage` e `TextSpan`, sem reler PDFs permanentes
+
+GET /analysis/{id}/drawing-lists
+→ lista as linhas detectadas nas Listas de Documentos
+- retorna documentos com LD, codigo do documento, item, descricao, pagina e trecho de evidencia
+- derivado de `InputDocument`, `DocumentPage` e `TextSpan`, sem reler PDFs permanentes
+- usado pela tela de resultado para revisar o que cada LD declara antes do cruzamento com pranchas
+
 GET /issues/{id}
 → detalhe
 

@@ -2,8 +2,10 @@ import { apiFetch } from "@/lib/api/fetcher";
 import type { AnalysisMode } from "@/lib/analysis/analysis-modes";
 import type {
   AnalysisRun,
+  DrawingLists,
   ExtractedField,
   InputDocument,
+  PackageSummary,
 } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
 
@@ -27,6 +29,21 @@ export async function listAnalysisIssues(analysisId: number) {
 
 export async function listAnalysisFields(analysisId: number) {
   return apiFetch<ExtractedField[]>(`/api/v1/analysis/${analysisId}/fields`, {
+    cache: "no-store",
+  });
+}
+
+export async function getPackageSummary(analysisId: number) {
+  return apiFetch<PackageSummary>(
+    `/api/v1/analysis/${analysisId}/package-summary`,
+    {
+      cache: "no-store",
+    },
+  );
+}
+
+export async function getDrawingLists(analysisId: number) {
+  return apiFetch<DrawingLists>(`/api/v1/analysis/${analysisId}/drawing-lists`, {
     cache: "no-store",
   });
 }

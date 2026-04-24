@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Added
+- Painel `Listas de documentos` na tela de resultado para revisar codigos, itens, descricoes e paginas extraidos das LDs.
+- Endpoint `GET /api/v1/analysis/{id}/drawing-lists` para expor linhas detectadas em Listas de Documentos com trecho de evidencia.
+- Endpoint `GET /api/v1/analysis/{id}/package-summary` para resumir identidade, documentos, LDs e alertas iniciais do pacote analisado.
+- Painel `Resumo do pacote` na tela de resultado com identidade detectada, contadores, classificacao dos PDFs e pontos de atencao.
 - Documento `docs/PRODUCT_ROADMAP.md` com plano completo para evoluir o sistema ate auditoria documental de pacotes tecnicos.
 - Fixture `tests/fixtures/pdfs/ALL_IN_ONE_TEST.md` com cenario unico maior para validar multiplas divergencias em um PDF.
 - Guia `tests/fixtures/pdfs/TEST_CASES.md` com conteudos controlados para gerar PDFs de teste do rules engine.

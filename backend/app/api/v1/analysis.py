@@ -8,14 +8,18 @@ from app.db.analysis_runs import (
     list_analysis_runs,
 )
 from app.db.dependencies import DbSession
+from app.db.drawing_lists import get_drawing_lists_by_analysis_id
 from app.db.extracted_fields import list_extracted_fields_by_analysis_id
 from app.db.input_documents import create_input_documents
 from app.db.issues import list_issues_with_evidences_by_analysis_id
+from app.db.package_summary import get_package_summary_by_analysis_id
 from app.schemas.analysis import (
     AnalysisCreateSchema,
     AnalysisRunSchema,
+    DrawingListsSchema,
     ExtractedFieldWithContextSchema,
     InputDocumentSchema,
+    PackageSummarySchema,
 )
 from app.schemas.issue import IssueWithEvidencesSchema
 from app.storage.uploads import delete_uploaded_files, save_pdf_upload
@@ -191,6 +195,34 @@ def list_analysis_fields(
             detail="Analysis not found",
         )
     return list_extracted_fields_by_analysis_id(session, analysis_id)
+
+
+@router.get("/{analysis_id}/package-summary", response_model=PackageSummarySchema)
+def get_analysis_package_summary(
+    analysis_id: int,
+    session: DbSession,
+) -> PackageSummarySchema:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+    return get_package_summary_by_analysis_id(session, analysis_id)
+
+
+@router.get("/{analysis_id}/drawing-lists", response_model=DrawingListsSchema)
+def get_analysis_drawing_lists(
+    analysis_id: int,
+    session: DbSession,
+) -> DrawingListsSchema:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+    return get_drawing_lists_by_analysis_id(session, analysis_id)
 
 
 @router.get("/{analysis_id}/export")

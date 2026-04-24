@@ -2,15 +2,24 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { AnalysisResultHeader } from "@/components/analysis/analysis-result-header";
+import { DrawingListPanel } from "@/components/analysis/drawing-list-panel";
 import { ExtractedFieldList } from "@/components/analysis/extracted-field-list";
 import { IssueList } from "@/components/analysis/issue-list";
+import { PackageSummaryPanel } from "@/components/analysis/package-summary-panel";
 import {
+  getDrawingLists,
+  getPackageSummary,
   getAnalysis,
   listAnalysisFields,
   listAnalysisIssues,
 } from "@/lib/api/analysis";
 import { ApiError, extractApiErrorMessage } from "@/lib/api/fetcher";
-import type { AnalysisRun, ExtractedField } from "@/lib/types/analysis";
+import type {
+  AnalysisRun,
+  DrawingLists,
+  ExtractedField,
+  PackageSummary,
+} from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
 
 export const dynamic = "force-dynamic";
@@ -41,11 +50,17 @@ export default async function AnalysisResultPage({
   let issuesLoadError: string | null = null;
   let fields: ExtractedField[] = [];
   let fieldsLoadError: string | null = null;
+  let packageSummary: PackageSummary | null = null;
+  let packageSummaryLoadError: string | null = null;
+  let drawingLists: DrawingLists | null = null;
+  let drawingListsLoadError: string | null = null;
 
   try {
-    [issues, fields] = await Promise.all([
+    [issues, fields, packageSummary, drawingLists] = await Promise.all([
       listAnalysisIssues(analysisId),
       listAnalysisFields(analysisId),
+      getPackageSummary(analysisId),
+      getDrawingLists(analysisId),
     ]);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
@@ -59,6 +74,14 @@ export default async function AnalysisResultPage({
     fieldsLoadError = extractApiErrorMessage(
       error,
       "Nao foi possivel carregar os campos extraidos desta analise agora.",
+    );
+    packageSummaryLoadError = extractApiErrorMessage(
+      error,
+      "Nao foi possivel carregar o resumo do pacote desta analise agora.",
+    );
+    drawingListsLoadError = extractApiErrorMessage(
+      error,
+      "Nao foi possivel carregar as Listas de Documentos desta analise agora.",
     );
   }
 
@@ -76,6 +99,14 @@ export default async function AnalysisResultPage({
         attentionCount={attentionCount}
         issueCount={issues.length}
         relevantCount={relevantCount}
+      />
+      <PackageSummaryPanel
+        summary={packageSummary}
+        loadError={packageSummaryLoadError}
+      />
+      <DrawingListPanel
+        drawingLists={drawingLists}
+        loadError={drawingListsLoadError}
       />
       <IssueList
         issues={issues}
