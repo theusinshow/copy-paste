@@ -43,6 +43,12 @@ type AnalysisResultPageProps = {
   }>;
 };
 
+type ExecutiveMetric = {
+  label: string;
+  tone?: "danger" | "muted" | "success" | "warning";
+  value: string;
+};
+
 export default async function AnalysisResultPage({
   params,
 }: AnalysisResultPageProps) {
@@ -130,42 +136,184 @@ export default async function AnalysisResultPage({
     (issue) => issue.severity === "atencao",
   ).length;
 
+  const executiveMetrics = buildExecutiveMetrics({
+    detectedSheets,
+    drawingLists,
+    fields,
+    issues,
+    ldSheetCrosscheck,
+    memorialAudit,
+    packageSummary,
+  });
+
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-5">
       <AnalysisResultHeader
         analysis={analysis}
         attentionCount={attentionCount}
         issueCount={issues.length}
         relevantCount={relevantCount}
       />
-      <PackageSummaryPanel
-        summary={packageSummary}
-        loadError={packageSummaryLoadError}
-      />
-      <DrawingListPanel
-        drawingLists={drawingLists}
-        loadError={drawingListsLoadError}
-      />
-      <DetectedSheetsPanel
-        detectedSheets={detectedSheets}
-        loadError={detectedSheetsLoadError}
-      />
-      <LdSheetCrosscheckPanel
-        crosscheck={ldSheetCrosscheck}
-        loadError={ldSheetCrosscheckLoadError}
-      />
-      <MemorialAuditPanel
-        audit={memorialAudit}
-        loadError={memorialAuditLoadError}
-      />
-      <IssueList
-        issues={issues}
-        loadError={issuesLoadError}
-        status={analysis.status}
-      />
-      <ExtractedFieldList fields={fields} loadError={fieldsLoadError} />
+      <ExecutiveSummary metrics={executiveMetrics} />
+
+      <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <ResultNavigation />
+
+        <div className="grid gap-5">
+          <section id="resumo">
+            <PackageSummaryPanel
+              summary={packageSummary}
+              loadError={packageSummaryLoadError}
+            />
+          </section>
+          <section id="ld">
+            <LdSheetCrosscheckPanel
+              crosscheck={ldSheetCrosscheck}
+              loadError={ldSheetCrosscheckLoadError}
+            />
+          </section>
+          <section id="memoriais">
+            <MemorialAuditPanel
+              audit={memorialAudit}
+              loadError={memorialAuditLoadError}
+            />
+          </section>
+          <section id="detalhes" className="grid gap-5">
+            <DrawingListPanel
+              drawingLists={drawingLists}
+              loadError={drawingListsLoadError}
+            />
+            <DetectedSheetsPanel
+              detectedSheets={detectedSheets}
+              loadError={detectedSheetsLoadError}
+            />
+          </section>
+          <section id="evidencias" className="grid gap-5">
+            <IssueList
+              issues={issues}
+              loadError={issuesLoadError}
+              status={analysis.status}
+            />
+            <ExtractedFieldList fields={fields} loadError={fieldsLoadError} />
+          </section>
+        </div>
+      </div>
     </div>
   );
+}
+
+function ExecutiveSummary({
+  metrics,
+}: {
+  metrics: ExecutiveMetric[];
+}) {
+  return (
+    <section className="rounded-lg border border-[var(--cp-border)] bg-black/12 p-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {metrics.map((metric) => (
+          <div
+            key={metric.label}
+            className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel-soft)] p-4"
+          >
+            <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
+              {metric.label}
+            </p>
+            <p className={`mt-2 font-mono text-2xl font-semibold ${getMetricTone(metric.tone)}`}>
+              {metric.value}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ResultNavigation() {
+  const links = [
+    ["#resumo", "Resumo"],
+    ["#ld", "LD x Pranchas"],
+    ["#memoriais", "Memoriais"],
+    ["#detalhes", "Detalhes"],
+    ["#evidencias", "Evidencias"],
+  ];
+
+  return (
+    <aside className="hidden self-start rounded-lg border border-[var(--cp-border)] bg-black/12 p-3 lg:sticky lg:top-24 lg:block">
+      <p className="px-2 pb-3 text-xs uppercase tracking-[0.2em] text-[var(--cp-accent)]">
+        Resultado
+      </p>
+      <nav className="grid gap-1">
+        {links.map(([href, label]) => (
+          <a
+            key={href}
+            href={href}
+            className="rounded-lg px-2 py-2 text-sm text-[var(--cp-muted)] transition-colors hover:bg-white/5 hover:text-[var(--cp-text)]"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+    </aside>
+  );
+}
+
+function buildExecutiveMetrics({
+  detectedSheets,
+  drawingLists,
+  fields,
+  issues,
+  ldSheetCrosscheck,
+  memorialAudit,
+  packageSummary,
+}: {
+  detectedSheets: DetectedSheets | null;
+  drawingLists: DrawingLists | null;
+  fields: ExtractedField[];
+  issues: AnalysisIssue[];
+  ldSheetCrosscheck: LdSheetCrosscheck | null;
+  memorialAudit: MemorialAudit | null;
+  packageSummary: PackageSummary | null;
+}): ExecutiveMetric[] {
+  const probableIssues =
+    (ldSheetCrosscheck?.stats.probable_issue_count ?? 0) +
+    (memorialAudit?.stats.probable_issue_count ?? 0) +
+    issues.filter((issue) => issue.severity === "relevante").length;
+  const reviewPoints =
+    (ldSheetCrosscheck?.stats.needs_review_count ?? 0) +
+    (memorialAudit?.stats.needs_review_count ?? 0) +
+    issues.filter((issue) => issue.severity === "atencao").length;
+
+  return [
+    {
+      label: "Conflitos",
+      tone: probableIssues > 0 ? "danger" : "success",
+      value: probableIssues.toString().padStart(2, "0"),
+    },
+    {
+      label: "Revisar",
+      tone: reviewPoints > 0 ? "warning" : "success",
+      value: reviewPoints.toString().padStart(2, "0"),
+    },
+    {
+      label: "Pranchas",
+      value: (detectedSheets?.stats.sheet_count ?? 0).toString().padStart(2, "0"),
+    },
+    {
+      label: "Pacote",
+      tone: "muted",
+      value: `${packageSummary?.stats.document_count ?? 0} pdf / ${drawingLists?.stats.row_count ?? 0} LD / ${fields.length} campos`,
+    },
+  ];
+}
+
+function getMetricTone(tone?: "danger" | "muted" | "success" | "warning") {
+  const map = {
+    danger: "text-[var(--cp-error)]",
+    muted: "text-[var(--cp-muted)]",
+    success: "text-[var(--cp-success)]",
+    warning: "text-[var(--cp-warning)]",
+  };
+  return tone ? map[tone] : "text-[var(--cp-text)]";
 }
 
 async function loadAnalysisOrNotFound(analysisId: number): Promise<AnalysisRun> {

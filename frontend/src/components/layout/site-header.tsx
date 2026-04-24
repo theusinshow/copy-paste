@@ -7,15 +7,15 @@ const navigationLinks = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-20 border-b border-[var(--cp-border)] bg-[rgba(50,50,50,0.78)] backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-        <div className="space-y-1">
+    <header className="sticky top-0 z-20 border-b border-[var(--cp-border)] bg-[rgba(31,31,31,0.86)] backdrop-blur-xl">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+        <div>
           <Link href="/" className="inline-flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--cp-accent)] text-sm font-black text-[var(--cp-accent-ink)]">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--cp-accent)] text-sm font-black text-[var(--cp-accent-ink)]">
               CP
             </span>
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--cp-accent)]">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)]">
                 Copy&amp;Paste
               </p>
               <p className="text-sm text-[var(--cp-muted)]">
@@ -30,7 +30,7 @@ export function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-full border border-[var(--cp-border)] px-4 py-2 text-sm font-medium text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)]"
+              className="rounded-lg border border-[var(--cp-border)] px-3 py-2 text-sm font-medium text-[var(--cp-muted)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-text)]"
             >
               {link.label}
             </Link>

@@ -14,7 +14,7 @@ STREET_PATTERN = re.compile(
     r"[A-Z0-9 .,'ºª/-]{4,120})"
 )
 BAIRRO_PATTERN = re.compile(
-    r"\bBAIRRO[:\s]+(?P<value>.+?)(?=\s+(?:VOLUME|ENDEREC[O0]|MUNICIPIO|MUNIC[ÍI]PIO|NUMERO|N[UÚ]MERO|PROJETO|CLIENTE|$))"
+    r"\bBAIRRO[:\s]+(?P<value>.+?)(?=\s+(?:BAIRRO|VOLUME|ENDEREC[O0]|MUNICIPIO|MUNIC[ÍI]PIO|NUMERO|N[UÚ]MERO|PROJETO|CLIENTE|$))"
 )
 MUNICIPALITY_PATTERN = re.compile(
     r"\b(?:MUNICIPIO|MUNIC[ÍI]PIO|CIDADE)\s+(?:DE\s+)?(?P<value>[A-Z ]{3,40})"
@@ -28,6 +28,7 @@ WORK_NAME_PATTERN = re.compile(
     r"\bUBS\s+[A-Z0-9 ]{3,50}?\s*(?:-|–)\s*PORTE\s*\d+\b"
 )
 WHITESPACE_PATTERN = re.compile(r"\s+")
+SINGLE_VALUE_STOPWORDS = {"A", "AS", "COM", "DA", "DAS", "DE", "DO", "DOS", "E", "EM", "O", "OS"}
 
 FIELD_LABELS = {
     "address": "Endereco",
@@ -383,12 +384,16 @@ def _is_valid_occurrence(occurrence: dict[str, Any]) -> bool:
         return False
 
     if occurrence["field"] == "bairro":
+        if normalized_value in SINGLE_VALUE_STOPWORDS or len(normalized_value) <= 2:
+            return False
         if normalized_value.startswith("E ") or "ARREDORES" in normalized_value:
             return False
         if len(normalized_value.split()) > 4:
             return False
 
     if occurrence["field"] == "municipality":
+        if normalized_value in SINGLE_VALUE_STOPWORDS or len(normalized_value) <= 2:
+            return False
         if len(normalized_value.split()) > 4:
             return False
 

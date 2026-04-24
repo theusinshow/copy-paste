@@ -14,7 +14,7 @@ export function LdSheetCrosscheckPanel({
 }: LdSheetCrosscheckPanelProps) {
   return (
     <section
-      className="rounded-[2rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/85 p-6"
+      className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel)]/85 p-5"
       style={{ boxShadow: "var(--cp-shadow)" }}
     >
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
@@ -22,7 +22,7 @@ export function LdSheetCrosscheckPanel({
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
             LD x Pranchas
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-[var(--cp-text)]">
+          <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
             Cruzamento por codigo, folha e descricao.
           </h2>
         </div>

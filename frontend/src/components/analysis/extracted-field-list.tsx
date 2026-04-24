@@ -11,7 +11,7 @@ export function ExtractedFieldList({
 }: ExtractedFieldListProps) {
   return (
     <section
-      className="rounded-[2rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/85 p-6"
+      className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel)]/85 p-5"
       style={{ boxShadow: "var(--cp-shadow)" }}
     >
       <div className="border-b border-[var(--cp-border)] pb-5">

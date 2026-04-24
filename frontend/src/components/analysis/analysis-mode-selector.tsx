@@ -10,11 +10,11 @@ export function AnalysisModeSelector(props: {
   selectedMode: AnalysisMode;
 }) {
   return (
-    <section className="grid gap-5">
+    <section className="grid gap-4">
       {ANALYSIS_MODE_GROUPS.map((group) => (
         <div
           key={group.title}
-          className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4"
+          className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-3 sm:p-4"
         >
           <div className="mb-4 space-y-2">
             <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
@@ -25,7 +25,7 @@ export function AnalysisModeSelector(props: {
             </p>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-2 md:grid-cols-2">
             {group.modes.map((mode) => {
               const isSelected = mode.value === props.selectedMode;
 
@@ -34,7 +34,7 @@ export function AnalysisModeSelector(props: {
                   key={mode.value}
                   type="button"
                   onClick={() => props.onSelect(mode.value)}
-                  className={`rounded-lg border p-4 text-left transition-all ${
+                  className={`rounded-lg border p-3 text-left transition-all ${
                     isSelected
                       ? "border-[var(--cp-accent)] bg-[var(--cp-accent)]/12 shadow-[0_0_0_1px_var(--cp-accent-glow)]"
                       : "border-[var(--cp-border)] bg-white/4 hover:border-[var(--cp-accent)]/40"
@@ -50,12 +50,12 @@ export function AnalysisModeSelector(props: {
                       </p>
                     </div>
                     {isSelected ? (
-                      <span className="rounded-lg bg-[var(--cp-accent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--cp-accent-ink)]">
+                      <span className="rounded bg-[var(--cp-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--cp-accent-ink)]">
                         Ativo
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-4 text-xs uppercase tracking-[0.2em] text-[var(--cp-muted)]">
+                  <p className="mt-3 text-xs uppercase tracking-[0.16em] text-[var(--cp-muted)]">
                     {mode.helper}
                   </p>
                 </button>

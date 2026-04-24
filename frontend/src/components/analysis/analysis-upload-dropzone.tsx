@@ -15,7 +15,7 @@ export function AnalysisUploadDropzone({
   const [isDragging, setIsDragging] = useState(false);
 
   return (
-    <section className="grid gap-4">
+    <section className="grid gap-3">
       <div
         role="button"
         tabIndex={0}
@@ -43,7 +43,7 @@ export function AnalysisUploadDropzone({
           setIsDragging(false);
           onFilesChange(mergeFiles(files, Array.from(event.dataTransfer.files)));
         }}
-        className={`rounded-lg border border-dashed p-6 transition-colors sm:p-8 ${
+        className={`rounded-lg border border-dashed p-5 transition-colors sm:p-6 ${
           isDragging
             ? "border-[var(--cp-accent)] bg-[var(--cp-accent)]/10"
             : "border-[var(--cp-border)] bg-black/10 hover:border-[var(--cp-accent)]/40"
@@ -61,15 +61,15 @@ export function AnalysisUploadDropzone({
           className="hidden"
         />
 
-        <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--cp-accent)]">
-            Anexar arquivo
+        <div className="grid gap-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--cp-accent)]">
+            Arquivos
           </p>
-          <h3 className="text-2xl font-semibold text-[var(--cp-text)] sm:text-3xl">
-            Arraste PDFs aqui ou clique para selecionar.
+          <h3 className="text-xl font-semibold text-[var(--cp-text)] sm:text-2xl">
+            Arraste PDFs ou clique para selecionar.
           </h3>
           <p className="max-w-2xl text-sm leading-6 text-[var(--cp-muted)]">
-            Envie um ou mais PDFs para criar a analise.
+            Envie um ou mais PDFs do volume ou pacote a revisar.
           </p>
         </div>
       </div>
@@ -79,7 +79,7 @@ export function AnalysisUploadDropzone({
           {files.map((file) => (
             <article
               key={buildFileKey(file)}
-              className="rounded-lg border border-[var(--cp-border)] bg-white/4 p-4"
+            className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-3"
             >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>

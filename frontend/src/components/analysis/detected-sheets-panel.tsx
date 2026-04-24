@@ -11,7 +11,7 @@ export function DetectedSheetsPanel({
 }: DetectedSheetsPanelProps) {
   return (
     <section
-      className="rounded-[2rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/85 p-6"
+      className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel)]/85 p-5"
       style={{ boxShadow: "var(--cp-shadow)" }}
     >
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 sm:flex-row sm:items-start sm:justify-between">
@@ -19,7 +19,7 @@ export function DetectedSheetsPanel({
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
             Pranchas detectadas
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-[var(--cp-text)]">
+          <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
             Codigos encontrados fora das LDs.
           </h2>
         </div>

@@ -40,6 +40,8 @@
 - Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
+- Layout inicial e tela de resultado refinados com hierarquia executiva, navegacao por secoes e paineis mais compactos.
+- Painel de memoriais reorganizado para agrupar conflitos, pontos de revisao e valores extraidos sem repeticao excessiva.
 - Cruzamento `LD x Pranchas` agora separa resultados em `compatible`, `needs_review`, `probable_issue` e `extraction_limit`, com `reason` tecnico por item.
 - Pagina de entrada reorganizada para iniciar direto pelo fluxo de nova analise, com anexo de PDFs como primeira acao.
 - Formulario de nova analise reordenado para exibir as opcoes de verificacao abaixo do anexo e manter `full_check` como modo padrao.
@@ -61,6 +63,7 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Auditoria de memoriais agora ignora bairros invalidos formados por conectivos ou valores de uma letra, como `E`.
 - Cruzamento `LD x Pranchas` agora respeita secoes internas quando um PDF contem mais de uma LD, reduzindo mistura entre volumes dentro do mesmo arquivo.
 - Auditoria de memoriais agora filtra frases genericas de bairro/obra e detecta proprietario ou cliente apontando municipio divergente.
 - Auditoria de memoriais ajustada para nao confundir codigos tecnicos como `DADOS-01-27` com numero de projeto.

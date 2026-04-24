@@ -89,27 +89,28 @@ export function NewAnalysisForm() {
 
   return (
     <section
-      className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel)]/92 p-5 sm:p-6"
+      className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel)]/92 p-4 sm:p-5"
       style={{ boxShadow: "var(--cp-shadow)" }}
     >
-      <form onSubmit={handleSubmit} className="grid gap-6">
+      <form onSubmit={handleSubmit} className="grid gap-5">
         <AnalysisUploadDropzone
           files={selectedFiles}
           onFilesChange={setSelectedFiles}
         />
 
-        <section className="grid gap-5 border-t border-[var(--cp-border)] pt-6">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <section className="grid gap-4 border-t border-[var(--cp-border)] pt-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--cp-accent)]">
-                Opcoes de verificacao
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--cp-accent)]">
+                Verificacao
               </p>
-              <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-                Escolha como o arquivo deve ser conferido.
+              <h2 className="mt-2 text-lg font-semibold text-[var(--cp-text)]">
+                Defina o escopo da analise.
               </h2>
             </div>
-            <p className="max-w-sm text-sm leading-6 text-[var(--cp-muted)]">
-              A verificacao completa segue como padrao.
+            <p className="max-w-xs text-sm leading-6 text-[var(--cp-muted)]">
+              Use analise completa para pacotes; use modos dirigidos para conferir
+              um campo especifico.
             </p>
           </div>
 
@@ -133,7 +134,7 @@ export function NewAnalysisForm() {
           />
         </section>
 
-        <div className="grid gap-2">
+        <div className="grid gap-2 rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
           <label
             htmlFor="tipo"
             className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--cp-muted)]"
@@ -166,7 +167,10 @@ export function NewAnalysisForm() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-[var(--cp-border)] pt-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--cp-border)] pt-5">
+          <p className="text-xs text-[var(--cp-muted)]">
+            PDFs nao sao mantidos permanentemente.
+          </p>
           <FormSubmitButton pending={isSubmitting} />
         </div>
       </form>

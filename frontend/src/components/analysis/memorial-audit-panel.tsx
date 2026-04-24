@@ -9,13 +9,19 @@ type MemorialAuditPanelProps = {
   loadError?: string | null;
 };
 
+type FindingGroup = {
+  category: string;
+  findings: MemorialAuditFinding[];
+  title: string;
+};
+
 export function MemorialAuditPanel({
   audit,
   loadError,
 }: MemorialAuditPanelProps) {
   return (
     <section
-      className="rounded-[2rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/85 p-6"
+      className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel)]/85 p-5"
       style={{ boxShadow: "var(--cp-shadow)" }}
     >
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
@@ -23,15 +29,15 @@ export function MemorialAuditPanel({
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
             Memoriais
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-[var(--cp-text)]">
-            Enderecos e identidade textual.
+          <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
+            Revisao de identidade textual.
           </h2>
         </div>
 
         {audit ? (
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <Metric label="Docs" value={audit.stats.document_count} />
-            <Metric label="Campos" value={audit.stats.occurrence_count} />
+            <Metric label="Valores" value={uniqueOccurrenceCount(audit.occurrences)} />
             <Metric label="Conflitos" value={audit.stats.probable_issue_count} />
             <Metric label="Revisar" value={audit.stats.needs_review_count} />
           </div>
@@ -48,7 +54,7 @@ export function MemorialAuditPanel({
         <div className="mt-6 grid gap-6">
           <IdentityGrid audit={audit} />
           <FindingList findings={audit.findings} />
-          <OccurrenceList occurrences={audit.occurrences} />
+          <OccurrenceSummary occurrences={audit.occurrences} />
         </div>
       ) : null}
     </section>
@@ -92,97 +98,118 @@ function FindingList({ findings }: { findings: MemorialAuditFinding[] }) {
   }
 
   return (
-    <div className="grid gap-3">
-      {findings.map((finding) => (
-        <article
-          key={`${finding.reason}-${finding.message}`}
-          className="rounded-lg border border-[var(--cp-warning)]/40 bg-[var(--cp-warning)]/10 p-4"
+    <div className="grid gap-4">
+      {groupFindings(findings).map((group) => (
+        <div
+          key={group.category}
+          className="rounded-lg border border-[var(--cp-border)] bg-black/10"
         >
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex flex-col gap-3 border-b border-[var(--cp-border)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-[var(--cp-text)]">
-                {finding.message}
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--cp-muted)]">
+                {group.title}
               </p>
-              <p className="mt-2 text-xs text-[var(--cp-muted)]">
-                Motivo: {formatReason(finding.reason)}
+              <p className="mt-1 text-sm text-[var(--cp-text)]">
+                {group.findings.length.toString().padStart(2, "0")} item(ns)
               </p>
             </div>
-            <CategoryPill category={finding.category} />
+            <CategoryPill category={group.category} />
           </div>
 
-          {finding.occurrences.map((occurrence) => (
-            <OccurrenceEvidence
-              key={`${occurrence.filename}-${occurrence.page}-${occurrence.field}-${occurrence.value}`}
-              occurrence={occurrence}
-            />
-          ))}
-        </article>
+          <div className="divide-y divide-[var(--cp-border)]">
+            {group.findings.map((finding) => (
+              <FindingRow
+                key={`${finding.reason}-${finding.message}`}
+                finding={finding}
+              />
+            ))}
+          </div>
+        </div>
       ))}
     </div>
   );
 }
 
-function OccurrenceList({
+function FindingRow({ finding }: { finding: MemorialAuditFinding }) {
+  const occurrence = finding.occurrences[0];
+
+  return (
+    <article className="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(0,1fr)_240px]">
+      <div>
+        <p className="text-sm font-semibold leading-6 text-[var(--cp-text)]">
+          {formatFindingTitle(finding)}
+        </p>
+        <p className="mt-1 text-xs text-[var(--cp-muted)]">
+          {formatReason(finding.reason)}
+        </p>
+      </div>
+
+      {occurrence ? (
+        <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-3 text-sm">
+          <p className="font-medium text-[var(--cp-text)]">{occurrence.value}</p>
+          <p className="mt-2 text-xs text-[var(--cp-muted)]">
+            p{occurrence.page} · {occurrence.field_label}
+          </p>
+          <p className="mt-1 truncate text-xs text-[var(--cp-muted)]">
+            {occurrence.filename}
+          </p>
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function OccurrenceSummary({
   occurrences,
 }: {
   occurrences: MemorialAuditOccurrence[];
 }) {
-  if (occurrences.length === 0) {
+  const grouped = groupOccurrences(occurrences);
+
+  if (grouped.length === 0) {
     return (
       <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
-        Nenhum endereco ou campo de identidade foi extraido dos memoriais.
+        Nenhum campo de identidade foi extraido dos memoriais.
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-[var(--cp-border)]">
-      <div className="hidden grid-cols-[140px_minmax(0,1fr)_70px_minmax(0,1fr)] gap-3 bg-black/20 px-4 py-3 text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)] lg:grid">
-        <span>Campo</span>
-        <span>Valor</span>
-        <span>Pagina</span>
-        <span>Documento</span>
+    <div className="rounded-lg border border-[var(--cp-border)] bg-black/10">
+      <div className="border-b border-[var(--cp-border)] px-4 py-3">
+        <p className="text-xs uppercase tracking-[0.2em] text-[var(--cp-muted)]">
+          Valores extraidos
+        </p>
       </div>
+
       <div className="divide-y divide-[var(--cp-border)]">
-        {occurrences.slice(0, 80).map((occurrence) => (
+        {grouped.map((group) => (
           <div
-            key={`${occurrence.filename}-${occurrence.page}-${occurrence.field}-${occurrence.value}`}
-            className="grid gap-3 px-4 py-3 text-sm lg:grid-cols-[140px_minmax(0,1fr)_70px_minmax(0,1fr)]"
-            title={occurrence.source_text}
+            key={group.field}
+            className="grid gap-3 px-4 py-4 lg:grid-cols-[150px_minmax(0,1fr)]"
           >
-            <span className="text-[var(--cp-muted)]">
-              {occurrence.field_label}
-            </span>
-            <span className="font-medium text-[var(--cp-text)]">
-              {occurrence.value}
-            </span>
-            <span className="text-[var(--cp-muted)]">p{occurrence.page}</span>
-            <span className="truncate text-[var(--cp-muted)]">
-              {occurrence.filename}
-            </span>
+            <p className="text-sm font-medium text-[var(--cp-text)]">
+              {group.label}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {group.values.slice(0, 12).map((item) => (
+                <span
+                  key={`${group.field}-${item.value}`}
+                  className="rounded-full border border-[var(--cp-border)] bg-black/10 px-3 py-1 text-xs text-[var(--cp-muted)]"
+                  title={item.pages}
+                >
+                  {item.value} · {item.count}x
+                </span>
+              ))}
+              {group.values.length > 12 ? (
+                <span className="rounded-full border border-[var(--cp-border)] bg-black/10 px-3 py-1 text-xs text-[var(--cp-muted)]">
+                  +{group.values.length - 12}
+                </span>
+              ) : null}
+            </div>
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-function OccurrenceEvidence({
-  occurrence,
-}: {
-  occurrence: MemorialAuditOccurrence;
-}) {
-  return (
-    <div
-      className="mt-3 rounded-lg border border-[var(--cp-border)] bg-black/10 p-3 text-sm"
-      title={occurrence.source_text}
-    >
-      <p className="text-xs text-[var(--cp-muted)]">
-        {occurrence.filename} · p{occurrence.page} · {occurrence.field_label}
-      </p>
-      <p className="mt-2 font-medium text-[var(--cp-text)]">
-        {occurrence.value}
-      </p>
     </div>
   );
 }
@@ -221,16 +248,99 @@ function CategoryPill({ category }: { category: string }) {
   );
 }
 
+function groupFindings(findings: MemorialAuditFinding[]): FindingGroup[] {
+  const labels: Record<string, string> = {
+    extraction_limit: "Limites de extracao",
+    needs_review: "Pontos para revisar",
+    probable_issue: "Conflitos provaveis",
+  };
+  const order = ["probable_issue", "needs_review", "extraction_limit"];
+
+  return order
+    .map((category) => ({
+      category,
+      findings: findings.filter((finding) => finding.category === category),
+      title: labels[category],
+    }))
+    .filter((group) => group.findings.length > 0);
+}
+
+function groupOccurrences(occurrences: MemorialAuditOccurrence[]) {
+  const fieldOrder = ["work_name", "project_code", "bairro", "municipality", "owner", "address"];
+  const groups = new Map<
+    string,
+    {
+      field: string;
+      label: string;
+      values: Map<string, { count: number; pages: Set<number>; value: string }>;
+    }
+  >();
+
+  for (const occurrence of occurrences) {
+    if (!groups.has(occurrence.field)) {
+      groups.set(occurrence.field, {
+        field: occurrence.field,
+        label: occurrence.field_label,
+        values: new Map(),
+      });
+    }
+
+    const group = groups.get(occurrence.field);
+    const current = group?.values.get(occurrence.normalized_value) ?? {
+      count: 0,
+      pages: new Set<number>(),
+      value: occurrence.value,
+    };
+    current.count += 1;
+    current.pages.add(occurrence.page);
+    group?.values.set(occurrence.normalized_value, current);
+  }
+
+  return [...groups.values()]
+    .sort((a, b) => fieldOrder.indexOf(a.field) - fieldOrder.indexOf(b.field))
+    .map((group) => ({
+      ...group,
+      values: [...group.values.values()]
+        .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value))
+        .map((item) => ({
+          count: item.count,
+          pages: `Paginas: ${[...item.pages].sort((a, b) => a - b).join(", ")}`,
+          value: item.value,
+        })),
+    }));
+}
+
+function uniqueOccurrenceCount(occurrences: MemorialAuditOccurrence[]) {
+  return new Set(
+    occurrences.map(
+      (occurrence) => `${occurrence.field}:${occurrence.normalized_value}`,
+    ),
+  ).size;
+}
+
+function formatFindingTitle(finding: MemorialAuditFinding) {
+  const occurrence = finding.occurrences[0];
+  if (!occurrence) {
+    return finding.message;
+  }
+
+  const field = occurrence.field_label.toLowerCase();
+  if (finding.category === "probable_issue") {
+    return `${occurrence.field_label} com divergencia: ${occurrence.value}`;
+  }
+  return `Revisar ${field}: ${occurrence.value}`;
+}
+
 function formatReason(reason: string) {
   const labels: Record<string, string> = {
     bairro_differs_from_package_identity: "bairro diferente da identidade principal",
-    multiple_memorial_address_values_detected: "multiplos enderecos encontrados",
+    multiple_memorial_address_values_detected: "mais de um endereco distinto foi encontrado",
     multiple_memorial_municipality_values_detected:
-      "multiplos municipios encontrados",
+      "mais de um municipio foi encontrado",
     multiple_memorial_project_code_values_detected:
-      "multiplos numeros de projeto encontrados",
+      "mais de um numero de projeto foi encontrado",
     multiple_memorial_owner_values_detected:
-      "multiplos proprietarios/clientes encontrados",
+      "mais de um proprietario/cliente foi encontrado",
     no_memorial_identity_fields_detected: "campos nao detectados",
     owner_city_differs_from_memorial_municipality:
       "proprietario/cliente aponta outro municipio",
