@@ -52,7 +52,19 @@ def build_ld_sheet_crosscheck(
             "attention_count": sum(
                 1 for result in results if result["severity"] == "atencao"
             ),
+            "compatible_count": sum(
+                1 for result in results if result["category"] == "compatible"
+            ),
+            "extraction_limit_count": sum(
+                1 for result in results if result["category"] == "extraction_limit"
+            ),
+            "needs_review_count": sum(
+                1 for result in results if result["category"] == "needs_review"
+            ),
             "ok_count": sum(1 for result in results if result["severity"] == "ok"),
+            "probable_issue_count": sum(
+                1 for result in results if result["category"] == "probable_issue"
+            ),
             "relevant_count": sum(
                 1 for result in results if result["severity"] == "relevante"
             ),
@@ -91,10 +103,12 @@ def _compare_ld_row_with_sheets(
     if not matching_sheets:
         return {
             **base_result,
+            "category": "extraction_limit",
             "message": (
                 f"{ld_row['document_code']} esta declarado na LD, mas nao foi "
-                "detectado em nenhuma prancha fora das paginas de LD."
+                "confirmado em nenhuma prancha fora das paginas de LD."
             ),
+            "reason": "sheet_code_not_detected_outside_ld",
             "severity": "atencao",
             "type": "ld_sheet_missing_sheet",
         }
@@ -112,11 +126,13 @@ def _compare_ld_row_with_sheets(
     if best_sheet.get("item") and best_sheet["item"] != ld_row["item"]:
         return {
             **base_result,
+            "category": "probable_issue",
             "matched_sheet": matched_sheet,
             "message": (
                 f"{ld_row['document_code']} foi encontrado, mas a folha da LD "
                 f"({ld_row['item']}) diverge da prancha ({best_sheet['item']})."
             ),
+            "reason": "sheet_item_mismatch",
             "severity": "relevante",
             "type": "ld_sheet_item_mismatch",
         }
@@ -128,11 +144,13 @@ def _compare_ld_row_with_sheets(
     if description_status == "different":
         return {
             **base_result,
+            "category": "needs_review",
             "matched_sheet": matched_sheet,
             "message": (
                 f"{ld_row['document_code']} foi encontrado, mas a descricao da LD "
                 "parece diferente da descricao proxima na prancha."
             ),
+            "reason": "description_mismatch",
             "severity": "atencao",
             "type": "ld_sheet_description_attention",
         }
@@ -140,19 +158,23 @@ def _compare_ld_row_with_sheets(
     if description_status == "unknown":
         return {
             **base_result,
+            "category": "extraction_limit",
             "matched_sheet": matched_sheet,
             "message": (
                 f"{ld_row['document_code']} foi encontrado, mas a descricao da "
                 "prancha nao foi detectada com confianca."
             ),
+            "reason": "sheet_description_low_confidence",
             "severity": "atencao",
             "type": "ld_sheet_description_unknown",
         }
 
     return {
         **base_result,
+        "category": "compatible",
         "matched_sheet": matched_sheet,
         "message": f"{ld_row['document_code']} foi encontrado com folha e descricao compativeis.",
+        "reason": "matched_code_item_and_description",
         "severity": "ok",
         "type": "ld_sheet_match",
     }

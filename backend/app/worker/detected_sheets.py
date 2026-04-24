@@ -13,6 +13,7 @@ BASE_SHEET_CODE_PATTERN = re.compile(
     r"\b(?P<base_code>\d{2,4}[_-]\d{2}_[A-Z0-9]{2,}_[A-Z])\b",
     re.IGNORECASE,
 )
+CONTENT_LABEL_PATTERN = re.compile(r"\bCONTEUDO:\s+PRANCHA:\s+")
 FULL_SHEET_ITEM_PATTERN = re.compile(r"\b\d{2}/\d{2}\b")
 PARTIAL_SHEET_ITEM_PATTERN = re.compile(r"\b(?P<number>\d{2})/\s*")
 SHEET_TOTAL_PATTERN = re.compile(r"\bARQUIVO:\s*(?P<total>\d{2})\b")
@@ -70,10 +71,16 @@ def _extract_sheets_from_page(page_number: int, page_text: str) -> list[dict[str
         seen_codes.add(normalized_sheet_code)
 
         evidence = _extract_evidence(text, match.start(), match.end())
+        item = _extract_item(evidence, sheet_code)
+        description = _extract_stamp_description(
+            evidence=evidence,
+            code=sheet_code,
+            item=item,
+        )
         sheets.append(
             {
-                "description": _extract_description(evidence, sheet_code),
-                "item": _extract_item(evidence, sheet_code),
+                "description": description,
+                "item": item,
                 "page": page_number,
                 "sheet_code": normalized_sheet_code,
                 "source_text": evidence,
@@ -91,7 +98,11 @@ def _extract_sheets_from_page(page_number: int, page_text: str) -> list[dict[str
 
         sheets.append(
             {
-                "description": _extract_base_description(evidence, base_code),
+                "description": _extract_stamp_description(
+                    evidence=evidence,
+                    code=base_code,
+                    item=item,
+                ),
                 "item": item,
                 "page": page_number,
                 "sheet_code": sheet_code,
@@ -124,23 +135,90 @@ def _extract_description(evidence: str, sheet_code: str) -> str | None:
     return description[:160].strip() or None
 
 
-def _extract_base_description(evidence: str, base_code: str) -> str | None:
-    before_code = evidence.split(base_code, 1)[0]
-    content_match = re.search(r"\bCONTEUDO:\s+PRANCHA:\s+(.+?)\s+\d{2}/", before_code)
-    if not content_match:
-        description = _extract_description(evidence, base_code)
-        if description and "DIREITOS AUTORAIS" in description:
-            return None
-        return description
+def _extract_stamp_description(
+    evidence: str,
+    code: str,
+    item: str | None,
+) -> str | None:
+    before_code = evidence.split(code, 1)[0]
+    discipline_code = _extract_discipline_code(code)
+    description = (
+        _extract_description_from_content_label(before_code, discipline_code, item)
+        or _extract_description_before_sheet_marker(before_code, discipline_code)
+        or _extract_description(evidence, code)
+    )
+    return _clean_stamp_description(description)
 
-    description = content_match.group(1)
-    base_parts = base_code.replace("-", "_").split("_")
-    discipline_code = base_parts[-2] if len(base_parts) >= 4 else None
+
+def _extract_description_from_content_label(
+    before_code: str,
+    discipline_code: str | None,
+    item: str | None,
+) -> str | None:
+    matches = list(CONTENT_LABEL_PATTERN.finditer(before_code))
+    if not matches:
+        return None
+
+    segment = before_code[matches[-1].end() :]
+    if item:
+        item_number = item.split("/", 1)[0]
+        segment = re.sub(rf"\s+\d*\s*{re.escape(item_number)}/.*$", "", segment)
     if discipline_code:
-        description = re.sub(rf"\s+{re.escape(discipline_code)}\b.*$", "", description)
+        segment = re.sub(rf"\s+{re.escape(discipline_code)}\b.*$", "", segment)
+
+    return segment
+
+
+def _extract_description_before_sheet_marker(
+    before_code: str,
+    discipline_code: str | None,
+) -> str | None:
+    if not discipline_code:
+        return None
+
+    marker_matches = list(
+        re.finditer(rf"\s+{re.escape(discipline_code)}\b.*?\d{{2}}/", before_code)
+    )
+    if not marker_matches:
+        return None
+
+    segment = before_code[: marker_matches[-1].start()]
+    content_label_matches = list(CONTENT_LABEL_PATTERN.finditer(segment))
+    if content_label_matches:
+        segment = segment[content_label_matches[-1].end() :]
+    else:
+        segment = _keep_tail_words(segment, max_words=10)
+
+    return segment
+
+
+def _clean_stamp_description(description: str | None) -> str | None:
+    if not description:
+        return None
+
+    description = re.sub(r"\bDIREITOS AUTORAIS\b.*$", "", description)
+    description = re.sub(r"\bESCALA:\b.*$", "", description)
+    description = re.sub(r"\bDATA:\b.*$", "", description)
+    description = re.sub(r"\bARQUIVO:\b.*$", "", description)
+    description = re.sub(r"\bRESPONSAVEL TECNICO\b.*$", "", description)
+    description = re.sub(r"\bCLIENTE:\b.*$", "", description)
     description = re.sub(r"^\d+\s+", "", description)
     description = re.sub(r"\s+\d+$", "", description)
-    return description.strip(" |:-") or None
+    description = description.strip(" |:-")
+
+    if not description or "DIREITOS AUTORAIS" in description:
+        return None
+    return description[:160]
+
+
+def _extract_discipline_code(code: str) -> str | None:
+    parts = code.replace("-", "_").split("_")
+    return parts[-2] if len(parts) >= 4 else None
+
+
+def _keep_tail_words(value: str, max_words: int) -> str:
+    words = value.strip(" |:-").split()
+    return " ".join(words[-max_words:])
 
 
 def _extract_item(evidence: str, sheet_code: str) -> str | None:

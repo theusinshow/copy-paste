@@ -83,7 +83,15 @@ GET /analysis/{id}/detected-sheets
 GET /analysis/{id}/ld-sheet-crosscheck
 → cruza linhas de LD com pranchas detectadas
 - retorna cada item da LD com status `ok`, `atencao` ou `relevante`
+- retorna `category` para separar `compatible`, `needs_review`, `probable_issue` e `extraction_limit`
+- retorna `reason` técnico para explicar a classificação sem depender de interpretação subjetiva
 - compara codigo, folha e descricao normalizada com evidencias da LD e da prancha
+
+GET /analysis/{id}/memorial-audit
+→ audita campos de identidade encontrados em memoriais
+- retorna ocorrencias de endereco, bairro, municipio, proprietario/cliente, obra e numero de projeto com pagina e trecho de evidencia
+- retorna achados por `category`, separando divergencia provavel, revisao necessaria e limite de extracao
+- ausência de campo no memorial não é tratada como erro
 
 GET /issues/{id}
 → detalhe

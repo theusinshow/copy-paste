@@ -14,6 +14,7 @@ from app.db.extracted_fields import list_extracted_fields_by_analysis_id
 from app.db.input_documents import create_input_documents
 from app.db.issues import list_issues_with_evidences_by_analysis_id
 from app.db.ld_sheet_crosscheck import get_ld_sheet_crosscheck_by_analysis_id
+from app.db.memorial_audit import get_memorial_audit_by_analysis_id
 from app.db.package_summary import get_package_summary_by_analysis_id
 from app.schemas.analysis import (
     AnalysisCreateSchema,
@@ -23,6 +24,7 @@ from app.schemas.analysis import (
     ExtractedFieldWithContextSchema,
     InputDocumentSchema,
     LdSheetCrosscheckSchema,
+    MemorialAuditSchema,
     PackageSummarySchema,
 )
 from app.schemas.issue import IssueWithEvidencesSchema
@@ -255,6 +257,20 @@ def get_analysis_ld_sheet_crosscheck(
             detail="Analysis not found",
         )
     return get_ld_sheet_crosscheck_by_analysis_id(session, analysis_id)
+
+
+@router.get("/{analysis_id}/memorial-audit", response_model=MemorialAuditSchema)
+def get_analysis_memorial_audit(
+    analysis_id: int,
+    session: DbSession,
+) -> MemorialAuditSchema:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+    return get_memorial_audit_by_analysis_id(session, analysis_id)
 
 
 @router.get("/{analysis_id}/export")

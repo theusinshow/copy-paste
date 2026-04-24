@@ -135,13 +135,18 @@ export type LdSheetCrosscheck = {
   results: LdSheetCrosscheckResult[];
   stats: {
     attention_count: number;
+    compatible_count: number;
+    extraction_limit_count: number;
+    needs_review_count: number;
     ok_count: number;
+    probable_issue_count: number;
     relevant_count: number;
     total_count: number;
   };
 };
 
 export type LdSheetCrosscheckResult = {
+  category: string;
   ld_description: string;
   ld_document_code: string;
   ld_filename: string;
@@ -150,6 +155,7 @@ export type LdSheetCrosscheckResult = {
   ld_source_text: string;
   matched_sheet: LdSheetMatchedSheet | null;
   message: string;
+  reason: string;
   severity: string;
   type: string;
 };
@@ -161,4 +167,42 @@ export type LdSheetMatchedSheet = {
   page: number;
   sheet_code: string;
   source_text: string;
+};
+
+export type MemorialAudit = {
+  findings: MemorialAuditFinding[];
+  identity: {
+    bairro: string | null;
+    municipality: string | null;
+    project_code: string | null;
+    work_name: string | null;
+  };
+  occurrences: MemorialAuditOccurrence[];
+  stats: {
+    document_count: number;
+    extraction_limit_count: number;
+    needs_review_count: number;
+    occurrence_count: number;
+    probable_issue_count: number;
+  };
+};
+
+export type MemorialAuditOccurrence = {
+  document_id: number;
+  field: string;
+  field_label: string;
+  filename: string;
+  normalized_value: string;
+  page: number;
+  source_text: string;
+  value: string;
+};
+
+export type MemorialAuditFinding = {
+  category: string;
+  field: string;
+  message: string;
+  occurrences: MemorialAuditOccurrence[];
+  reason: string;
+  severity: string;
 };

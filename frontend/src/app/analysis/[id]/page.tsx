@@ -7,11 +7,13 @@ import { DrawingListPanel } from "@/components/analysis/drawing-list-panel";
 import { ExtractedFieldList } from "@/components/analysis/extracted-field-list";
 import { IssueList } from "@/components/analysis/issue-list";
 import { LdSheetCrosscheckPanel } from "@/components/analysis/ld-sheet-crosscheck-panel";
+import { MemorialAuditPanel } from "@/components/analysis/memorial-audit-panel";
 import { PackageSummaryPanel } from "@/components/analysis/package-summary-panel";
 import {
   getDetectedSheets,
   getDrawingLists,
   getLdSheetCrosscheck,
+  getMemorialAudit,
   getPackageSummary,
   getAnalysis,
   listAnalysisFields,
@@ -24,6 +26,7 @@ import type {
   DrawingLists,
   ExtractedField,
   LdSheetCrosscheck,
+  MemorialAudit,
   PackageSummary,
 } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
@@ -64,6 +67,8 @@ export default async function AnalysisResultPage({
   let detectedSheetsLoadError: string | null = null;
   let ldSheetCrosscheck: LdSheetCrosscheck | null = null;
   let ldSheetCrosscheckLoadError: string | null = null;
+  let memorialAudit: MemorialAudit | null = null;
+  let memorialAuditLoadError: string | null = null;
 
   try {
     [
@@ -73,6 +78,7 @@ export default async function AnalysisResultPage({
       drawingLists,
       detectedSheets,
       ldSheetCrosscheck,
+      memorialAudit,
     ] = await Promise.all([
       listAnalysisIssues(analysisId),
       listAnalysisFields(analysisId),
@@ -80,6 +86,7 @@ export default async function AnalysisResultPage({
       getDrawingLists(analysisId),
       getDetectedSheets(analysisId),
       getLdSheetCrosscheck(analysisId),
+      getMemorialAudit(analysisId),
     ]);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
@@ -109,6 +116,10 @@ export default async function AnalysisResultPage({
     ldSheetCrosscheckLoadError = extractApiErrorMessage(
       error,
       "Nao foi possivel carregar o cruzamento LD x Pranchas desta analise agora.",
+    );
+    memorialAuditLoadError = extractApiErrorMessage(
+      error,
+      "Nao foi possivel carregar a auditoria de memoriais desta analise agora.",
     );
   }
 
@@ -142,6 +153,10 @@ export default async function AnalysisResultPage({
       <LdSheetCrosscheckPanel
         crosscheck={ldSheetCrosscheck}
         loadError={ldSheetCrosscheckLoadError}
+      />
+      <MemorialAuditPanel
+        audit={memorialAudit}
+        loadError={memorialAuditLoadError}
       />
       <IssueList
         issues={issues}

@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- Endpoint `GET /api/v1/analysis/{id}/memorial-audit` para auditar enderecos e campos de identidade em memoriais com evidencia textual.
 - Painel `LD x Pranchas` na tela de resultado com status por item da LD e evidencias comparadas.
 - Endpoint `GET /api/v1/analysis/{id}/ld-sheet-crosscheck` para cruzar itens da LD com pranchas detectadas por codigo, folha e descricao.
 - Painel `Pranchas detectadas` na tela de resultado para revisar codigos encontrados fora das paginas de LD.
@@ -39,6 +40,7 @@
 - Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
+- Cruzamento `LD x Pranchas` agora separa resultados em `compatible`, `needs_review`, `probable_issue` e `extraction_limit`, com `reason` tecnico por item.
 - Pagina de entrada reorganizada para iniciar direto pelo fluxo de nova analise, com anexo de PDFs como primeira acao.
 - Formulario de nova analise reordenado para exibir as opcoes de verificacao abaixo do anexo e manter `full_check` como modo padrao.
 - Historico de analises movido para uma area discreta ao final da pagina de entrada, mantendo consulta pelo endpoint atual.
@@ -59,6 +61,11 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Auditoria de memoriais agora filtra frases genericas de bairro/obra e detecta proprietario ou cliente apontando municipio divergente.
+- Auditoria de memoriais ajustada para nao confundir codigos tecnicos como `DADOS-01-27` com numero de projeto.
+- Selecao de memoriais restringida para evitar incluir pranchas que apenas citam memorial em notas de desenho.
+- Auditoria de memoriais agora sinaliza multiplos municipios e numeros de projeto distintos mesmo quando a identidade principal nao traz valor esperado confiavel.
+- Extração de descrição do selo calibrada para priorizar o campo `CONTEUDO: PRANCHA` e títulos próximos de marcadores como `ARQ 03/` ou `DRE 01/`.
 - Detector de pranchas agora reconstrói codigos completos quando o selo exibe arquivo base separado da folha, como `117_25_urb_a` + `01/07`.
 - Limpeza de descricoes da LD ajustada para remover rodapes e caminhos de arquivo anexados ao ultimo item da lista.
 - Extracao agora guarda multiplas ocorrencias confiaveis por campo para permitir comparacao dentro do mesmo PDF.

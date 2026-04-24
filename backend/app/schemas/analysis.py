@@ -186,6 +186,7 @@ class LdSheetMatchedSheetSchema(BaseModel):
 
 
 class LdSheetCrosscheckResultSchema(BaseModel):
+    category: str
     ld_description: str
     ld_document_code: str
     ld_filename: str
@@ -194,13 +195,18 @@ class LdSheetCrosscheckResultSchema(BaseModel):
     ld_source_text: str
     matched_sheet: LdSheetMatchedSheetSchema | None
     message: str
+    reason: str
     severity: str
     type: str
 
 
 class LdSheetCrosscheckStatsSchema(BaseModel):
     attention_count: int
+    compatible_count: int
+    extraction_limit_count: int
+    needs_review_count: int
     ok_count: int
+    probable_issue_count: int
     relevant_count: int
     total_count: int
 
@@ -208,3 +214,45 @@ class LdSheetCrosscheckStatsSchema(BaseModel):
 class LdSheetCrosscheckSchema(BaseModel):
     results: list[LdSheetCrosscheckResultSchema]
     stats: LdSheetCrosscheckStatsSchema
+
+
+class MemorialAuditIdentitySchema(BaseModel):
+    bairro: str | None
+    municipality: str | None
+    project_code: str | None
+    work_name: str | None
+
+
+class MemorialAuditOccurrenceSchema(BaseModel):
+    document_id: int
+    field: str
+    field_label: str
+    filename: str
+    normalized_value: str
+    page: int
+    source_text: str
+    value: str
+
+
+class MemorialAuditFindingSchema(BaseModel):
+    category: str
+    field: str
+    message: str
+    occurrences: list[MemorialAuditOccurrenceSchema]
+    reason: str
+    severity: str
+
+
+class MemorialAuditStatsSchema(BaseModel):
+    document_count: int
+    extraction_limit_count: int
+    needs_review_count: int
+    occurrence_count: int
+    probable_issue_count: int
+
+
+class MemorialAuditSchema(BaseModel):
+    findings: list[MemorialAuditFindingSchema]
+    identity: MemorialAuditIdentitySchema
+    occurrences: list[MemorialAuditOccurrenceSchema]
+    stats: MemorialAuditStatsSchema

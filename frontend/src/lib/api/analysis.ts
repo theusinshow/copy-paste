@@ -7,6 +7,7 @@ import type {
   ExtractedField,
   InputDocument,
   LdSheetCrosscheck,
+  MemorialAudit,
   PackageSummary,
 } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
@@ -62,6 +63,15 @@ export async function getDetectedSheets(analysisId: number) {
 export async function getLdSheetCrosscheck(analysisId: number) {
   return apiFetch<LdSheetCrosscheck>(
     `/api/v1/analysis/${analysisId}/ld-sheet-crosscheck`,
+    {
+      cache: "no-store",
+    },
+  );
+}
+
+export async function getMemorialAudit(analysisId: number) {
+  return apiFetch<MemorialAudit>(
+    `/api/v1/analysis/${analysisId}/memorial-audit`,
     {
       cache: "no-store",
     },
