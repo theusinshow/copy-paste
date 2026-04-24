@@ -16,7 +16,7 @@
 - `docs/API.md` atualizado para incluir `GET /analysis` para a tela de lista de analises
 
 ### Fixed
--
+- Tipagem de `DATABASE_URL` em `backend/app/core/config.py` para compatibilidade com `pydantic-settings` no Pydantic v2
 
 ---
 
