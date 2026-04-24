@@ -127,10 +127,84 @@ class DrawingListDocumentSchema(BaseModel):
 
 
 class DrawingListStatsSchema(BaseModel):
+    alert_count: int
     document_count: int
     row_count: int
 
 
+class DrawingListAlertSchema(BaseModel):
+    description: str
+    document_code: str
+    filename: str
+    item: str
+    message: str
+    page: int
+    severity: str
+    source_text: str
+    type: str
+
+
 class DrawingListsSchema(BaseModel):
+    alerts: list[DrawingListAlertSchema]
     lists: list[DrawingListDocumentSchema]
     stats: DrawingListStatsSchema
+
+
+class DetectedSheetSchema(BaseModel):
+    description: str | None
+    item: str | None
+    page: int
+    sheet_code: str
+    source_text: str
+
+
+class DetectedSheetDocumentSchema(BaseModel):
+    document_id: int
+    filename: str
+    sheet_count: int
+    sheets: list[DetectedSheetSchema]
+    tipo: str
+
+
+class DetectedSheetsStatsSchema(BaseModel):
+    document_count: int
+    sheet_count: int
+
+
+class DetectedSheetsSchema(BaseModel):
+    documents: list[DetectedSheetDocumentSchema]
+    stats: DetectedSheetsStatsSchema
+
+
+class LdSheetMatchedSheetSchema(BaseModel):
+    description: str | None
+    filename: str
+    item: str | None
+    page: int
+    sheet_code: str
+    source_text: str
+
+
+class LdSheetCrosscheckResultSchema(BaseModel):
+    ld_description: str
+    ld_document_code: str
+    ld_filename: str
+    ld_item: str
+    ld_page: int
+    ld_source_text: str
+    matched_sheet: LdSheetMatchedSheetSchema | None
+    message: str
+    severity: str
+    type: str
+
+
+class LdSheetCrosscheckStatsSchema(BaseModel):
+    attention_count: int
+    ok_count: int
+    relevant_count: int
+    total_count: int
+
+
+class LdSheetCrosscheckSchema(BaseModel):
+    results: list[LdSheetCrosscheckResultSchema]
+    stats: LdSheetCrosscheckStatsSchema

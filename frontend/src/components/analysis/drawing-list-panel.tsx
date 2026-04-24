@@ -28,6 +28,7 @@ export function DrawingListPanel({
           <div className="grid grid-cols-2 gap-3 text-sm">
             <Metric label="LDs" value={drawingLists.stats.document_count} />
             <Metric label="Linhas" value={drawingLists.stats.row_count} />
+            <Metric label="Alertas" value={drawingLists.stats.alert_count} />
           </div>
         ) : null}
       </div>
@@ -40,6 +41,7 @@ export function DrawingListPanel({
 
       {!loadError && drawingLists ? (
         <div className="mt-6 grid gap-5">
+          <AlertList drawingLists={drawingLists} />
           {drawingLists.lists.length === 0 ? (
             <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
               Nenhuma linha de Lista de Documentos foi detectada nesta analise.
@@ -96,6 +98,39 @@ export function DrawingListPanel({
         </div>
       ) : null}
     </section>
+  );
+}
+
+function AlertList({ drawingLists }: { drawingLists: DrawingLists }) {
+  if (drawingLists.alerts.length === 0) {
+    return (
+      <div className="rounded-lg border border-[var(--cp-success)]/30 bg-[var(--cp-success)]/10 p-4 text-sm text-[var(--cp-text)]">
+        Nenhum alerta inicial foi detectado no cruzamento das LDs.
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-3">
+      {drawingLists.alerts.map((alert) => (
+        <div
+          key={`${alert.type}-${alert.filename}-${alert.page}-${alert.item}-${alert.document_code}`}
+          className="rounded-lg border border-[var(--cp-warning)]/40 bg-[var(--cp-warning)]/10 p-4 text-sm leading-6 text-[var(--cp-text)]"
+          title={alert.source_text}
+        >
+          <p>
+            <span className="mr-2 font-semibold uppercase tracking-[0.16em] text-[var(--cp-warning)]">
+              {alert.severity}
+            </span>
+            {alert.message}
+          </p>
+          <p className="mt-2 text-xs text-[var(--cp-muted)]">
+            {alert.filename} · p{alert.page} · {alert.document_code} ·{" "}
+            {alert.description}
+          </p>
+        </div>
+      ))}
+    </div>
   );
 }
 

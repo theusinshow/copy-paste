@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { AnalysisResultHeader } from "@/components/analysis/analysis-result-header";
+import { DetectedSheetsPanel } from "@/components/analysis/detected-sheets-panel";
 import { DrawingListPanel } from "@/components/analysis/drawing-list-panel";
 import { ExtractedFieldList } from "@/components/analysis/extracted-field-list";
 import { IssueList } from "@/components/analysis/issue-list";
+import { LdSheetCrosscheckPanel } from "@/components/analysis/ld-sheet-crosscheck-panel";
 import { PackageSummaryPanel } from "@/components/analysis/package-summary-panel";
 import {
+  getDetectedSheets,
   getDrawingLists,
+  getLdSheetCrosscheck,
   getPackageSummary,
   getAnalysis,
   listAnalysisFields,
@@ -16,8 +20,10 @@ import {
 import { ApiError, extractApiErrorMessage } from "@/lib/api/fetcher";
 import type {
   AnalysisRun,
+  DetectedSheets,
   DrawingLists,
   ExtractedField,
+  LdSheetCrosscheck,
   PackageSummary,
 } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
@@ -54,13 +60,26 @@ export default async function AnalysisResultPage({
   let packageSummaryLoadError: string | null = null;
   let drawingLists: DrawingLists | null = null;
   let drawingListsLoadError: string | null = null;
+  let detectedSheets: DetectedSheets | null = null;
+  let detectedSheetsLoadError: string | null = null;
+  let ldSheetCrosscheck: LdSheetCrosscheck | null = null;
+  let ldSheetCrosscheckLoadError: string | null = null;
 
   try {
-    [issues, fields, packageSummary, drawingLists] = await Promise.all([
+    [
+      issues,
+      fields,
+      packageSummary,
+      drawingLists,
+      detectedSheets,
+      ldSheetCrosscheck,
+    ] = await Promise.all([
       listAnalysisIssues(analysisId),
       listAnalysisFields(analysisId),
       getPackageSummary(analysisId),
       getDrawingLists(analysisId),
+      getDetectedSheets(analysisId),
+      getLdSheetCrosscheck(analysisId),
     ]);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
@@ -82,6 +101,14 @@ export default async function AnalysisResultPage({
     drawingListsLoadError = extractApiErrorMessage(
       error,
       "Nao foi possivel carregar as Listas de Documentos desta analise agora.",
+    );
+    detectedSheetsLoadError = extractApiErrorMessage(
+      error,
+      "Nao foi possivel carregar as pranchas detectadas desta analise agora.",
+    );
+    ldSheetCrosscheckLoadError = extractApiErrorMessage(
+      error,
+      "Nao foi possivel carregar o cruzamento LD x Pranchas desta analise agora.",
     );
   }
 
@@ -107,6 +134,14 @@ export default async function AnalysisResultPage({
       <DrawingListPanel
         drawingLists={drawingLists}
         loadError={drawingListsLoadError}
+      />
+      <DetectedSheetsPanel
+        detectedSheets={detectedSheets}
+        loadError={detectedSheetsLoadError}
+      />
+      <LdSheetCrosscheckPanel
+        crosscheck={ldSheetCrosscheck}
+        loadError={ldSheetCrosscheckLoadError}
       />
       <IssueList
         issues={issues}

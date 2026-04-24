@@ -3,6 +3,11 @@
 ## [Unreleased]
 
 ### Added
+- Painel `LD x Pranchas` na tela de resultado com status por item da LD e evidencias comparadas.
+- Endpoint `GET /api/v1/analysis/{id}/ld-sheet-crosscheck` para cruzar itens da LD com pranchas detectadas por codigo, folha e descricao.
+- Painel `Pranchas detectadas` na tela de resultado para revisar codigos encontrados fora das paginas de LD.
+- Endpoint `GET /api/v1/analysis/{id}/detected-sheets` para listar codigos de pranchas detectados fora das paginas de LD.
+- Alertas iniciais no painel de LD para codigo de projeto divergente e item sem correspondencia textual clara no pacote.
 - Painel `Listas de documentos` na tela de resultado para revisar codigos, itens, descricoes e paginas extraidos das LDs.
 - Endpoint `GET /api/v1/analysis/{id}/drawing-lists` para expor linhas detectadas em Listas de Documentos com trecho de evidencia.
 - Endpoint `GET /api/v1/analysis/{id}/package-summary` para resumir identidade, documentos, LDs e alertas iniciais do pacote analisado.
@@ -54,6 +59,8 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Detector de pranchas agora reconstrói codigos completos quando o selo exibe arquivo base separado da folha, como `117_25_urb_a` + `01/07`.
+- Limpeza de descricoes da LD ajustada para remover rodapes e caminhos de arquivo anexados ao ultimo item da lista.
 - Extracao agora guarda multiplas ocorrencias confiaveis por campo para permitir comparacao dentro do mesmo PDF.
 - Aliases genericos de `OBRA` e `PROJETO` removidos para evitar falsos positivos em frases comuns do documento.
 - Normalizacao de bairro ajustada para nao tratar sufixos entre parenteses como divergencia real.

@@ -2,9 +2,11 @@ import { apiFetch } from "@/lib/api/fetcher";
 import type { AnalysisMode } from "@/lib/analysis/analysis-modes";
 import type {
   AnalysisRun,
+  DetectedSheets,
   DrawingLists,
   ExtractedField,
   InputDocument,
+  LdSheetCrosscheck,
   PackageSummary,
 } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
@@ -46,6 +48,24 @@ export async function getDrawingLists(analysisId: number) {
   return apiFetch<DrawingLists>(`/api/v1/analysis/${analysisId}/drawing-lists`, {
     cache: "no-store",
   });
+}
+
+export async function getDetectedSheets(analysisId: number) {
+  return apiFetch<DetectedSheets>(
+    `/api/v1/analysis/${analysisId}/detected-sheets`,
+    {
+      cache: "no-store",
+    },
+  );
+}
+
+export async function getLdSheetCrosscheck(analysisId: number) {
+  return apiFetch<LdSheetCrosscheck>(
+    `/api/v1/analysis/${analysisId}/ld-sheet-crosscheck`,
+    {
+      cache: "no-store",
+    },
+  );
 }
 
 export async function createAnalysis(payload?: {

@@ -70,8 +70,20 @@ GET /analysis/{id}/package-summary
 GET /analysis/{id}/drawing-lists
 → lista as linhas detectadas nas Listas de Documentos
 - retorna documentos com LD, codigo do documento, item, descricao, pagina e trecho de evidencia
+- retorna alertas iniciais para codigo de projeto divergente na LD e linha sem correspondencia textual clara no pacote
 - derivado de `InputDocument`, `DocumentPage` e `TextSpan`, sem reler PDFs permanentes
 - usado pela tela de resultado para revisar o que cada LD declara antes do cruzamento com pranchas
+
+GET /analysis/{id}/detected-sheets
+→ lista pranchas detectadas nas paginas que nao sao LD
+- retorna documento, pagina, codigo da prancha, folha quando detectada, descricao proxima e trecho de evidencia
+- derivado de `InputDocument`, `DocumentPage` e `TextSpan`, sem reler PDFs permanentes
+- quando o selo traz apenas arquivo base e folha separada, reconstrói o codigo completo da prancha para cruzamento com a LD
+
+GET /analysis/{id}/ld-sheet-crosscheck
+→ cruza linhas de LD com pranchas detectadas
+- retorna cada item da LD com status `ok`, `atencao` ou `relevante`
+- compara codigo, folha e descricao normalizada com evidencias da LD e da prancha
 
 GET /issues/{id}
 → detalhe
