@@ -16,3 +16,16 @@ export type InputDocument = {
   original_filename: string;
   tipo: string;
 };
+
+export type ExtractedField = {
+  bbox: Record<string, number> | null;
+  document_filename: string;
+  document_page_id: number | null;
+  document_tipo: string;
+  field_name: string;
+  id: number;
+  input_document_id: number | null;
+  normalized_value: string;
+  page: number | null;
+  raw_value: string;
+};

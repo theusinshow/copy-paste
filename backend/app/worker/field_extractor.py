@@ -8,8 +8,10 @@ from app.worker.pdf_reader import ExtractedPdfPage, ExtractedTextSpan
 LINE_TOP_TOLERANCE = 3.0
 VALUE_PREFIX_PATTERN = re.compile(r"^[\s:\-–—]+")
 LABEL_SEPARATOR_PATTERN = re.compile(r"\s*[:：]\s*|\s+[–—-]\s+")
+SENTENCE_BOUNDARY_PATTERN = re.compile(r"[.;]\s+")
 WHITESPACE_PATTERN = re.compile(r"\s+")
 NON_ALNUM_PATTERN = re.compile(r"[^A-Z0-9]+")
+EMBEDDED_VALUE_ALIASES = frozenset({"BAIRRO", "NO BAIRRO"})
 
 
 @dataclass(frozen=True)
@@ -41,19 +43,16 @@ def extract_fields_from_pages(
 
     extracted_fields: list[ExtractedFieldCandidate] = []
     for definition in FIELD_DEFINITIONS:
-        candidate = _find_field_candidate(definition.aliases, lines)
-        if candidate is None:
-            continue
-
-        extracted_fields.append(
-            ExtractedFieldCandidate(
-                document_page_id=document_page_ids[candidate.page_number],
-                field_name=definition.field_name,
-                raw_value=candidate.raw_value,
-                normalized_value=_normalize_value(candidate.raw_value),
-                bbox=candidate.bbox,
+        for candidate in _find_field_candidates(definition.aliases, lines):
+            extracted_fields.append(
+                ExtractedFieldCandidate(
+                    document_page_id=document_page_ids[candidate.page_number],
+                    field_name=definition.field_name,
+                    raw_value=candidate.raw_value,
+                    normalized_value=_normalize_value(candidate.raw_value),
+                    bbox=candidate.bbox,
+                )
             )
-        )
 
     return extracted_fields
 
@@ -65,10 +64,11 @@ class _MatchedValue:
     raw_value: str
 
 
-def _find_field_candidate(
+def _find_field_candidates(
     aliases: tuple[str, ...],
     lines: list[_TextLine],
-) -> _MatchedValue | None:
+) -> list[_MatchedValue]:
+    candidates: list[_MatchedValue] = []
     all_aliases = {
         _normalize_for_match(alias)
         for definition in FIELD_DEFINITIONS
@@ -86,31 +86,47 @@ def _find_field_candidate(
         for alias in normalized_aliases:
             alias_tokens = alias.split()
             normalized_line = _normalize_for_match(line.text)
-            if not normalized_line.startswith(alias):
+            alias_start_index = _find_alias_start_index(normalized_line, alias_tokens)
+            if alias_start_index is None:
+                continue
+            if alias_start_index != 0 and alias not in EMBEDDED_VALUE_ALIASES:
                 continue
 
-            inline_value = _extract_inline_value(line, alias_tokens, normalized_line)
+            inline_value = _extract_inline_value(
+                line,
+                alias_start_index=alias_start_index,
+                alias_tokens=alias_tokens,
+                normalized_line=normalized_line,
+            )
             if inline_value is not None:
-                return inline_value
+                candidates.append(inline_value)
+                continue
+
+            if alias_start_index != 0:
+                continue
 
             next_line = _get_next_value_line(lines, index, all_aliases)
             if next_line is not None:
-                return _MatchedValue(
-                    bbox=next_line.bbox,
-                    page_number=next_line.page_number,
-                    raw_value=next_line.text,
+                candidates.append(
+                    _MatchedValue(
+                        bbox=next_line.bbox,
+                        page_number=next_line.page_number,
+                        raw_value=next_line.text,
+                    )
                 )
 
-    return None
+    return _deduplicate_candidates(candidates)
 
 
 def _extract_inline_value(
     line: _TextLine,
+    alias_start_index: int,
     alias_tokens: list[str],
     normalized_line: str,
 ) -> _MatchedValue | None:
     raw_value = _extract_inline_value_from_text(
         line.text,
+        alias_start_index=alias_start_index,
         alias_token_count=len(alias_tokens),
         normalized_alias=" ".join(alias_tokens),
         normalized_line=normalized_line,
@@ -121,6 +137,9 @@ def _extract_inline_value(
             page_number=line.page_number,
             raw_value=raw_value,
         )
+
+    if alias_start_index != 0:
+        return None
 
     start_index = _find_value_start_index(line.spans, alias_tokens)
     if start_index is None:
@@ -231,24 +250,27 @@ def _find_value_start_index(
 
 def _extract_inline_value_from_text(
     text: str,
+    alias_start_index: int,
     alias_token_count: int,
     normalized_alias: str,
     normalized_line: str,
 ) -> str | None:
-    separated_value = _extract_value_after_separator(text, normalized_alias)
-    if separated_value:
-        return separated_value
+    if alias_start_index == 0:
+        separated_value = _extract_value_after_separator(text, normalized_alias)
+        if separated_value:
+            return separated_value
 
     normalized_tokens = normalized_line.split()
-    if len(normalized_tokens) <= alias_token_count:
+    value_start_index = alias_start_index + alias_token_count
+    if len(normalized_tokens) <= value_start_index:
         return None
 
     raw_tokens = text.split()
-    if len(raw_tokens) <= alias_token_count:
+    if len(raw_tokens) <= value_start_index:
         return None
 
-    raw_value = " ".join(raw_tokens[alias_token_count:])
-    return _clean_value_text(raw_value)
+    raw_value = " ".join(raw_tokens[value_start_index:])
+    return _clean_value_text(_truncate_value(raw_value))
 
 
 def _extract_value_after_separator(text: str, normalized_alias: str) -> str | None:
@@ -260,7 +282,41 @@ def _extract_value_after_separator(text: str, normalized_alias: str) -> str | No
     if _normalize_for_match(label) != normalized_alias:
         return None
 
-    return _clean_value_text(value)
+    return _clean_value_text(_truncate_value(value))
+
+
+def _find_alias_start_index(
+    normalized_line: str,
+    alias_tokens: list[str],
+) -> int | None:
+    line_tokens = normalized_line.split()
+    if len(line_tokens) < len(alias_tokens):
+        return None
+
+    for index in range(0, len(line_tokens) - len(alias_tokens) + 1):
+        if line_tokens[index : index + len(alias_tokens)] == alias_tokens:
+            return index
+
+    return None
+
+
+def _deduplicate_candidates(candidates: list[_MatchedValue]) -> list[_MatchedValue]:
+    deduplicated_candidates: list[_MatchedValue] = []
+    seen: set[tuple[int, str]] = set()
+    for candidate in candidates:
+        key = (candidate.page_number, _normalize_value(candidate.raw_value))
+        if key in seen:
+            continue
+
+        seen.add(key)
+        deduplicated_candidates.append(candidate)
+
+    return deduplicated_candidates
+
+
+def _truncate_value(value: str) -> str:
+    parts = SENTENCE_BOUNDARY_PATTERN.split(value, maxsplit=1)
+    return parts[0]
 
 
 def _looks_like_label(text: str, aliases: set[str]) -> bool:
@@ -282,7 +338,20 @@ def _normalize_value(value: str) -> str:
 
 def _clean_value_text(value: str) -> str:
     value = VALUE_PREFIX_PATTERN.sub("", value)
+    value = _remove_repeated_label_prefix(value)
     return WHITESPACE_PATTERN.sub(" ", value).strip()
+
+
+def _remove_repeated_label_prefix(value: str) -> str:
+    normalized_value = _normalize_for_match(value)
+    for alias in EMBEDDED_VALUE_ALIASES:
+        if normalized_value == alias:
+            return ""
+
+        if normalized_value.startswith(f"{alias} "):
+            return " ".join(value.split()[len(alias.split()) :])
+
+    return value
 
 
 def _merge_bboxes(

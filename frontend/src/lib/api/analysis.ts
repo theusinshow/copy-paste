@@ -1,6 +1,10 @@
 import { apiFetch } from "@/lib/api/fetcher";
 import type { AnalysisMode } from "@/lib/analysis/analysis-modes";
-import type { AnalysisRun, InputDocument } from "@/lib/types/analysis";
+import type {
+  AnalysisRun,
+  ExtractedField,
+  InputDocument,
+} from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
 
 export async function listAnalyses() {
@@ -17,6 +21,12 @@ export async function getAnalysis(analysisId: number) {
 
 export async function listAnalysisIssues(analysisId: number) {
   return apiFetch<AnalysisIssue[]>(`/api/v1/analysis/${analysisId}/issues`, {
+    cache: "no-store",
+  });
+}
+
+export async function listAnalysisFields(analysisId: number) {
+  return apiFetch<ExtractedField[]>(`/api/v1/analysis/${analysisId}/fields`, {
     cache: "no-store",
   });
 }

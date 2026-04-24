@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { AnalysisResultHeader } from "@/components/analysis/analysis-result-header";
+import { ExtractedFieldList } from "@/components/analysis/extracted-field-list";
 import { IssueList } from "@/components/analysis/issue-list";
 import {
   getAnalysis,
+  listAnalysisFields,
   listAnalysisIssues,
 } from "@/lib/api/analysis";
 import { ApiError, extractApiErrorMessage } from "@/lib/api/fetcher";
-import type { AnalysisRun } from "@/lib/types/analysis";
+import type { AnalysisRun, ExtractedField } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
 
 export const dynamic = "force-dynamic";
@@ -37,9 +39,14 @@ export default async function AnalysisResultPage({
 
   let issues: AnalysisIssue[] = [];
   let issuesLoadError: string | null = null;
+  let fields: ExtractedField[] = [];
+  let fieldsLoadError: string | null = null;
 
   try {
-    issues = await listAnalysisIssues(analysisId);
+    [issues, fields] = await Promise.all([
+      listAnalysisIssues(analysisId),
+      listAnalysisFields(analysisId),
+    ]);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
       notFound();
@@ -48,6 +55,10 @@ export default async function AnalysisResultPage({
     issuesLoadError = extractApiErrorMessage(
       error,
       "Nao foi possivel carregar as issues desta analise agora.",
+    );
+    fieldsLoadError = extractApiErrorMessage(
+      error,
+      "Nao foi possivel carregar os campos extraidos desta analise agora.",
     );
   }
 
@@ -71,6 +82,7 @@ export default async function AnalysisResultPage({
         loadError={issuesLoadError}
         status={analysis.status}
       />
+      <ExtractedFieldList fields={fields} loadError={fieldsLoadError} />
     </div>
   );
 }

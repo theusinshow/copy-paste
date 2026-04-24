@@ -3,6 +3,9 @@
 ## [Unreleased]
 
 ### Added
+- Guia `tests/fixtures/pdfs/TEST_CASES.md` com conteudos controlados para gerar PDFs de teste do rules engine.
+- Endpoint `GET /api/v1/analysis/{id}/fields` para listar campos extraidos com pagina e contexto do documento.
+- Secao de campos extraidos na tela de resultado para mostrar evidencias mesmo quando nenhuma issue e gerada.
 - Base do backend FastAPI em `backend/app`
 - Estrutura modular inicial para API, core, db, models e schemas
 - Settings por ambiente com `.env.example`
@@ -45,6 +48,9 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Extracao agora guarda multiplas ocorrencias confiaveis por campo para permitir comparacao dentro do mesmo PDF.
+- Aliases genericos de `OBRA` e `PROJETO` removidos para evitar falsos positivos em frases comuns do documento.
+- Normalizacao de bairro ajustada para nao tratar sufixos entre parenteses como divergencia real.
 - Extracao de campos flexibilizada para reconhecer labels com separadores na mesma linha, acentos e variacoes como `Nº Projeto`.
 - Regra de divergencia ajustada para comparar tambem `bairro`, conforme regras MVP documentadas.
 - Comparacao de valores normalizada para reduzir falsos negativos por maiusculas, acentos e pontuacao.

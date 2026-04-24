@@ -8,11 +8,13 @@ from app.db.analysis_runs import (
     list_analysis_runs,
 )
 from app.db.dependencies import DbSession
+from app.db.extracted_fields import list_extracted_fields_by_analysis_id
 from app.db.input_documents import create_input_documents
 from app.db.issues import list_issues_with_evidences_by_analysis_id
 from app.schemas.analysis import (
     AnalysisCreateSchema,
     AnalysisRunSchema,
+    ExtractedFieldWithContextSchema,
     InputDocumentSchema,
 )
 from app.schemas.issue import IssueWithEvidencesSchema
@@ -175,6 +177,20 @@ def list_analysis_issues(
             detail="Analysis not found",
         )
     return list_issues_with_evidences_by_analysis_id(session, analysis_id)
+
+
+@router.get("/{analysis_id}/fields", response_model=list[ExtractedFieldWithContextSchema])
+def list_analysis_fields(
+    analysis_id: int,
+    session: DbSession,
+) -> list[ExtractedFieldWithContextSchema]:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+    return list_extracted_fields_by_analysis_id(session, analysis_id)
 
 
 @router.get("/{analysis_id}/export")

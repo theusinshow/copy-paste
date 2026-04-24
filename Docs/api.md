@@ -57,6 +57,11 @@ GET /analysis/{id}/issues
 - `evidences` mantem `issue_id`, `field_id`, `page`, `bbox`
 - `evidences.text` e derivado de `ExtractedField.raw_value` apenas para leitura
 
+GET /analysis/{id}/fields
+→ lista campos extraídos
+- retorna `ExtractedField` com contexto de `page`, `document_filename` e `document_tipo`
+- usado para revisar evidências mesmo quando nenhuma issue é gerada
+
 GET /issues/{id}
 → detalhe
 

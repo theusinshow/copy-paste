@@ -28,6 +28,8 @@ TARGETED_CHECK_FIELDS = {
 }
 WHITESPACE_PATTERN = re.compile(r"\s+")
 NON_ALNUM_PATTERN = re.compile(r"[^A-Z0-9]+")
+PARENTHETICAL_PATTERN = re.compile(r"\([^)]*\)")
+TRAILING_CODE_PATTERN = re.compile(r"\b\d+\s+\d+$")
 
 
 def evaluate_mvp_rules(
@@ -83,7 +85,10 @@ def _build_divergence_issues(
         matching_fields = _list_fields_by_name(extracted_fields, field_name)
         distinct_values = sorted(
             {
-                _normalize_rule_value(field.normalized_value or field.raw_value)
+                _normalize_rule_value_for_field(
+                    field.field_name,
+                    field.normalized_value or field.raw_value,
+                )
                 for field in matching_fields
                 if field.normalized_value or field.raw_value
             }
@@ -183,3 +188,11 @@ def _normalize_rule_value(value: str) -> str:
     value = value.upper()
     value = NON_ALNUM_PATTERN.sub(" ", value)
     return WHITESPACE_PATTERN.sub(" ", value).strip()
+
+
+def _normalize_rule_value_for_field(field_name: str, value: str) -> str:
+    if field_name == "bairro":
+        value = PARENTHETICAL_PATTERN.sub(" ", value)
+        value = TRAILING_CODE_PATTERN.sub(" ", value)
+
+    return _normalize_rule_value(value)

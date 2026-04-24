@@ -59,3 +59,9 @@ class ExtractedFieldSchema(BaseModel):
     raw_value: str
     normalized_value: str
     bbox: Any | None
+
+
+class ExtractedFieldWithContextSchema(ExtractedFieldSchema):
+    page: int | None
+    document_filename: str
+    document_tipo: str

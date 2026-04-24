@@ -10,7 +10,7 @@ class FieldDefinition:
 FIELD_DEFINITIONS: tuple[FieldDefinition, ...] = (
     FieldDefinition(
         field_name="nome_obra",
-        aliases=("NOME DA OBRA", "NOME OBRA", "OBRA", "EMPREENDIMENTO"),
+        aliases=("NOME DA OBRA", "NOME OBRA", "EMPREENDIMENTO"),
     ),
     FieldDefinition(
         field_name="numero_projeto",
@@ -21,16 +21,15 @@ FIELD_DEFINITIONS: tuple[FieldDefinition, ...] = (
             "N PROJETO",
             "NO DO PROJETO",
             "NO PROJETO",
-            "PROJETO",
         ),
     ),
     FieldDefinition(
         field_name="endereco",
-        aliases=("ENDERECO", "ENDERECO DA OBRA", "LOCAL"),
+        aliases=("ENDERECO", "ENDERECO DA OBRA"),
     ),
     FieldDefinition(
         field_name="bairro",
-        aliases=("BAIRRO",),
+        aliases=("BAIRRO", "NO BAIRRO"),
     ),
     FieldDefinition(
         field_name="municipio",
