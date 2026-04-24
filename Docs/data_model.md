@@ -20,6 +20,13 @@
 - document_id
 - page_number
 
+### TextSpan
+- id
+- document_page_id
+- text
+- bbox
+- bbox pode ser null
+
 ### ExtractedField
 - id
 - field_name

@@ -31,6 +31,15 @@ class DocumentPageSchema(BaseModel):
     page_number: int
 
 
+class TextSpanSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    document_page_id: int
+    text: str
+    bbox: Any | None
+
+
 class ExtractedFieldSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

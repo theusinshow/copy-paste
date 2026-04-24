@@ -5,6 +5,7 @@ from app.models.input_document import InputDocument
 from app.models.issue import Issue
 from app.models.issue_evidence import IssueEvidence
 from app.models.review_decision import ReviewDecision
+from app.models.text_span import TextSpan
 
 __all__ = [
     "AnalysisRun",
@@ -14,4 +15,5 @@ __all__ = [
     "Issue",
     "IssueEvidence",
     "ReviewDecision",
+    "TextSpan",
 ]

@@ -9,8 +9,9 @@ from app.db.analysis_runs import (
 )
 from app.db.document_pages import replace_document_pages
 from app.db.input_documents import list_input_documents_by_analysis_id
+from app.db.text_spans import replace_text_spans
 from app.models.analysis_run import AnalysisRun
-from app.worker.pdf_reader import read_pdf_page_numbers
+from app.worker.pdf_reader import read_pdf_pages
 
 
 class AnalysisProcessingError(RuntimeError):
@@ -29,11 +30,37 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
     set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_PROCESSING)
 
     try:
-        pages_by_document = [
-            (input_document.id, read_pdf_page_numbers(input_document.file_path))
+        extracted_pages_by_document = [
+            (input_document.id, read_pdf_pages(input_document.file_path))
             for input_document in input_documents
         ]
-        replace_document_pages(session, pages_by_document)
+        pages_by_document = [
+            (
+                document_id,
+                [extracted_page.page_number for extracted_page in extracted_pages],
+            )
+            for document_id, extracted_pages in extracted_pages_by_document
+        ]
+        document_pages = replace_document_pages(session, pages_by_document)
+        document_page_ids = {
+            (document_page.document_id, document_page.page_number): document_page.id
+            for document_page in document_pages
+        }
+        replace_text_spans(
+            session,
+            [
+                (
+                    document_page_ids[(document_id, extracted_page.page_number)],
+                    [
+                        {"text": text_span.text, "bbox": text_span.bbox}
+                        for text_span in extracted_page.text_spans
+                    ],
+                )
+                for document_id, extracted_pages in extracted_pages_by_document
+                for extracted_page in extracted_pages
+            ],
+        )
+        session.commit()
     except (FileNotFoundError, ValueError) as exc:
         session.rollback()
         set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_FAILED)

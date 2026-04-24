@@ -16,12 +16,14 @@
 - Tela de lista de analises e tela de nova analise com upload inicial integradas ao backend atual
 - Estrutura inicial de worker em `backend/app/worker` para processamento sincrono das analises
 - Pipeline inicial de `POST /api/v1/analysis/{id}/start` para ler PDFs enviados e criar `DocumentPage` por pagina
+- Entidade `TextSpan` associada a `DocumentPage` para armazenar texto bruto com `bbox` opcional
 
 ### Changed
 - `docs/API.md` atualizado para incluir `GET /analysis` para a tela de lista de analises
 - `InputDocument` documentado e modelado com `original_filename` e `file_path`, mantendo `file_hash`
 - Frontend configurado com tokens CSS derivados de `docs/DESIGN.md` e base da API centralizada via `NEXT_PUBLIC_API_URL`
 - `AnalysisRun` agora percorre os status `processing`, `completed` e `failed` durante o pipeline inicial de leitura de PDFs
+- `docs/DATA_MODEL.md` atualizado para incluir a camada bruta `TextSpan` ligada a `DocumentPage`
 
 ### Fixed
 - Tipagem de `DATABASE_URL` em `backend/app/core/config.py` para compatibilidade com `pydantic-settings` no Pydantic v2
@@ -29,6 +31,7 @@
 - Assinatura do upload em `POST /api/v1/analysis/{id}/files` ajustada para o Swagger expor `files` como upload de arquivo multipart
 - Estado inicial do formulario de nova analise movido para modulo compartilhado para evitar erro de prerender no build do Next.js
 - Reprocessamento inicial de paginas agora substitui `DocumentPage` anteriores da analise para manter o pipeline deterministico
+- Worker de PDF ajustado para extrair texto nativo por pagina com coordenadas quando disponiveis, sem OCR e sem interpretacao semantica
 - `.gitignore` corrigido para bloquear bancos locais, uploads e artefatos de build antes do commit
 
 ---
