@@ -1,25 +1,70 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useState } from "react";
 
-import { submitNewAnalysis } from "@/app/analysis/new/actions";
+import { AnalysisStartStatus } from "@/components/analysis/analysis-start-status";
 import { FormSubmitButton } from "@/components/analysis/form-submit-button";
-import { UploadedDocumentsList } from "@/components/analysis/uploaded-documents-list";
+import { runNewAnalysisFlow } from "@/lib/analysis/run-new-analysis-flow";
 import { initialNewAnalysisActionState } from "@/lib/types/new-analysis-action";
 
 export function NewAnalysisForm() {
-  const [state, formAction] = useActionState(
-    submitNewAnalysis,
-    initialNewAnalysisActionState,
-  );
+  const [state, setState] = useState(initialNewAnalysisActionState);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (isSubmitting) {
+      return;
+    }
+
+    const formData = new FormData(event.currentTarget);
+    const tipo = String(formData.get("tipo") ?? "").trim();
+    const files = formData
+      .getAll("files")
+      .filter((entry): entry is File => entry instanceof File && entry.size > 0);
+
+    if (!tipo) {
+      setState({
+        ...initialNewAnalysisActionState,
+        message: "Informe o tipo aplicado aos PDFs desta analise.",
+        status: "failed",
+        tone: "error",
+      });
+      return;
+    }
+
+    if (files.length === 0) {
+      setState({
+        ...initialNewAnalysisActionState,
+        message: "Selecione ao menos um arquivo PDF.",
+        status: "failed",
+        tone: "error",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await runNewAnalysisFlow({
+        files,
+        onStateChange: (nextState) => {
+          setState(nextState);
+        },
+        tipo,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <section
       className="rounded-[2rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/85 p-8"
       style={{ boxShadow: "var(--cp-shadow)" }}
     >
-      <form action={formAction} className="grid gap-6">
+      <form onSubmit={handleSubmit} className="grid gap-6">
         <div className="grid gap-2">
           <label
             htmlFor="tipo"
@@ -63,7 +108,7 @@ export function NewAnalysisForm() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <FormSubmitButton />
+          <FormSubmitButton pending={isSubmitting} />
           <Link
             href="/"
             className="inline-flex items-center justify-center rounded-full border border-[var(--cp-border)] px-5 py-3 text-sm font-medium text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)]"
@@ -73,29 +118,7 @@ export function NewAnalysisForm() {
         </div>
       </form>
 
-      {state.status !== "idle" ? (
-        <div
-          className={`mt-6 rounded-[1.5rem] border p-5 ${
-            state.status === "success"
-              ? "border-[var(--cp-success)]/40 bg-[var(--cp-success)]/10"
-              : "border-[var(--cp-error)]/40 bg-[var(--cp-error)]/10"
-          }`}
-        >
-          <p className="text-sm font-medium leading-6 text-[var(--cp-text)]">
-            {state.message}
-          </p>
-
-          {state.analysis ? (
-            <p className="mt-2 text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
-              Analise criada: #{state.analysis.id}
-            </p>
-          ) : null}
-
-          {state.documents.length > 0 ? (
-            <UploadedDocumentsList documents={state.documents} />
-          ) : null}
-        </div>
-      ) : null}
+      <AnalysisStartStatus state={state} />
     </section>
   );
 }

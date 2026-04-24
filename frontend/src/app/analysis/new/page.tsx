@@ -10,13 +10,14 @@ export const metadata: Metadata = {
 const uploadRules = [
   "PDFs apenas, em envio multipart para o backend atual.",
   "O tipo e aplicado ao conjunto de arquivos enviado nesta etapa.",
-  "Nao iniciamos worker, OCR ou rules engine a partir desta tela.",
+  "O processamento e iniciado por POST /api/v1/analysis/{analysis_id}/start de forma sincronica.",
 ];
 
 const nextSteps = [
   "Criar a analise via POST /api/v1/analysis.",
   "Enviar os PDFs via POST /api/v1/analysis/{analysis_id}/files.",
-  "Voltar para a lista com o backend ja sincronizado.",
+  "Iniciar o processamento via POST /api/v1/analysis/{analysis_id}/start.",
+  "Liberar o link de resultado somente quando o status final for completed.",
 ];
 
 export default function NewAnalysisPage() {
@@ -29,12 +30,12 @@ export default function NewAnalysisPage() {
           </p>
           <div className="mt-4 space-y-4">
             <h1 className="text-4xl font-semibold tracking-tight text-[var(--cp-text)]">
-              Nova analise com envio inicial de PDFs.
+              Nova analise com upload e start do processamento.
             </h1>
             <p className="max-w-2xl text-base leading-7 text-[var(--cp-muted)]">
-              Esta etapa cobre somente a criacao da analise e o upload tecnico
-              dos arquivos. Processamento, viewer e revisao continuam para a
-              proxima fase.
+              Esta etapa cria a analise, envia os arquivos PDF e dispara o
+              processamento sincronico. Viewer e highlight visual continuam
+              fora de escopo.
             </p>
           </div>
 
@@ -46,7 +47,7 @@ export default function NewAnalysisPage() {
               Voltar para analises
             </Link>
             <span className="rounded-full bg-[var(--cp-accent)]/10 px-4 py-2 font-medium text-[var(--cp-accent)]">
-              Fluxo atual: Lista → Nova analise → Upload
+              Fluxo atual: Lista → Nova analise → Upload → Processamento
             </span>
           </div>
         </div>

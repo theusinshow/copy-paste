@@ -5,6 +5,8 @@ import { formatAnalysisDate } from "@/lib/formatters";
 import type { AnalysisRun } from "@/lib/types/analysis";
 
 export function AnalysisCard({ analysis }: { analysis: AnalysisRun }) {
+  const canViewResult = analysis.status === "completed";
+
   return (
     <article
       className="rounded-[1.75rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/90 p-5 transition-transform duration-200 hover:-translate-y-0.5"
@@ -42,14 +44,16 @@ export function AnalysisCard({ analysis }: { analysis: AnalysisRun }) {
       </dl>
 
       <div className="mt-5 flex flex-col gap-3 border-t border-[var(--cp-border)] pt-4 text-sm text-[var(--cp-muted)] sm:flex-row sm:items-center sm:justify-between">
-        <p>Resultado tecnico disponivel sem viewer PDF e sem highlight visual.</p>
+        <p>{getAnalysisFootnote(analysis.status)}</p>
         <div className="flex flex-wrap items-center gap-4">
-          <Link
-            href={`/analysis/${analysis.id}`}
-            className="inline-flex items-center font-medium text-[var(--cp-accent)]"
-          >
-            Ver resultado
-          </Link>
+          {canViewResult ? (
+            <Link
+              href={`/analysis/${analysis.id}`}
+              className="inline-flex items-center font-medium text-[var(--cp-accent)]"
+            >
+              Ver resultado
+            </Link>
+          ) : null}
           <Link
             href="/analysis/new"
             className="inline-flex items-center font-medium text-[var(--cp-muted)] transition-colors hover:text-[var(--cp-text)]"
@@ -71,4 +75,15 @@ function getAnalysisStepLabel(status: string) {
   };
 
   return statusMap[status] ?? "Status tecnico indisponivel";
+}
+
+function getAnalysisFootnote(status: string) {
+  const statusMap: Record<string, string> = {
+    completed: "Resultado tecnico disponivel sem viewer PDF e sem highlight visual.",
+    created: "Analise criada e pronta para iniciar ou concluir o processamento.",
+    failed: "Processamento finalizado com falha. O resultado nao foi liberado.",
+    processing: "Processamento em andamento. O resultado sera liberado ao concluir.",
+  };
+
+  return statusMap[status] ?? "Acompanhe o status tecnico desta analise pela lista.";
 }

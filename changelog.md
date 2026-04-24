@@ -20,6 +20,7 @@
 - Modulo inicial de extracao de campos MVP a partir de `TextSpan` com labels simples e texto proximo
 - Motor inicial de regras em modulo separado para gerar `Issue` e `IssueEvidence` a partir de `ExtractedField`
 - Endpoint `GET /api/v1/analysis/{id}/issues` para expor issues com evidencias textuais derivadas para leitura no frontend
+- Fluxo do frontend para criar analise, enviar PDFs, iniciar o processamento e liberar o link de resultado quando o status final for `completed`
 
 ### Changed
 - `docs/API.md` atualizado para incluir `GET /analysis` para a tela de lista de analises
@@ -30,6 +31,7 @@
 - `ExtractedField` agora associa `InputDocument` e `DocumentPage`, preservando `raw_value`, `normalized_value` minimo e `bbox` opcional
 - `Issue` agora associa explicitamente a analise por `analysis_run_id`, e `docs/DATA_MODEL.md` passou a refletir a persistencia de evidencias com `bbox` opcional
 - `docs/API.md` agora descreve que `GET /analysis/{id}/issues` retorna `Issue` com `IssueEvidence` e `text` derivado de `ExtractedField.raw_value`
+- Tela `/analysis/new` agora orquestra criacao, upload e `POST /analysis/{id}/start` usando a camada `lib/api`, exibindo `created`, `processing`, `completed` e `failed`
 
 ### Fixed
 - Tipagem de `DATABASE_URL` em `backend/app/core/config.py` para compatibilidade com `pydantic-settings` no Pydantic v2

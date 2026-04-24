@@ -1,17 +1,19 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
-
-export function FormSubmitButton() {
-  const { pending } = useFormStatus();
-
+export function FormSubmitButton({
+  pending,
+}: {
+  pending: boolean;
+}) {
   return (
     <button
       type="submit"
       disabled={pending}
       className="inline-flex items-center justify-center rounded-full bg-[var(--cp-accent)] px-5 py-3 text-sm font-semibold text-[var(--cp-accent-ink)] transition-transform duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {pending ? "Enviando..." : "Criar analise e enviar PDFs"}
+      {pending
+        ? "Criando, enviando e iniciando..."
+        : "Criar analise, enviar PDFs e iniciar"}
     </button>
   );
 }

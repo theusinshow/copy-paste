@@ -26,6 +26,12 @@ export async function createAnalysis() {
   });
 }
 
+export async function startAnalysis(analysisId: number) {
+  return apiFetch<AnalysisRun>(`/api/v1/analysis/${analysisId}/start`, {
+    method: "POST",
+  });
+}
+
 export async function uploadAnalysisFiles(
   analysisId: number,
   payload: {
