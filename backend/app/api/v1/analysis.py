@@ -11,26 +11,32 @@ from app.db.analysis_runs import (
     list_analysis_runs,
     set_analysis_run_status,
 )
+from app.db.ai_review import get_ai_review_by_analysis_id
 from app.db.dependencies import DbSession
 from app.db.detected_sheets import get_detected_sheets_by_analysis_id
 from app.db.drawing_lists import get_drawing_lists_by_analysis_id
 from app.db.extracted_fields import list_extracted_fields_by_analysis_id
+from app.db.footer_audit import get_footer_audit_by_analysis_id
 from app.db.input_documents import create_input_documents
 from app.db.issues import list_issues_with_evidences_by_analysis_id
 from app.db.ld_sheet_crosscheck import get_ld_sheet_crosscheck_by_analysis_id
 from app.db.memorial_audit import get_memorial_audit_by_analysis_id
 from app.db.package_map import get_package_map_by_analysis_id
+from app.db.page_map import get_page_map_by_analysis_id
 from app.db.package_summary import get_package_summary_by_analysis_id
 from app.schemas.analysis import (
+    AiReviewSchema,
     AnalysisCreateSchema,
     AnalysisRunSchema,
     DetectedSheetsSchema,
     DrawingListsSchema,
     ExtractedFieldWithContextSchema,
+    FooterAuditSchema,
     InputDocumentSchema,
     LdSheetCrosscheckSchema,
     MemorialAuditSchema,
     PackageMapSchema,
+    PageMapSchema,
     PackageSummarySchema,
 )
 from app.schemas.issue import IssueWithEvidencesSchema
@@ -250,6 +256,48 @@ def get_analysis_package_map(
             detail="Analysis not found",
         )
     return get_package_map_by_analysis_id(session, analysis_id)
+
+
+@router.get("/{analysis_id}/footer-audit", response_model=FooterAuditSchema)
+def get_analysis_footer_audit(
+    analysis_id: int,
+    session: DbSession,
+) -> FooterAuditSchema:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+    return get_footer_audit_by_analysis_id(session, analysis_id)
+
+
+@router.get("/{analysis_id}/ai-review", response_model=AiReviewSchema)
+def get_analysis_ai_review(
+    analysis_id: int,
+    session: DbSession,
+) -> AiReviewSchema:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+    return get_ai_review_by_analysis_id(session, analysis_id)
+
+
+@router.get("/{analysis_id}/page-map", response_model=PageMapSchema)
+def get_analysis_page_map(
+    analysis_id: int,
+    session: DbSession,
+) -> PageMapSchema:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+    return get_page_map_by_analysis_id(session, analysis_id)
 
 
 @router.get("/{analysis_id}/drawing-lists", response_model=DrawingListsSchema)

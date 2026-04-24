@@ -117,6 +117,8 @@ class PackageMapSectionSchema(BaseModel):
     ld_page: int | None
     ld_row_count: int
     scope_id: int
+    section_label: str
+    section_type: str
     sheet_codes: list[str]
     sheet_count: int
     start_page: int
@@ -148,12 +150,123 @@ class PackageMapSchema(BaseModel):
     stats: PackageMapStatsSchema
 
 
+class AiReviewContextSchema(BaseModel):
+    document_id: int
+    evidence_text: str
+    filename: str
+    kind: str
+    page_end: int
+    page_start: int
+    section_label: str
+    title: str
+
+
+class AiReviewSuggestionSchema(BaseModel):
+    category: str
+    message: str
+    reason: str
+    severity: str
+    source: str
+
+
+class AiReviewStatsSchema(BaseModel):
+    context_count: int
+    needs_review_count: int
+    probable_issue_count: int
+    suggestion_count: int
+
+
+class AiReviewSchema(BaseModel):
+    contexts: list[AiReviewContextSchema]
+    identity: PackageSummaryIdentitySchema
+    mode: str
+    provider_status: str
+    summary: str
+    suggestions: list[AiReviewSuggestionSchema]
+    stats: AiReviewStatsSchema
+
+
+class PageMapPageSchema(BaseModel):
+    confidence: str
+    discipline_code: str | None
+    discipline_label: str | None
+    discipline_type: str | None
+    document_id: int
+    evidence_text: str
+    filename: str
+    page: int
+    page_type: str
+    page_type_label: str
+    scope_id: int | None
+    signals: list[str]
+
+
+class PageMapDocumentSchema(BaseModel):
+    document_id: int
+    filename: str
+    page_count: int
+    pages: list[PageMapPageSchema]
+    tipo: str
+
+
+class PageMapStatsSchema(BaseModel):
+    document_count: int
+    low_confidence_count: int
+    page_count: int
+    page_type_counts: dict[str, int]
+
+
+class PageMapSchema(BaseModel):
+    documents: list[PageMapDocumentSchema]
+    stats: PageMapStatsSchema
+
+
 class DrawingListRowSchema(BaseModel):
     description: str
     document_code: str
     item: str
     page: int
     source_text: str
+
+
+class FooterAuditIdentitySchema(BaseModel):
+    project_code: str | None
+    work_name: str | None
+
+
+class FooterAuditOccurrenceSchema(BaseModel):
+    document_id: int
+    field: str
+    field_label: str
+    filename: str
+    normalized_value: str
+    page: int
+    source_text: str
+    value: str
+
+
+class FooterAuditFindingSchema(BaseModel):
+    category: str
+    field: str
+    message: str
+    occurrences: list[FooterAuditOccurrenceSchema]
+    reason: str
+    severity: str
+
+
+class FooterAuditStatsSchema(BaseModel):
+    document_count: int
+    footer_page_count: int
+    needs_review_count: int
+    occurrence_count: int
+    probable_issue_count: int
+
+
+class FooterAuditSchema(BaseModel):
+    findings: list[FooterAuditFindingSchema]
+    identity: FooterAuditIdentitySchema
+    occurrences: list[FooterAuditOccurrenceSchema]
+    stats: FooterAuditStatsSchema
 
 
 class DrawingListDocumentSchema(BaseModel):

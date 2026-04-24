@@ -78,6 +78,25 @@ GET /analysis/{id}/package-map
 - usado para reduzir comparacoes fora de contexto entre volumes ou subvolumes
 - derivado de `InputDocument`, `DocumentPage` e `TextSpan`, sem reler PDFs permanentes
 
+GET /analysis/{id}/page-map
+→ classifica as páginas do pacote
+- retorna tipo provável da página: capa, LD, separatriz, prancha, memorial, sumário ou não classificada
+- retorna confiança, sinais encontrados, seção interna, disciplina detectada e trecho de evidência
+- usado para melhorar o contexto das regras e preparar leitura assistida futura
+
+GET /analysis/{id}/footer-audit
+→ audita rodapés das páginas com base nos spans posicionados
+- retorna ocorrências de número de projeto detectadas em rodapés
+- compara o número de projeto do rodapé com a identidade principal do pacote
+- usado para detectar reaproveitamento ou rodapé de outro projeto
+
+GET /analysis/{id}/ai-review
+→ prepara leitura inteligente da análise
+- retorna contextos textuais por abertura de documento e seção interna
+- retorna sugestões estruturais rastreáveis para revisão humana
+- retorna `provider_status` para indicar se há IA externa configurada
+- nesta fase não substitui regras determinísticas nem decide incongruências
+
 GET /analysis/{id}/drawing-lists
 → lista as linhas detectadas nas Listas de Documentos
 - retorna documentos com LD, codigo do documento, item, descricao, pagina e trecho de evidencia

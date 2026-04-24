@@ -3,6 +3,13 @@
 ## [Unreleased]
 
 ### Added
+- Endpoint `GET /api/v1/analysis/{id}/page-map` para classificar paginas por tipo, confianca, sinais e evidencia textual.
+- Painel `Mapa de paginas` na tela de resultado para revisar capa, LD, separatriz, prancha, memorial, sumario e paginas nao classificadas.
+- Endpoint `GET /api/v1/analysis/{id}/ai-review` para preparar contextos de leitura inteligente e sugestoes estruturais auditaveis.
+- Painel `Leitura inteligente` na tela de resultado, com status do provedor, contextos preparados e pontos sugeridos para revisao.
+- Painel `Rodapes` na tela de resultado para listar conflitos e ocorrencias de numeros de projeto lidos em rodapes.
+- Endpoint `GET /api/v1/analysis/{id}/footer-audit` para auditar numeros de projeto detectados em rodapes.
+- Classificacao inicial de secoes no `Mapa do pacote`, como fundacao, concreto, arquitetura, drenagem e eletrica.
 - Painel `Mapa do pacote` na tela de resultado para revisar secoes internas, LDs e pranchas por contexto documental.
 - Endpoint `GET /api/v1/analysis/{id}/package-map` para expor o mapa estrutural de documentos e secoes internas do pacote.
 - Endpoint `POST /api/v1/analysis/{id}/cancel` para solicitar cancelamento de analises criadas ou em processamento.
@@ -44,6 +51,8 @@
 - Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
+- `Mapa de paginas` agora detecta siglas de disciplina como `EST`, `FND`, `HIS`, `DRE` e usa essas siglas para classificar pranchas e separatrizes.
+- `Mapa do pacote` agora prioriza siglas de disciplina dos codigos de LD e pranchas para classificar secoes internas.
 - Cruzamento `LD x Pranchas` agora usa o contexto do mapa do pacote para diferenciar prancha ausente, prancha em outra secao e prancha em outro documento.
 - Tela de acompanhamento agora exibe botao para parar o processamento e reconhece o status `cancelled`.
 - Fluxo de nova analise agora envia os PDFs e abre a tela de acompanhamento antes de executar o processamento.

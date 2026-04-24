@@ -77,6 +77,7 @@ export function PackageMapPanel({ loadError, map }: PackageMapPanelProps) {
                           {section.title}
                         </p>
                         <p className="mt-1 text-xs text-[var(--cp-muted)]">
+                          {section.section_label} ·{" "}
                           paginas {section.start_page}-{section.end_page}
                           {section.ld_page ? ` · LD p${section.ld_page}` : " · sem LD"}
                         </p>

@@ -5,6 +5,7 @@
 - evidência obrigatória
 - ausência ≠ erro
 - IA não decide
+- IA, quando existir, sugere revisão com evidência e não altera severidade final sozinha
 
 ## Severidade
 - info
@@ -16,6 +17,23 @@
 - needs_review: ha diferenca textual que exige revisao humana
 - probable_issue: ha conflito objetivo forte
 - extraction_limit: o sistema nao conseguiu confirmar com confianca
+
+## Classificacao de paginas
+- capa: primeira pagina com sinais de identidade do projeto
+- lista de documentos: pagina com titulo `Lista de Documentos`
+- separatriz: pagina curta usada como contra capa de disciplina, com sinais de volume, tomo, disciplina ou sigla
+- prancha: pagina com codigo documental, campos de selo ou sigla de disciplina no selo
+- memorial: pagina com titulo de memorial
+- sumario: pagina com sumario ou indice
+- nao classificada: sem sinal forte; nao gera erro automaticamente
+
+## Siglas de disciplina
+- `FND`: fundacao
+- `EST`: estrutural
+- `HIS`: hidrossanitario
+- `DRE`: drenagem
+- `ARQ`: arquitetura
+- outras siglas podem ser adicionadas conforme o padrão real da empresa
 
 ---
 
@@ -66,6 +84,11 @@
 - condição: o código declarado na LD não aparece na seção correta, mas aparece em outro PDF do pacote
 - severidade: atencao
 - observação: usado quando o pacote pode estar dividido em arquivos diferentes e exige revisão humana
+
+### Rodapé com número de projeto divergente
+- condição: número de projeto detectado no rodapé diverge da identidade principal do pacote
+- severidade: relevante
+- observação: usado para detectar rodapé reaproveitado de outro projeto
 
 ### LD com código de projeto divergente
 - condição: item da LD declara número de projeto diferente do predominante nas LDs

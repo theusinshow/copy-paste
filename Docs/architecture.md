@@ -4,7 +4,7 @@
 Web app
 
 ## Fluxo
-Upload → Acompanhamento → Extração → Normalização → Regras → Resultado → Revisão
+Upload → Acompanhamento → Extração → Normalização → Regras → Contextos assistidos → Resultado → Revisão
 
 ## Camadas
 
@@ -21,6 +21,8 @@ Upload → Acompanhamento → Extração → Normalização → Regras → Resul
 - leitura de PDF
 - extração
 - regras
+- classificação de páginas e seções
+- preparação de contextos para leitura assistida
 
 ### Banco
 - dados estruturados

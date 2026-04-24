@@ -99,10 +99,115 @@ export type PackageMapSection = {
   ld_page: number | null;
   ld_row_count: number;
   scope_id: number;
+  section_label: string;
+  section_type: string;
   sheet_codes: string[];
   sheet_count: number;
   start_page: number;
   title: string;
+};
+
+export type AiReview = {
+  contexts: AiReviewContext[];
+  identity: PackageSummary["identity"];
+  mode: string;
+  provider_status: string;
+  summary: string;
+  suggestions: AiReviewSuggestion[];
+  stats: {
+    context_count: number;
+    needs_review_count: number;
+    probable_issue_count: number;
+    suggestion_count: number;
+  };
+};
+
+export type AiReviewContext = {
+  document_id: number;
+  evidence_text: string;
+  filename: string;
+  kind: string;
+  page_end: number;
+  page_start: number;
+  section_label: string;
+  title: string;
+};
+
+export type AiReviewSuggestion = {
+  category: string;
+  message: string;
+  reason: string;
+  severity: string;
+  source: string;
+};
+
+export type PageMap = {
+  documents: PageMapDocument[];
+  stats: {
+    document_count: number;
+    low_confidence_count: number;
+    page_count: number;
+    page_type_counts: Record<string, number>;
+  };
+};
+
+export type PageMapDocument = {
+  document_id: number;
+  filename: string;
+  page_count: number;
+  pages: PageMapPage[];
+  tipo: string;
+};
+
+export type PageMapPage = {
+  confidence: string;
+  discipline_code: string | null;
+  discipline_label: string | null;
+  discipline_type: string | null;
+  document_id: number;
+  evidence_text: string;
+  filename: string;
+  page: number;
+  page_type: string;
+  page_type_label: string;
+  scope_id: number | null;
+  signals: string[];
+};
+
+export type FooterAudit = {
+  findings: FooterAuditFinding[];
+  identity: {
+    project_code: string | null;
+    work_name: string | null;
+  };
+  occurrences: FooterAuditOccurrence[];
+  stats: {
+    document_count: number;
+    footer_page_count: number;
+    needs_review_count: number;
+    occurrence_count: number;
+    probable_issue_count: number;
+  };
+};
+
+export type FooterAuditOccurrence = {
+  document_id: number;
+  field: string;
+  field_label: string;
+  filename: string;
+  normalized_value: string;
+  page: number;
+  source_text: string;
+  value: string;
+};
+
+export type FooterAuditFinding = {
+  category: string;
+  field: string;
+  message: string;
+  occurrences: FooterAuditOccurrence[];
+  reason: string;
+  severity: string;
 };
 
 export type DrawingLists = {

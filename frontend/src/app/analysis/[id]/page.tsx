@@ -1,21 +1,27 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { AiReviewPanel } from "@/components/analysis/ai-review-panel";
 import { AnalysisResultHeader } from "@/components/analysis/analysis-result-header";
 import { DetectedSheetsPanel } from "@/components/analysis/detected-sheets-panel";
 import { DrawingListPanel } from "@/components/analysis/drawing-list-panel";
 import { ExtractedFieldList } from "@/components/analysis/extracted-field-list";
+import { FooterAuditPanel } from "@/components/analysis/footer-audit-panel";
 import { IssueList } from "@/components/analysis/issue-list";
 import { LdSheetCrosscheckPanel } from "@/components/analysis/ld-sheet-crosscheck-panel";
 import { MemorialAuditPanel } from "@/components/analysis/memorial-audit-panel";
 import { PackageMapPanel } from "@/components/analysis/package-map-panel";
+import { PageMapPanel } from "@/components/analysis/page-map-panel";
 import { PackageSummaryPanel } from "@/components/analysis/package-summary-panel";
 import {
+  getAiReview,
   getDetectedSheets,
   getDrawingLists,
+  getFooterAudit,
   getLdSheetCrosscheck,
   getMemorialAudit,
   getPackageMap,
+  getPageMap,
   getPackageSummary,
   getAnalysis,
   listAnalysisFields,
@@ -23,13 +29,16 @@ import {
 } from "@/lib/api/analysis";
 import { ApiError, extractApiErrorMessage } from "@/lib/api/fetcher";
 import type {
+  AiReview,
   AnalysisRun,
   DetectedSheets,
   DrawingLists,
   ExtractedField,
+  FooterAudit,
   LdSheetCrosscheck,
   MemorialAudit,
   PackageMap,
+  PageMap,
   PackageSummary,
 } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
@@ -72,6 +81,12 @@ export default async function AnalysisResultPage({
   let packageSummaryLoadError: string | null = null;
   let packageMap: PackageMap | null = null;
   let packageMapLoadError: string | null = null;
+  let pageMap: PageMap | null = null;
+  let pageMapLoadError: string | null = null;
+  let aiReview: AiReview | null = null;
+  let aiReviewLoadError: string | null = null;
+  let footerAudit: FooterAudit | null = null;
+  let footerAuditLoadError: string | null = null;
   let drawingLists: DrawingLists | null = null;
   let drawingListsLoadError: string | null = null;
   let detectedSheets: DetectedSheets | null = null;
@@ -87,6 +102,9 @@ export default async function AnalysisResultPage({
       fields,
       packageSummary,
       packageMap,
+      pageMap,
+      aiReview,
+      footerAudit,
       drawingLists,
       detectedSheets,
       ldSheetCrosscheck,
@@ -96,6 +114,9 @@ export default async function AnalysisResultPage({
       listAnalysisFields(analysisId),
       getPackageSummary(analysisId),
       getPackageMap(analysisId),
+      getPageMap(analysisId),
+      getAiReview(analysisId),
+      getFooterAudit(analysisId),
       getDrawingLists(analysisId),
       getDetectedSheets(analysisId),
       getLdSheetCrosscheck(analysisId),
@@ -121,6 +142,18 @@ export default async function AnalysisResultPage({
     packageMapLoadError = extractApiErrorMessage(
       error,
       "Nao foi possivel carregar o mapa do pacote desta analise agora.",
+    );
+    pageMapLoadError = extractApiErrorMessage(
+      error,
+      "Nao foi possivel carregar o mapa de paginas desta analise agora.",
+    );
+    aiReviewLoadError = extractApiErrorMessage(
+      error,
+      "Nao foi possivel carregar a leitura inteligente desta analise agora.",
+    );
+    footerAuditLoadError = extractApiErrorMessage(
+      error,
+      "Nao foi possivel carregar a auditoria de rodapes desta analise agora.",
     );
     drawingListsLoadError = extractApiErrorMessage(
       error,
@@ -153,6 +186,7 @@ export default async function AnalysisResultPage({
     fields,
     issues,
     ldSheetCrosscheck,
+    footerAudit,
     memorialAudit,
     packageSummary,
   });
@@ -180,6 +214,12 @@ export default async function AnalysisResultPage({
           <section id="mapa">
             <PackageMapPanel map={packageMap} loadError={packageMapLoadError} />
           </section>
+          <section id="paginas">
+            <PageMapPanel map={pageMap} loadError={pageMapLoadError} />
+          </section>
+          <section id="leitura">
+            <AiReviewPanel review={aiReview} loadError={aiReviewLoadError} />
+          </section>
           <section id="ld">
             <LdSheetCrosscheckPanel
               crosscheck={ldSheetCrosscheck}
@@ -190,6 +230,12 @@ export default async function AnalysisResultPage({
             <MemorialAuditPanel
               audit={memorialAudit}
               loadError={memorialAuditLoadError}
+            />
+          </section>
+          <section id="rodapes">
+            <FooterAuditPanel
+              audit={footerAudit}
+              loadError={footerAuditLoadError}
             />
           </section>
           <section id="detalhes" className="grid gap-5">
@@ -246,8 +292,11 @@ function ResultNavigation() {
   const links = [
     ["#resumo", "Resumo"],
     ["#mapa", "Mapa"],
+    ["#paginas", "Paginas"],
+    ["#leitura", "Leitura"],
     ["#ld", "LD x Pranchas"],
     ["#memoriais", "Memoriais"],
+    ["#rodapes", "Rodapes"],
     ["#detalhes", "Detalhes"],
     ["#evidencias", "Evidencias"],
   ];
@@ -278,6 +327,7 @@ function buildExecutiveMetrics({
   fields,
   issues,
   ldSheetCrosscheck,
+  footerAudit,
   memorialAudit,
   packageSummary,
 }: {
@@ -286,15 +336,18 @@ function buildExecutiveMetrics({
   fields: ExtractedField[];
   issues: AnalysisIssue[];
   ldSheetCrosscheck: LdSheetCrosscheck | null;
+  footerAudit: FooterAudit | null;
   memorialAudit: MemorialAudit | null;
   packageSummary: PackageSummary | null;
 }): ExecutiveMetric[] {
   const probableIssues =
     (ldSheetCrosscheck?.stats.probable_issue_count ?? 0) +
+    (footerAudit?.stats.probable_issue_count ?? 0) +
     (memorialAudit?.stats.probable_issue_count ?? 0) +
     issues.filter((issue) => issue.severity === "relevante").length;
   const reviewPoints =
     (ldSheetCrosscheck?.stats.needs_review_count ?? 0) +
+    (footerAudit?.stats.needs_review_count ?? 0) +
     (memorialAudit?.stats.needs_review_count ?? 0) +
     issues.filter((issue) => issue.severity === "atencao").length;
 

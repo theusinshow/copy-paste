@@ -15,6 +15,7 @@ Sistema que:
 - compara documentos
 - aplica regras
 - gera incongruências com evidência
+- prepara contextos para leitura assistida por IA, sem delegar a decisão
 - permite modos configuráveis de análise com `full_check` como padrão
 
 ## Modos de análise

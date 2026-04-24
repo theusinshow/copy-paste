@@ -1,14 +1,17 @@
 import { apiFetch } from "@/lib/api/fetcher";
 import type { AnalysisMode } from "@/lib/analysis/analysis-modes";
 import type {
+  AiReview,
   AnalysisRun,
   DetectedSheets,
   DrawingLists,
   ExtractedField,
+  FooterAudit,
   InputDocument,
   LdSheetCrosscheck,
   MemorialAudit,
   PackageMap,
+  PageMap,
   PackageSummary,
 } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
@@ -48,6 +51,24 @@ export async function getPackageSummary(analysisId: number) {
 
 export async function getPackageMap(analysisId: number) {
   return apiFetch<PackageMap>(`/api/v1/analysis/${analysisId}/package-map`, {
+    cache: "no-store",
+  });
+}
+
+export async function getFooterAudit(analysisId: number) {
+  return apiFetch<FooterAudit>(`/api/v1/analysis/${analysisId}/footer-audit`, {
+    cache: "no-store",
+  });
+}
+
+export async function getAiReview(analysisId: number) {
+  return apiFetch<AiReview>(`/api/v1/analysis/${analysisId}/ai-review`, {
+    cache: "no-store",
+  });
+}
+
+export async function getPageMap(analysisId: number) {
+  return apiFetch<PageMap>(`/api/v1/analysis/${analysisId}/page-map`, {
     cache: "no-store",
   });
 }
