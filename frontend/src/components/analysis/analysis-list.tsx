@@ -24,8 +24,8 @@ export function AnalysisList({ analyses, loadError }: AnalysisListProps) {
             Visao inicial das analises cadastradas.
           </h2>
           <p className="max-w-2xl text-sm leading-6 text-[var(--cp-muted)]">
-            Esta lista usa o endpoint atual do backend e mostra o minimo
-            necessario para seguir ao fluxo de upload inicial.
+            Esta lista usa o endpoint atual do backend para seguir ao fluxo de
+            upload e consultar o resultado tecnico de cada analise.
           </p>
         </div>
 

@@ -13,4 +13,4 @@ class IssueEvidence(Base):
         primary_key=True,
     )
     page: Mapped[int] = mapped_column(Integer, primary_key=True)
-    bbox: Mapped[dict] = mapped_column(JSON)
+    bbox: Mapped[dict | None] = mapped_column(JSON, nullable=True)

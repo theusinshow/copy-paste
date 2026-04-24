@@ -39,6 +39,7 @@
 
 ### Issue
 - id
+- analysis_run_id
 - type
 - severity
 - description
@@ -48,6 +49,7 @@
 - field_id
 - page
 - bbox
+- bbox pode ser null
 
 ### ReviewDecision
 - issue_id

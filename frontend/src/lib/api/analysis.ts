@@ -1,8 +1,21 @@
 import { apiFetch } from "@/lib/api/fetcher";
 import type { AnalysisRun, InputDocument } from "@/lib/types/analysis";
+import type { AnalysisIssue } from "@/lib/types/issue";
 
 export async function listAnalyses() {
   return apiFetch<AnalysisRun[]>("/api/v1/analysis", {
+    cache: "no-store",
+  });
+}
+
+export async function getAnalysis(analysisId: number) {
+  return apiFetch<AnalysisRun>(`/api/v1/analysis/${analysisId}`, {
+    cache: "no-store",
+  });
+}
+
+export async function listAnalysisIssues(analysisId: number) {
+  return apiFetch<AnalysisIssue[]>(`/api/v1/analysis/${analysisId}/issues`, {
     cache: "no-store",
   });
 }

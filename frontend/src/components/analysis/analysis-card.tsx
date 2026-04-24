@@ -36,20 +36,39 @@ export function AnalysisCard({ analysis }: { analysis: AnalysisRun }) {
             Etapa atual
           </dt>
           <dd className="mt-2 text-sm font-medium text-[var(--cp-text)]">
-            Upload inicial concluido ou pendente
+            {getAnalysisStepLabel(analysis.status)}
           </dd>
         </div>
       </dl>
 
       <div className="mt-5 flex flex-col gap-3 border-t border-[var(--cp-border)] pt-4 text-sm text-[var(--cp-muted)] sm:flex-row sm:items-center sm:justify-between">
-        <p>Sem viewer e sem revisao nesta fase do produto.</p>
-        <Link
-          href="/analysis/new"
-          className="inline-flex items-center font-medium text-[var(--cp-accent)]"
-        >
-          Criar outra analise
-        </Link>
+        <p>Resultado tecnico disponivel sem viewer PDF e sem highlight visual.</p>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            href={`/analysis/${analysis.id}`}
+            className="inline-flex items-center font-medium text-[var(--cp-accent)]"
+          >
+            Ver resultado
+          </Link>
+          <Link
+            href="/analysis/new"
+            className="inline-flex items-center font-medium text-[var(--cp-muted)] transition-colors hover:text-[var(--cp-text)]"
+          >
+            Criar outra analise
+          </Link>
+        </div>
       </div>
     </article>
   );
+}
+
+function getAnalysisStepLabel(status: string) {
+  const statusMap: Record<string, string> = {
+    completed: "Resultado disponivel",
+    created: "Aguardando processamento",
+    failed: "Falha no processamento",
+    processing: "Processando documentos",
+  };
+
+  return statusMap[status] ?? "Status tecnico indisponivel";
 }

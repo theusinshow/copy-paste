@@ -66,7 +66,7 @@ export default async function HomePage() {
           <OverviewCard
             label="Etapa atual"
             value="Upload"
-            helper="Viewer, revisao e issues continuam fora de escopo"
+            helper="Resultado com issues disponivel; viewer PDF e revisao seguem fora de escopo"
           />
           <OverviewCard
             label="Identidade visual"

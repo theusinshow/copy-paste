@@ -10,8 +10,11 @@ from app.db.analysis_runs import (
 from app.db.document_pages import replace_document_pages
 from app.db.extracted_fields import replace_extracted_fields
 from app.db.input_documents import list_input_documents_by_analysis_id
+from app.db.issues import replace_analysis_issues
 from app.db.text_spans import replace_text_spans
 from app.models.analysis_run import AnalysisRun
+from app.rules import evaluate_rules
+from app.rules.types import RuleExtractedField, RuleInputDocument
 from app.worker.field_extractor import extract_fields_from_pages
 from app.worker.pdf_reader import read_pdf_pages
 
@@ -48,6 +51,10 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
             (document_page.document_id, document_page.page_number): document_page.id
             for document_page in document_pages
         }
+        page_numbers_by_document_page_id = {
+            document_page.id: document_page.page_number
+            for document_page in document_pages
+        }
         replace_text_spans(
             session,
             [
@@ -62,7 +69,7 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
                 for extracted_page in extracted_pages
             ],
         )
-        replace_extracted_fields(
+        extracted_fields = replace_extracted_fields(
             session,
             [input_document.id for input_document in input_documents],
             [
@@ -85,6 +92,25 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
                     },
                 )
             ],
+        )
+        replace_analysis_issues(
+            session,
+            analysis_id,
+            evaluate_rules(
+                [RuleInputDocument(id=input_document.id) for input_document in input_documents],
+                [
+                    RuleExtractedField(
+                        id=field.id,
+                        input_document_id=field.input_document_id,
+                        field_name=field.field_name,
+                        raw_value=field.raw_value,
+                        normalized_value=field.normalized_value,
+                        page=page_numbers_by_document_page_id.get(field.document_page_id),
+                        bbox=field.bbox,
+                    )
+                    for field in extracted_fields
+                ],
+            ),
         )
         session.commit()
     except (FileNotFoundError, ValueError) as exc:

@@ -4,6 +4,21 @@ const statusMap: Record<string, { label: string; className: string }> = {
     className:
       "border-[var(--cp-accent)]/40 bg-[var(--cp-accent)]/12 text-[var(--cp-accent)]",
   },
+  processing: {
+    label: "Processando",
+    className:
+      "border-[var(--cp-info)]/40 bg-[var(--cp-info)]/12 text-[var(--cp-info)]",
+  },
+  completed: {
+    label: "Concluida",
+    className:
+      "border-[var(--cp-success)]/40 bg-[var(--cp-success)]/12 text-[var(--cp-success)]",
+  },
+  failed: {
+    label: "Falhou",
+    className:
+      "border-[var(--cp-error)]/40 bg-[var(--cp-error)]/12 text-[var(--cp-error)]",
+  },
 };
 
 export function AnalysisStatusBadge({ status }: { status: string }) {

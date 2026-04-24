@@ -24,6 +24,9 @@ GET /analysis/{id}
 
 GET /analysis/{id}/issues
 → lista issues
+- retorna `Issue` com `evidences`
+- `evidences` mantem `issue_id`, `field_id`, `page`, `bbox`
+- `evidences.text` e derivado de `ExtractedField.raw_value` apenas para leitura
 
 GET /issues/{id}
 → detalhe

@@ -18,6 +18,8 @@
 - Pipeline inicial de `POST /api/v1/analysis/{id}/start` para ler PDFs enviados e criar `DocumentPage` por pagina
 - Entidade `TextSpan` associada a `DocumentPage` para armazenar texto bruto com `bbox` opcional
 - Modulo inicial de extracao de campos MVP a partir de `TextSpan` com labels simples e texto proximo
+- Motor inicial de regras em modulo separado para gerar `Issue` e `IssueEvidence` a partir de `ExtractedField`
+- Endpoint `GET /api/v1/analysis/{id}/issues` para expor issues com evidencias textuais derivadas para leitura no frontend
 
 ### Changed
 - `docs/API.md` atualizado para incluir `GET /analysis` para a tela de lista de analises
@@ -26,6 +28,8 @@
 - `AnalysisRun` agora percorre os status `processing`, `completed` e `failed` durante o pipeline inicial de leitura de PDFs
 - `docs/DATA_MODEL.md` atualizado para incluir a camada bruta `TextSpan` ligada a `DocumentPage`
 - `ExtractedField` agora associa `InputDocument` e `DocumentPage`, preservando `raw_value`, `normalized_value` minimo e `bbox` opcional
+- `Issue` agora associa explicitamente a analise por `analysis_run_id`, e `docs/DATA_MODEL.md` passou a refletir a persistencia de evidencias com `bbox` opcional
+- `docs/API.md` agora descreve que `GET /analysis/{id}/issues` retorna `Issue` com `IssueEvidence` e `text` derivado de `ExtractedField.raw_value`
 
 ### Fixed
 - Tipagem de `DATABASE_URL` em `backend/app/core/config.py` para compatibilidade com `pydantic-settings` no Pydantic v2
@@ -36,6 +40,8 @@
 - Worker de PDF ajustado para extrair texto nativo por pagina com coordenadas quando disponiveis, sem OCR e sem interpretacao semantica
 - Extração de campos agora usa heuristicas deterministicas por label e linha para salvar `ExtractedField` sem gerar comparacao, `Issue` ou rules engine
 - `.gitignore` corrigido para bloquear bancos locais, uploads e artefatos de build antes do commit
+- Pipeline de processamento agora executa apenas as tres regras MVP aprovadas apos a extracao de campos, sem gerar issue para campo ausente em todos os documentos
+- Startup do backend ajustado para evitar import circular entre `db.issues`, `rules` e `worker` ao subir a API real
 
 ---
 
