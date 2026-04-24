@@ -1,5 +1,3 @@
-from typing import Annotated
-
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
 from app.db.analysis_runs import (
@@ -13,8 +11,6 @@ from app.schemas.analysis import AnalysisRunSchema, InputDocumentSchema
 from app.storage.uploads import delete_uploaded_files, save_pdf_upload
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
-FilesParam = Annotated[list[UploadFile], File()]
-TipoParam = Annotated[str, Form()]
 
 
 def _not_implemented() -> None:
@@ -41,9 +37,9 @@ def list_analyses(session: DbSession) -> list[AnalysisRunSchema]:
 )
 async def upload_analysis_files(
     analysis_id: int,
-    tipo: TipoParam,
-    files: FilesParam,
     session: DbSession,
+    tipo: str = Form(...),
+    files: list[UploadFile] = File(...),
 ) -> list[InputDocumentSchema]:
     analysis_run = get_analysis_run_by_id(session, analysis_id)
     if analysis_run is None:
