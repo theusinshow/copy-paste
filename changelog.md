@@ -50,6 +50,7 @@
 - Pipeline de processamento agora executa apenas as tres regras MVP aprovadas apos a extracao de campos, sem gerar issue para campo ausente em todos os documentos
 - Startup do backend ajustado para evitar import circular entre `db.issues`, `rules` e `worker` ao subir a API real
 - `POST /api/v1/analysis/{id}/start` agora responde `400` quando um modo recortado nao encontra documentos compatíveis com o `tipo` enviado, mantendo a analise em `failed`
+- Backend FastAPI agora libera CORS para `localhost` e `127.0.0.1` em ambiente local, corrigindo o `NetworkError` do frontend ao criar e iniciar analises
 
 ---
 
