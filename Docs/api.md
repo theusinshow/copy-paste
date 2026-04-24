@@ -86,6 +86,7 @@ GET /analysis/{id}/ld-sheet-crosscheck
 - retorna `category` para separar `compatible`, `needs_review`, `probable_issue` e `extraction_limit`
 - retorna `reason` técnico para explicar a classificação sem depender de interpretação subjetiva
 - compara codigo, folha e descricao normalizada com evidencias da LD e da prancha
+- quando um mesmo PDF possui mais de uma LD, o cruzamento respeita a seção interna da LD antes de buscar correspondências fora dela
 
 GET /analysis/{id}/memorial-audit
 → audita campos de identidade encontrados em memoriais

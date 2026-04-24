@@ -52,6 +52,11 @@
 - condição: código e folha batem, mas descrição normalizada não tem compatibilidade textual mínima
 - severidade: atencao
 
+### LD vs prancha em PDF com múltiplos volumes internos
+- condição: um mesmo PDF contém mais de uma LD; cada LD é cruzada primeiro apenas com as pranchas entre a sua seção e a próxima LD
+- severidade: atencao quando a prancha não é confirmada dentro da seção correta
+- observação: evita misturar LDs de fundação, concreto ou outros subvolumes dentro do mesmo arquivo
+
 ### LD com código de projeto divergente
 - condição: item da LD declara número de projeto diferente do predominante nas LDs
 - severidade: atencao

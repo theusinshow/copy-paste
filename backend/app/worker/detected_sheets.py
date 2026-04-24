@@ -3,8 +3,8 @@ import unicodedata
 from typing import Any
 
 from app.models.input_document import InputDocument
+from app.worker.document_sections import build_document_sections, find_scope_id, is_ld_page
 
-LD_TITLE_PATTERN = re.compile(r"\bLISTA\s+DE\s+DOCUMENTOS\b", re.IGNORECASE)
 SHEET_CODE_PATTERN = re.compile(
     r"\b(?P<sheet_code>\d{2,4}[_-]\d{2}_[A-Z0-9]{2,}_[A-Z0-9_]*?\d{2,4}_[A-Z])\b",
     re.IGNORECASE,
@@ -27,12 +27,17 @@ def build_detected_sheets(
     documents_with_sheets: list[dict[str, Any]] = []
 
     for document in documents:
+        page_texts = page_texts_by_document_id.get(document.id, {})
+        sections = build_document_sections(page_texts)
         sheets = [
-            sheet
+            {
+                **sheet,
+                "scope_id": find_scope_id(page_number, sections),
+            }
             for page_number, page_text in sorted(
-                page_texts_by_document_id.get(document.id, {}).items()
+                page_texts.items()
             )
-            if not _is_ld_page(page_text)
+            if not is_ld_page(page_text)
             for sheet in _extract_sheets_from_page(page_number, page_text)
         ]
         if not sheets:
@@ -248,10 +253,6 @@ def _build_sheet_code_from_base(base_code: str, item: str | None) -> str | None:
         return None
 
     return "_".join([*base_parts[:-1], sheet_number.zfill(3), base_parts[-1]]).upper()
-
-
-def _is_ld_page(page_text: str) -> bool:
-    return bool(LD_TITLE_PATTERN.search(_normalize_text(page_text)))
 
 
 def _normalize_text(value: str) -> str:

@@ -40,6 +40,7 @@ def build_ld_sheet_crosscheck(
             matching_sheets = sheets_by_code.get(ld_code, [])
             results.append(
                 _compare_ld_row_with_sheets(
+                    ld_document_id=drawing_list["document_id"],
                     ld_filename=drawing_list["filename"],
                     ld_row=row,
                     matching_sheets=matching_sheets,
@@ -79,6 +80,7 @@ def _index_sheets_by_code(detected_sheets: dict[str, Any]) -> dict[str, list[dic
         for sheet in document["sheets"]:
             enriched_sheet = {
                 **sheet,
+                "document_id": document["document_id"],
                 "filename": document["filename"],
             }
             index.setdefault(_normalize_code(sheet["sheet_code"]), []).append(enriched_sheet)
@@ -86,6 +88,7 @@ def _index_sheets_by_code(detected_sheets: dict[str, Any]) -> dict[str, list[dic
 
 
 def _compare_ld_row_with_sheets(
+    ld_document_id: int,
     ld_filename: str,
     ld_row: dict[str, Any],
     matching_sheets: list[dict[str, Any]],
@@ -100,6 +103,11 @@ def _compare_ld_row_with_sheets(
         "matched_sheet": None,
     }
 
+    matching_sheets = _filter_scope_candidates(
+        ld_document_id=ld_document_id,
+        ld_row=ld_row,
+        matching_sheets=matching_sheets,
+    )
     if not matching_sheets:
         return {
             **base_result,
@@ -113,7 +121,7 @@ def _compare_ld_row_with_sheets(
             "type": "ld_sheet_missing_sheet",
         }
 
-    best_sheet = _select_best_sheet(ld_row, matching_sheets)
+    best_sheet = _select_best_sheet(ld_document_id, ld_row, matching_sheets)
     matched_sheet = {
         "description": best_sheet.get("description"),
         "filename": best_sheet["filename"],
@@ -181,6 +189,7 @@ def _compare_ld_row_with_sheets(
 
 
 def _select_best_sheet(
+    ld_document_id: int,
     ld_row: dict[str, Any],
     matching_sheets: list[dict[str, Any]],
 ) -> dict[str, Any]:
@@ -190,6 +199,28 @@ def _select_best_sheet(
     if with_same_item:
         return with_same_item[0]
     return matching_sheets[0]
+
+
+def _filter_scope_candidates(
+    ld_document_id: int,
+    ld_row: dict[str, Any],
+    matching_sheets: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    same_document_sheets = [
+        sheet for sheet in matching_sheets if sheet.get("document_id") == ld_document_id
+    ]
+    if not same_document_sheets:
+        return matching_sheets
+
+    ld_scope_id = ld_row.get("scope_id")
+    if not ld_scope_id:
+        return same_document_sheets
+
+    return [
+        sheet
+        for sheet in same_document_sheets
+        if sheet.get("scope_id") == ld_scope_id
+    ]
 
 
 def _compare_descriptions(

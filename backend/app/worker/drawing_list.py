@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.models.input_document import InputDocument
+from app.worker.document_sections import build_document_sections, find_scope_id, is_ld_page
 
-LD_TITLE_PATTERN = re.compile(r"\bLISTA\s+DE\s+DOCUMENTOS\b", re.IGNORECASE)
 LD_ROW_START_PATTERN = re.compile(
     r"(?P<item>\d{2}/\d{2})\s+(?P<document_code>\d{2,4}[_-]\d{2}_[A-Z0-9_]+)",
     re.IGNORECASE,
@@ -30,16 +30,18 @@ def build_drawing_lists(
 
     for document in documents:
         page_texts = page_texts_by_document_id.get(document.id, {})
+        sections = build_document_sections(page_texts)
         rows = [
             {
                 "description": row.description,
                 "document_code": row.document_code,
                 "item": row.item,
                 "page": page_number,
+                "scope_id": find_scope_id(page_number, sections),
                 "source_text": row.source_text,
             }
             for page_number, page_text in sorted(page_texts.items())
-            if _is_ld_page(page_text)
+            if is_ld_page(page_text)
             for row in _extract_ld_rows(page_text)
         ]
         if not rows:
@@ -73,10 +75,6 @@ def build_drawing_lists(
             "row_count": sum(item["row_count"] for item in lists),
         },
     }
-
-
-def _is_ld_page(page_text: str) -> bool:
-    return bool(LD_TITLE_PATTERN.search(_normalize_text(page_text)))
 
 
 def _extract_ld_rows(page_text: str) -> list[_ParsedLdRow]:
@@ -161,7 +159,12 @@ def _build_alerts(
                     )
                 )
 
-            if not _document_code_exists_in_package(row["document_code"], package_index):
+            if not _document_code_exists_in_package(
+                document_code=row["document_code"],
+                package_index=package_index,
+                document_id=item["document_id"],
+                scope_id=row.get("scope_id"),
+            ):
                 alerts.append(
                     _build_alert(
                         filename=item["filename"],
@@ -214,24 +217,38 @@ def _most_common_project_code(rows: list[dict[str, Any]]) -> str | None:
 
 def _build_package_index(
     page_texts_by_document_id: dict[int, dict[int, str]],
-) -> set[str]:
-    tokens: set[str] = set()
-    for page_texts in page_texts_by_document_id.values():
-        for page_text in page_texts.values():
-            if _is_ld_page(page_text):
+) -> dict[tuple[int, int | None], list[str]]:
+    tokens: dict[tuple[int, int | None], list[str]] = {}
+    for document_id, page_texts in page_texts_by_document_id.items():
+        sections = build_document_sections(page_texts)
+        for page_number, page_text in page_texts.items():
+            if is_ld_page(page_text):
                 continue
+            scope_id = find_scope_id(page_number, sections)
             normalized_text = _normalize_text(page_text)
-            tokens.add(normalized_text)
-            tokens.add(normalized_text.replace("-", "_"))
+            tokens.setdefault((document_id, scope_id), []).append(normalized_text)
+            tokens.setdefault((document_id, scope_id), []).append(
+                normalized_text.replace("-", "_")
+            )
     return tokens
 
 
 def _document_code_exists_in_package(
     document_code: str,
-    package_index: set[str],
+    package_index: dict[tuple[int, int | None], list[str]],
+    document_id: int,
+    scope_id: int | None,
 ) -> bool:
     normalized_code = _normalize_text(document_code).replace("-", "_")
-    return any(normalized_code in page_text for page_text in package_index)
+    scoped_pages = package_index.get((document_id, scope_id), [])
+    if any(normalized_code in page_text for page_text in scoped_pages):
+        return True
+    return any(
+        normalized_code in page_text
+        for (indexed_document_id, _), page_texts in package_index.items()
+        if indexed_document_id != document_id
+        for page_text in page_texts
+    )
 
 
 def _normalize_text(value: str) -> str:
