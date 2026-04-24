@@ -1,4 +1,6 @@
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile, status
+
+from app.core.analysis_modes import validate_analysis_payload
 
 from app.db.analysis_runs import (
     create_analysis_run,
@@ -8,7 +10,11 @@ from app.db.analysis_runs import (
 from app.db.dependencies import DbSession
 from app.db.input_documents import create_input_documents
 from app.db.issues import list_issues_with_evidences_by_analysis_id
-from app.schemas.analysis import AnalysisRunSchema, InputDocumentSchema
+from app.schemas.analysis import (
+    AnalysisCreateSchema,
+    AnalysisRunSchema,
+    InputDocumentSchema,
+)
 from app.schemas.issue import IssueWithEvidencesSchema
 from app.storage.uploads import delete_uploaded_files, save_pdf_upload
 from app.worker.analysis_processor import AnalysisProcessingError, process_analysis
@@ -24,8 +30,26 @@ def _not_implemented() -> None:
 
 
 @router.post("", response_model=AnalysisRunSchema, status_code=status.HTTP_201_CREATED)
-def create_analysis(session: DbSession) -> AnalysisRunSchema:
-    return create_analysis_run(session)
+def create_analysis(
+    session: DbSession,
+    payload: AnalysisCreateSchema | None = Body(default=None),
+) -> AnalysisRunSchema:
+    try:
+        analysis_mode, config = validate_analysis_payload(
+            payload.analysis_mode if payload else None,
+            payload.config if payload else None,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+    return create_analysis_run(
+        session,
+        analysis_mode=analysis_mode,
+        config=config,
+    )
 
 
 @router.get("", response_model=list[AnalysisRunSchema])

@@ -5,6 +5,9 @@
 ### AnalysisRun
 - id
 - status
+- analysis_mode
+- config
+- config e um objeto json flexivel
 - created_at
 
 ### InputDocument

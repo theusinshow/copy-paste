@@ -15,6 +15,7 @@ from app.db.text_spans import replace_text_spans
 from app.models.analysis_run import AnalysisRun
 from app.rules import evaluate_rules
 from app.rules.types import RuleExtractedField, RuleInputDocument
+from app.worker.analysis_mode_dispatcher import build_analysis_execution_plan
 from app.worker.field_extractor import extract_fields_from_pages
 from app.worker.pdf_reader import read_pdf_pages
 
@@ -35,6 +36,7 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
     set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_PROCESSING)
 
     try:
+        execution_plan = build_analysis_execution_plan(analysis_run, input_documents)
         extracted_pages_by_document = [
             (input_document.id, read_pdf_pages(input_document.file_path))
             for input_document in input_documents
@@ -93,27 +95,41 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
                 )
             ],
         )
-        replace_analysis_issues(
-            session,
-            analysis_id,
-            evaluate_rules(
-                [RuleInputDocument(id=input_document.id) for input_document in input_documents],
-                [
-                    RuleExtractedField(
-                        id=field.id,
-                        input_document_id=field.input_document_id,
-                        field_name=field.field_name,
-                        raw_value=field.raw_value,
-                        normalized_value=field.normalized_value,
-                        page=page_numbers_by_document_page_id.get(field.document_page_id),
-                        bbox=field.bbox,
-                    )
-                    for field in extracted_fields
-                ],
-            ),
-        )
+        if execution_plan.run_rules:
+            evaluation_document_ids = {
+                input_document.id for input_document in execution_plan.evaluation_documents
+            }
+            replace_analysis_issues(
+                session,
+                analysis_id,
+                evaluate_rules(
+                    [
+                        RuleInputDocument(id=input_document.id)
+                        for input_document in execution_plan.evaluation_documents
+                    ],
+                    [
+                        RuleExtractedField(
+                            id=field.id,
+                            input_document_id=field.input_document_id,
+                            field_name=field.field_name,
+                            raw_value=field.raw_value,
+                            normalized_value=field.normalized_value,
+                            page=page_numbers_by_document_page_id.get(field.document_page_id),
+                            bbox=field.bbox,
+                        )
+                        for field in extracted_fields
+                        if field.input_document_id in evaluation_document_ids
+                    ],
+                ),
+            )
+        else:
+            replace_analysis_issues(session, analysis_id, [])
         session.commit()
-    except (FileNotFoundError, ValueError) as exc:
+    except ValueError:
+        session.rollback()
+        set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_FAILED)
+        raise
+    except FileNotFoundError as exc:
         session.rollback()
         set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_FAILED)
         raise AnalysisProcessingError(str(exc)) from exc

@@ -4,6 +4,10 @@ import {
   startAnalysis,
   uploadAnalysisFiles,
 } from "@/lib/api/analysis";
+import {
+  getAnalysisModeLabel,
+  type AnalysisMode,
+} from "@/lib/analysis/analysis-modes";
 import { extractApiErrorMessage } from "@/lib/api/fetcher";
 import type { AnalysisRun, InputDocument } from "@/lib/types/analysis";
 import type {
@@ -12,27 +16,35 @@ import type {
 } from "@/lib/types/new-analysis-action";
 
 type RunNewAnalysisFlowOptions = {
+  analysisMode: AnalysisMode;
+  config: Record<string, string>;
   files: File[];
   onStateChange?: (state: NewAnalysisActionState) => void | Promise<void>;
   tipo: string;
 };
 
 export async function runNewAnalysisFlow({
+  analysisMode,
+  config,
   files,
   onStateChange,
   tipo,
 }: RunNewAnalysisFlowOptions): Promise<NewAnalysisActionState> {
   let analysis: AnalysisRun | undefined;
   let documents: InputDocument[] = [];
+  const modeLabel = getAnalysisModeLabel(analysisMode);
 
   try {
-    analysis = await createAnalysis();
+    analysis = await createAnalysis({
+      analysis_mode: analysisMode,
+      config,
+    });
     documents = await uploadAnalysisFiles(analysis.id, { files, tipo });
 
     await emitState(onStateChange, {
       analysis,
       documents,
-      message: `Analise #${analysis.id} criada e upload concluido. Iniciando processamento.`,
+      message: `${modeLabel}: analise #${analysis.id} criada e upload concluido. Iniciando processamento.`,
       status: "created",
       tone: "default",
     });
@@ -42,7 +54,7 @@ export async function runNewAnalysisFlow({
     await emitState(onStateChange, {
       analysis: { ...analysis, status: "processing" },
       documents,
-      message: `Analise #${analysis.id} em processamento. Aguarde a conclusao do start sincronico.`,
+      message: `${modeLabel}: analise #${analysis.id} em processamento. Aguarde a conclusao do start sincronico.`,
       status: "processing",
       tone: "default",
     });
@@ -84,8 +96,8 @@ export async function runNewAnalysisFlow({
       analysis: { ...nextAnalysis, status: nextStatus },
       documents,
       message:
-        nextStatus === "failed"
-          ? `Analise #${analysis.id} falhou durante o start: ${fallbackMessage}`
+      nextStatus === "failed"
+          ? `${modeLabel}: analise #${analysis.id} falhou durante o start: ${fallbackMessage}`
           : fallbackMessage,
       status: nextStatus,
       tone: "error",

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AnalysisModeBadge } from "@/components/analysis/analysis-mode-badge";
 import { AnalysisStatusBadge } from "@/components/analysis/analysis-status-badge";
 import { UploadedDocumentsList } from "@/components/analysis/uploaded-documents-list";
 import type { NewAnalysisActionState } from "@/lib/types/new-analysis-action";
@@ -25,9 +26,10 @@ export function AnalysisStartStatus({
             {state.message}
           </p>
           {state.analysis ? (
-            <p className="text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
-              Analise criada: #{state.analysis.id}
-            </p>
+            <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
+              <span>Analise criada: #{state.analysis.id}</span>
+              <AnalysisModeBadge mode={state.analysis.analysis_mode} />
+            </div>
           ) : null}
         </div>
 
@@ -38,6 +40,19 @@ export function AnalysisStartStatus({
 
       {state.documents.length > 0 ? (
         <UploadedDocumentsList documents={state.documents} />
+      ) : null}
+
+      {state.analysis && Object.keys(state.analysis.config).length > 0 ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {Object.entries(state.analysis.config).map(([key, value]) => (
+            <span
+              key={key}
+              className="rounded-full border border-[var(--cp-border)] bg-white/5 px-3 py-1 text-xs text-[var(--cp-muted)]"
+            >
+              {key}: {String(value)}
+            </span>
+          ))}
+        </div>
       ) : null}
 
       {state.analysis ? (

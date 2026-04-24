@@ -24,8 +24,8 @@ export function AnalysisList({ analyses, loadError }: AnalysisListProps) {
             Visao inicial das analises cadastradas.
           </h2>
           <p className="max-w-2xl text-sm leading-6 text-[var(--cp-muted)]">
-            Esta lista usa o endpoint atual do backend para seguir ao fluxo de
-            upload e consultar o resultado tecnico de cada analise.
+            Esta lista usa o endpoint atual do backend para abrir a Central de
+            Analise e consultar o resultado tecnico de cada execucao.
           </p>
         </div>
 
@@ -33,7 +33,7 @@ export function AnalysisList({ analyses, loadError }: AnalysisListProps) {
           href="/analysis/new"
           className="inline-flex items-center justify-center rounded-full border border-[var(--cp-border)] px-4 py-2 text-sm font-medium text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)]"
         >
-          Abrir nova analise
+          Abrir Central
         </Link>
       </div>
 

@@ -38,9 +38,9 @@ export default async function HomePage() {
               Auditoria documental com leitura rapida e fluxo tecnico.
             </h1>
             <p className="max-w-2xl text-base leading-7 text-[var(--cp-muted)] sm:text-lg">
-              A base do frontend ja conversa com o backend atual para listar
-              analises, criar uma nova analise e iniciar o upload inicial de
-              PDFs, mantendo o fluxo separado por etapas.
+              A interface agora organiza a criacao de analises como uma Central
+              de Analise, com modos configuraveis, upload de PDFs e inicio do
+              processamento sincronico pelo backend atual.
             </p>
           </div>
 
@@ -49,7 +49,7 @@ export default async function HomePage() {
               href="/analysis/new"
               className="inline-flex items-center justify-center rounded-full bg-[var(--cp-accent)] px-6 py-3 text-sm font-semibold text-[var(--cp-accent-ink)] transition-transform duration-200 hover:-translate-y-0.5"
             >
-              Nova analise
+              Abrir Central
             </Link>
             <div className="inline-flex items-center rounded-full border border-[var(--cp-border)] px-4 py-3 text-sm text-[var(--cp-muted)]">
               Backend alvo: <span className="ml-2 font-mono">/api/v1</span>
@@ -65,8 +65,8 @@ export default async function HomePage() {
           />
           <OverviewCard
             label="Etapa atual"
-            value="Start"
-            helper="Criacao, upload e inicio sincronico do processamento ja integrados ao backend"
+            value="Central"
+            helper="Selecao de modo, configuracao e upload integrados ao contrato atual da API"
           />
           <OverviewCard
             label="Identidade visual"

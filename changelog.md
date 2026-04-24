@@ -21,6 +21,8 @@
 - Motor inicial de regras em modulo separado para gerar `Issue` e `IssueEvidence` a partir de `ExtractedField`
 - Endpoint `GET /api/v1/analysis/{id}/issues` para expor issues com evidencias textuais derivadas para leitura no frontend
 - Fluxo do frontend para criar analise, enviar PDFs, iniciar o processamento e liberar o link de resultado quando o status final for `completed`
+- Central de Analise no frontend com selecao visual de `analysis_mode`, configuracao dinamica por modo e area de upload com drag and drop
+- Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
 - `docs/API.md` atualizado para incluir `GET /analysis` para a tela de lista de analises
@@ -32,6 +34,9 @@
 - `Issue` agora associa explicitamente a analise por `analysis_run_id`, e `docs/DATA_MODEL.md` passou a refletir a persistencia de evidencias com `bbox` opcional
 - `docs/API.md` agora descreve que `GET /analysis/{id}/issues` retorna `Issue` com `IssueEvidence` e `text` derivado de `ExtractedField.raw_value`
 - Tela `/analysis/new` agora orquestra criacao, upload e `POST /analysis/{id}/start` usando a camada `lib/api`, exibindo `created`, `processing`, `completed` e `failed`
+- `POST /api/v1/analysis` agora aceita body opcional com `analysis_mode` e `config`, mantendo compatibilidade com `full_check` como default
+- `docs/PRODUCT.md`, `docs/UI_FLOWS.md`, `docs/API.md` e `docs/DATA_MODEL.md` agora descrevem a Central de Analise e o novo contrato de modos
+- Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
 - Tipagem de `DATABASE_URL` em `backend/app/core/config.py` para compatibilidade com `pydantic-settings` no Pydantic v2
@@ -44,6 +49,7 @@
 - `.gitignore` corrigido para bloquear bancos locais, uploads e artefatos de build antes do commit
 - Pipeline de processamento agora executa apenas as tres regras MVP aprovadas apos a extracao de campos, sem gerar issue para campo ausente em todos os documentos
 - Startup do backend ajustado para evitar import circular entre `db.issues`, `rules` e `worker` ao subir a API real
+- `POST /api/v1/analysis/{id}/start` agora responde `400` quando um modo recortado nao encontra documentos compatíveis com o `tipo` enviado, mantendo a analise em `failed`
 
 ---
 

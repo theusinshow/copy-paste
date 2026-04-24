@@ -8,10 +8,42 @@ from app.db.session import engine
 
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
+    _sync_sqlite_analysis_runs_schema()
     _sync_sqlite_input_documents_schema()
     _sync_sqlite_extracted_fields_schema()
     _sync_sqlite_issues_schema()
     _sync_sqlite_issue_evidences_schema()
+
+
+def _sync_sqlite_analysis_runs_schema() -> None:
+    if not engine.url.drivername.startswith("sqlite"):
+        return
+
+    inspector = inspect(engine)
+    if "analysis_runs" not in inspector.get_table_names():
+        return
+
+    columns = {column["name"] for column in inspector.get_columns("analysis_runs")}
+    statements: list[str] = []
+
+    if "analysis_mode" not in columns:
+        statements.append(
+            "ALTER TABLE analysis_runs "
+            "ADD COLUMN analysis_mode VARCHAR(50) NOT NULL DEFAULT 'full_check'"
+        )
+
+    if "config" not in columns:
+        statements.append(
+            "ALTER TABLE analysis_runs "
+            "ADD COLUMN config JSON NOT NULL DEFAULT '{}'"
+        )
+
+    if not statements:
+        return
+
+    with engine.begin() as connection:
+        for statement in statements:
+            connection.execute(text(statement))
 
 
 def _sync_sqlite_input_documents_schema() -> None:

@@ -1,3 +1,4 @@
+import { AnalysisModeBadge } from "@/components/analysis/analysis-mode-badge";
 import Link from "next/link";
 
 import { AnalysisStatusBadge } from "@/components/analysis/analysis-status-badge";
@@ -20,6 +21,7 @@ export function AnalysisCard({ analysis }: { analysis: AnalysisRun }) {
           <h3 className="font-mono text-2xl font-semibold text-[var(--cp-text)]">
             #{analysis.id.toString().padStart(4, "0")}
           </h3>
+          <AnalysisModeBadge mode={analysis.analysis_mode} />
         </div>
         <AnalysisStatusBadge status={analysis.status} />
       </div>
@@ -58,7 +60,7 @@ export function AnalysisCard({ analysis }: { analysis: AnalysisRun }) {
             href="/analysis/new"
             className="inline-flex items-center font-medium text-[var(--cp-muted)] transition-colors hover:text-[var(--cp-text)]"
           >
-            Criar outra analise
+            Abrir central
           </Link>
         </div>
       </div>

@@ -1,4 +1,8 @@
+import type { AnalysisMode } from "@/lib/analysis/analysis-modes";
+
 export type AnalysisRun = {
+  analysis_mode: AnalysisMode;
+  config: Record<string, unknown>;
   created_at: string;
   id: number;
   status: string;

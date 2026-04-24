@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api/fetcher";
+import type { AnalysisMode } from "@/lib/analysis/analysis-modes";
 import type { AnalysisRun, InputDocument } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
 
@@ -20,8 +21,12 @@ export async function listAnalysisIssues(analysisId: number) {
   });
 }
 
-export async function createAnalysis() {
+export async function createAnalysis(payload?: {
+  analysis_mode?: AnalysisMode;
+  config?: Record<string, string>;
+}) {
   return apiFetch<AnalysisRun>("/api/v1/analysis", {
+    body: payload ? JSON.stringify(payload) : undefined,
     method: "POST",
   });
 }

@@ -1,7 +1,14 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+from app.core.analysis_modes import ANALYSIS_MODE_DEFAULT
+
+
+class AnalysisCreateSchema(BaseModel):
+    analysis_mode: str = ANALYSIS_MODE_DEFAULT
+    config: dict[str, Any] = Field(default_factory=dict)
 
 
 class AnalysisRunSchema(BaseModel):
@@ -9,6 +16,8 @@ class AnalysisRunSchema(BaseModel):
 
     id: int
     status: str
+    analysis_mode: str
+    config: dict[str, Any]
     created_at: datetime
 
 

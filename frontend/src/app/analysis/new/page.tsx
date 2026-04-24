@@ -4,17 +4,19 @@ import Link from "next/link";
 import { NewAnalysisForm } from "@/components/analysis/new-analysis-form";
 
 export const metadata: Metadata = {
-  title: "Nova analise",
+  title: "Central de analise",
 };
 
 const uploadRules = [
   "PDFs apenas, em envio multipart para o backend atual.",
-  "O tipo e aplicado ao conjunto de arquivos enviado nesta etapa.",
+  "O modo e enviado em POST /api/v1/analysis com config flexivel.",
+  "O tipo continua sendo aplicado ao conjunto de arquivos enviado nesta etapa.",
   "O processamento e iniciado por POST /api/v1/analysis/{analysis_id}/start de forma sincronica.",
 ];
 
 const nextSteps = [
-  "Criar a analise via POST /api/v1/analysis.",
+  "Selecionar o modo de analise e preencher a configuracao dinamica.",
+  "Criar a analise via POST /api/v1/analysis com default em full_check.",
   "Enviar os PDFs via POST /api/v1/analysis/{analysis_id}/files.",
   "Iniciar o processamento via POST /api/v1/analysis/{analysis_id}/start.",
   "Liberar o link de resultado somente quando o status final for completed.",
@@ -26,16 +28,16 @@ export default function NewAnalysisPage() {
       <section className="space-y-6">
         <div className="rounded-[2rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/90 p-8">
           <p className="text-xs uppercase tracking-[0.26em] text-[var(--cp-accent)]">
-            Upload Inicial
+            Central de Analise
           </p>
           <div className="mt-4 space-y-4">
             <h1 className="text-4xl font-semibold tracking-tight text-[var(--cp-text)]">
-              Nova analise com upload e start do processamento.
+              Configure o modo, envie os PDFs e dispare a analise.
             </h1>
             <p className="max-w-2xl text-base leading-7 text-[var(--cp-muted)]">
-              Esta etapa cria a analise, envia os arquivos PDF e dispara o
-              processamento sincronico. Viewer e highlight visual continuam
-              fora de escopo.
+              Esta tela evolui o upload atual para uma Central de Analise com
+              modos configuraveis. O contrato segue compativel com `full_check`
+              como padrao, e o start continua sincronico.
             </p>
           </div>
 
@@ -47,7 +49,7 @@ export default function NewAnalysisPage() {
               Voltar para analises
             </Link>
             <span className="rounded-full bg-[var(--cp-accent)]/10 px-4 py-2 font-medium text-[var(--cp-accent)]">
-              Fluxo atual: Lista → Nova analise → Upload → Processamento
+              Fluxo atual: Lista → Central de Analise → Upload → Processamento
             </span>
           </div>
         </div>

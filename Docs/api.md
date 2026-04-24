@@ -10,6 +10,34 @@ GET /analysis
 
 POST /analysis
 → cria análise
+- body opcional
+- default: `analysis_mode = full_check`
+- default: `config = {}`
+- modos aceitos:
+  - `full_check`
+  - `memorial_only`
+  - `sheets_only`
+  - `ld_only`
+  - `find_text`
+  - `find_replace`
+  - `check_address`
+  - `check_project_number`
+  - `check_work_name`
+- exemplos de config:
+  - `find_text`: `{ "query": "concreto" }`
+  - `find_replace`: `{ "find": "Rua antiga", "replace": "Avenida nova" }`
+  - `check_address`: `{ "expected": "Rua das Flores, 120" }`
+  - `check_project_number`: `{ "expected": "24-1087" }`
+  - `check_work_name`: `{ "expected": "Estacao Central" }`
+- payload:
+```json
+{
+  "analysis_mode": "find_text",
+  "config": {
+    "query": "concreto"
+  }
+}
+```
 
 POST /analysis/{id}/files
 → upload multipart/form-data
@@ -21,6 +49,7 @@ POST /analysis/{id}/start
 
 GET /analysis/{id}
 → status
+- retorna `id`, `status`, `analysis_mode`, `config`, `created_at`
 
 GET /analysis/{id}/issues
 → lista issues

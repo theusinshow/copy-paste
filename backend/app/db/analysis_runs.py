@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.analysis_modes import ANALYSIS_MODE_DEFAULT, AnalysisMode
 from app.models.analysis_run import AnalysisRun
 
 ANALYSIS_STATUS_CREATED = "created"
@@ -11,9 +13,15 @@ ANALYSIS_STATUS_COMPLETED = "completed"
 ANALYSIS_STATUS_FAILED = "failed"
 
 
-def create_analysis_run(session: Session) -> AnalysisRun:
+def create_analysis_run(
+    session: Session,
+    analysis_mode: AnalysisMode = ANALYSIS_MODE_DEFAULT,
+    config: dict[str, Any] | None = None,
+) -> AnalysisRun:
     analysis_run = AnalysisRun(
         status=ANALYSIS_STATUS_CREATED,
+        analysis_mode=analysis_mode,
+        config=dict(config or {}),
         created_at=datetime.now(timezone.utc),
     )
     session.add(analysis_run)

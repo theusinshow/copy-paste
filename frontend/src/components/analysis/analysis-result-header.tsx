@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { AnalysisModeBadge } from "@/components/analysis/analysis-mode-badge";
 import { AnalysisStatusBadge } from "@/components/analysis/analysis-status-badge";
+import { getAnalysisModeLabel } from "@/lib/analysis/analysis-modes";
 import { formatAnalysisDate } from "@/lib/formatters";
 import type { AnalysisRun } from "@/lib/types/analysis";
 
@@ -37,6 +39,7 @@ export function AnalysisResultHeader({
             <p className="text-xs uppercase tracking-[0.26em] text-[var(--cp-accent)]">
               Analise #{analysis.id.toString().padStart(4, "0")}
             </p>
+            <AnalysisModeBadge mode={analysis.analysis_mode} />
             <h1 className="text-4xl font-semibold tracking-tight text-[var(--cp-text)]">
               Resultado e evidencias das issues encontradas.
             </h1>
@@ -51,6 +54,7 @@ export function AnalysisResultHeader({
 
       <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
         <MetricCard label="Criada em" value={formatAnalysisDate(analysis.created_at)} />
+        <MetricCard label="Modo" value={getAnalysisModeLabel(analysis.analysis_mode)} />
         <MetricCard label="Issues totais" value={issueCount.toString().padStart(2, "0")} />
         <MetricCard
           label="Severidades"

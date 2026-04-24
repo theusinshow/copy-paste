@@ -3,13 +3,27 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { AnalysisModeConfigPanel } from "@/components/analysis/analysis-mode-config-panel";
+import { AnalysisModeSelector } from "@/components/analysis/analysis-mode-selector";
 import { AnalysisStartStatus } from "@/components/analysis/analysis-start-status";
+import { AnalysisUploadDropzone } from "@/components/analysis/analysis-upload-dropzone";
 import { FormSubmitButton } from "@/components/analysis/form-submit-button";
+import {
+  ANALYSIS_MODE_DEFAULT,
+  buildAnalysisModeConfig,
+  getInitialConfigValues,
+  getLockedTipoForMode,
+  type AnalysisMode,
+} from "@/lib/analysis/analysis-modes";
 import { runNewAnalysisFlow } from "@/lib/analysis/run-new-analysis-flow";
 import { initialNewAnalysisActionState } from "@/lib/types/new-analysis-action";
 
 export function NewAnalysisForm() {
   const [state, setState] = useState(initialNewAnalysisActionState);
+  const [selectedMode, setSelectedMode] = useState<AnalysisMode>(ANALYSIS_MODE_DEFAULT);
+  const [configValues, setConfigValues] = useState(getInitialConfigValues(ANALYSIS_MODE_DEFAULT));
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [manualTipo, setManualTipo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -18,11 +32,21 @@ export function NewAnalysisForm() {
       return;
     }
 
-    const formData = new FormData(event.currentTarget);
-    const tipo = String(formData.get("tipo") ?? "").trim();
-    const files = formData
-      .getAll("files")
-      .filter((entry): entry is File => entry instanceof File && entry.size > 0);
+    const tipo = getLockedTipoForMode(selectedMode) ?? manualTipo.trim();
+    const { config, error: configError } = buildAnalysisModeConfig(
+      selectedMode,
+      configValues,
+    );
+
+    if (configError) {
+      setState({
+        ...initialNewAnalysisActionState,
+        message: configError,
+        status: "failed",
+        tone: "error",
+      });
+      return;
+    }
 
     if (!tipo) {
       setState({
@@ -34,7 +58,7 @@ export function NewAnalysisForm() {
       return;
     }
 
-    if (files.length === 0) {
+    if (selectedFiles.length === 0) {
       setState({
         ...initialNewAnalysisActionState,
         message: "Selecione ao menos um arquivo PDF.",
@@ -48,7 +72,9 @@ export function NewAnalysisForm() {
 
     try {
       await runNewAnalysisFlow({
-        files,
+        analysisMode: selectedMode,
+        config,
+        files: selectedFiles,
         onStateChange: (nextState) => {
           setState(nextState);
         },
@@ -65,6 +91,25 @@ export function NewAnalysisForm() {
       style={{ boxShadow: "var(--cp-shadow)" }}
     >
       <form onSubmit={handleSubmit} className="grid gap-6">
+        <AnalysisModeSelector
+          selectedMode={selectedMode}
+          onSelect={(mode) => {
+            setSelectedMode(mode);
+            setConfigValues(getInitialConfigValues(mode));
+          }}
+        />
+
+        <AnalysisModeConfigPanel
+          selectedMode={selectedMode}
+          configValues={configValues}
+          onChange={(fieldKey, value) => {
+            setConfigValues((currentValues) => ({
+              ...currentValues,
+              [fieldKey]: value,
+            }));
+          }}
+        />
+
         <div className="grid gap-2">
           <label
             htmlFor="tipo"
@@ -72,40 +117,36 @@ export function NewAnalysisForm() {
           >
             Tipo aplicado aos arquivos
           </label>
-          <input
-            id="tipo"
-            name="tipo"
-            type="text"
-            required
-            placeholder="Ex.: planta, memorial, levantamento"
-            className="w-full rounded-2xl border border-[var(--cp-border)] bg-black/20 px-4 py-3 text-sm text-[var(--cp-text)] outline-none transition-colors placeholder:text-[var(--cp-muted)] focus:border-[var(--cp-accent)]"
-          />
+          {getLockedTipoForMode(selectedMode) ? (
+            <input
+              id="tipo"
+              value={getLockedTipoForMode(selectedMode) ?? ""}
+              readOnly
+              className="w-full rounded-2xl border border-[var(--cp-border)] bg-white/6 px-4 py-3 text-sm text-[var(--cp-text)] outline-none"
+            />
+          ) : (
+            <input
+              id="tipo"
+              name="tipo"
+              type="text"
+              value={manualTipo}
+              onChange={(event) => setManualTipo(event.target.value)}
+              required
+              placeholder="Ex.: planta, memorial, levantamento"
+              className="w-full rounded-2xl border border-[var(--cp-border)] bg-black/20 px-4 py-3 text-sm text-[var(--cp-text)] outline-none transition-colors placeholder:text-[var(--cp-muted)] focus:border-[var(--cp-accent)]"
+            />
+          )}
           <p className="text-sm leading-6 text-[var(--cp-muted)]">
-            O backend atual aplica este tipo a todos os PDFs enviados na mesma
-            submissao.
+            {getLockedTipoForMode(selectedMode)
+              ? "Este modo fixa automaticamente o tipo tecnico enviado ao backend."
+              : "O backend atual aplica este tipo a todos os PDFs enviados na mesma submissao."}
           </p>
         </div>
 
-        <div className="grid gap-2">
-          <label
-            htmlFor="files"
-            className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--cp-muted)]"
-          >
-            PDFs da analise
-          </label>
-          <input
-            id="files"
-            name="files"
-            type="file"
-            accept=".pdf,application/pdf"
-            multiple
-            required
-            className="w-full rounded-2xl border border-[var(--cp-border)] bg-black/20 px-4 py-3 text-sm text-[var(--cp-text)] file:mr-4 file:rounded-full file:border-0 file:bg-[var(--cp-accent)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[var(--cp-accent-ink)]"
-          />
-          <p className="text-sm leading-6 text-[var(--cp-muted)]">
-            O upload inicial usa somente os endpoints ja disponiveis do backend.
-          </p>
-        </div>
+        <AnalysisUploadDropzone
+          files={selectedFiles}
+          onFilesChange={setSelectedFiles}
+        />
 
         <div className="flex flex-wrap items-center gap-3">
           <FormSubmitButton pending={isSubmitting} />
