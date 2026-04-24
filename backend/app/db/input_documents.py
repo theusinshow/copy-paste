@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.input_document import InputDocument
@@ -28,3 +29,15 @@ def create_input_documents(
         session.refresh(document)
 
     return documents
+
+
+def list_input_documents_by_analysis_id(
+    session: Session,
+    analysis_id: int,
+) -> list[InputDocument]:
+    statement = (
+        select(InputDocument)
+        .where(InputDocument.analysis_run_id == analysis_id)
+        .order_by(InputDocument.id.asc())
+    )
+    return list(session.scalars(statement).all())

@@ -1,0 +1,84 @@
+import { buildApiUrl } from "@/lib/api/config";
+
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly payload: unknown,
+    message: string,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+export async function apiFetch<T>(
+  path: string,
+  init: RequestInit = {},
+): Promise<T> {
+  const headers = new Headers(init.headers);
+  const isFormData = init.body instanceof FormData;
+
+  if (!headers.has("Accept")) {
+    headers.set("Accept", "application/json");
+  }
+
+  if (!isFormData && init.body !== undefined && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  const response = await fetch(buildApiUrl(path), {
+    ...init,
+    headers,
+  });
+  const payload = await readResponsePayload(response);
+
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      payload,
+      getPayloadMessage(payload, response.statusText),
+    );
+  }
+
+  return payload as T;
+}
+
+export function extractApiErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof ApiError) {
+    return error.message;
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return fallback;
+}
+
+async function readResponsePayload(response: Response) {
+  const contentType = response.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    return response.json();
+  }
+
+  const text = await response.text();
+  return text.length > 0 ? text : null;
+}
+
+function getPayloadMessage(payload: unknown, fallback: string) {
+  if (
+    typeof payload === "object" &&
+    payload !== null &&
+    "detail" in payload &&
+    typeof payload.detail === "string"
+  ) {
+    return payload.detail;
+  }
+
+  if (typeof payload === "string" && payload.trim().length > 0) {
+    return payload;
+  }
+
+  return fallback;
+}

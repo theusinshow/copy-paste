@@ -5,12 +5,15 @@ from sqlalchemy.orm import Session
 
 from app.models.analysis_run import AnalysisRun
 
-INITIAL_ANALYSIS_STATUS = "created"
+ANALYSIS_STATUS_CREATED = "created"
+ANALYSIS_STATUS_PROCESSING = "processing"
+ANALYSIS_STATUS_COMPLETED = "completed"
+ANALYSIS_STATUS_FAILED = "failed"
 
 
 def create_analysis_run(session: Session) -> AnalysisRun:
     analysis_run = AnalysisRun(
-        status=INITIAL_ANALYSIS_STATUS,
+        status=ANALYSIS_STATUS_CREATED,
         created_at=datetime.now(timezone.utc),
     )
     session.add(analysis_run)
@@ -30,3 +33,15 @@ def list_analysis_runs(session: Session) -> list[AnalysisRun]:
 def get_analysis_run_by_id(session: Session, analysis_id: int) -> AnalysisRun | None:
     statement = select(AnalysisRun).where(AnalysisRun.id == analysis_id)
     return session.scalar(statement)
+
+
+def set_analysis_run_status(
+    session: Session,
+    analysis_run: AnalysisRun,
+    status: str,
+) -> AnalysisRun:
+    analysis_run.status = status
+    session.add(analysis_run)
+    session.commit()
+    session.refresh(analysis_run)
+    return analysis_run

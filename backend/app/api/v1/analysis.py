@@ -9,6 +9,7 @@ from app.db.dependencies import DbSession
 from app.db.input_documents import create_input_documents
 from app.schemas.analysis import AnalysisRunSchema, InputDocumentSchema
 from app.storage.uploads import delete_uploaded_files, save_pdf_upload
+from app.worker.analysis_processor import AnalysisProcessingError, process_analysis
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
@@ -104,10 +105,25 @@ async def upload_analysis_files(
         raise
 
 
-@router.post("/{analysis_id}/start")
-async def start_analysis(analysis_id: int) -> None:
-    del analysis_id
-    _not_implemented()
+@router.post("/{analysis_id}/start", response_model=AnalysisRunSchema)
+def start_analysis(analysis_id: int, session: DbSession) -> AnalysisRunSchema:
+    try:
+        return process_analysis(session, analysis_id)
+    except LookupError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+    except AnalysisProcessingError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(exc),
+        ) from exc
 
 
 @router.get("/{analysis_id}", response_model=AnalysisRunSchema)

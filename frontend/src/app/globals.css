@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --cp-bg: #323232;
+  --cp-bg-elevated: #383838;
+  --cp-panel: #2b2b2b;
+  --cp-panel-soft: rgba(255, 255, 255, 0.04);
+  --cp-border: rgba(255, 255, 255, 0.12);
+  --cp-text: #f5f4ef;
+  --cp-muted: #bdbbb3;
+  --cp-accent: #ffdb00;
+  --cp-accent-ink: #1e1d17;
+  --cp-accent-glow: rgba(255, 219, 0, 0.16);
+  --cp-fog: rgba(255, 255, 255, 0.05);
+  --cp-info: #5ca8ff;
+  --cp-success: #46c978;
+  --cp-warning: #b8860b;
+  --cp-error: #ff6464;
+  --cp-shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+  --cp-shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.22);
+}
+
+@theme inline {
+  --color-background: var(--cp-bg);
+  --color-foreground: var(--cp-text);
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+}
+
+* {
+  border-color: var(--cp-border);
+}
+
+html {
+  min-height: 100%;
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, var(--cp-accent-glow) 0, transparent 28%),
+    radial-gradient(circle at bottom right, var(--cp-fog) 0, transparent 32%),
+    linear-gradient(180deg, var(--cp-bg-elevated) 0%, var(--cp-bg) 50%, #262626 100%);
+  color: var(--cp-text);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--cp-accent);
+  color: var(--cp-accent-ink);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
