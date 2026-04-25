@@ -5,6 +5,7 @@
 ### Added
 - Arquivo `render.yaml` para provisionar o backend FastAPI e o PostgreSQL no Render via Blueprint.
 - Guia `Docs/DEPLOYMENT.md` com o fluxo de deploy do frontend na Vercel e do backend no Render.
+- Arquivo `vercel.json` para declarar explicitamente o servico `frontend` na Vercel quando o repositorio for detectado como `Services`.
 - Endpoint `GET /api/v1/analysis/{id}/signoff` para consultar o encerramento formal humano da analise.
 - Endpoint `POST /api/v1/analysis/{id}/signoff` para registrar responsavel, comentario e status final assinado da analise.
 - Entidade `AnalysisSignoff` para persistir o encerramento formal por analise sem substituir o fechamento calculado.

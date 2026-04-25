@@ -11,10 +11,11 @@ Hospedar o `frontend` na Vercel e o `backend` no Render, mantendo a separacao de
 
 ## Frontend na Vercel
 1. Importar o mesmo repositorio na Vercel.
-2. Configurar `Root Directory` como `frontend`.
-3. Confirmar o framework `Next.js`.
-4. Adicionar a variavel `NEXT_PUBLIC_API_URL` apontando para a URL publica do backend no Render, por exemplo `https://copy-paste-backend.onrender.com`.
-5. Fazer o deploy.
+2. Se a Vercel detectar o repositorio como `Services`, manter esse preset e usar o `vercel.json` da raiz para publicar apenas o servico `frontend` em `/`.
+3. Caso a Vercel permita a configuracao tradicional de framework unico, configurar `Root Directory` como `frontend`.
+4. Confirmar o framework `Next.js` para o servico de frontend.
+5. Adicionar a variavel `NEXT_PUBLIC_API_URL` apontando para a URL publica do backend no Render, por exemplo `https://copy-paste-backend.onrender.com`.
+6. Fazer o deploy.
 
 ## Backend no Render
 1. Criar o backend via Blueprint usando o arquivo `render.yaml` na raiz do repositorio.
@@ -42,3 +43,4 @@ Hospedar o `frontend` na Vercel e o `backend` no Render, mantendo a separacao de
 - Em producao, o `frontend` falha cedo sem `NEXT_PUBLIC_API_URL` para evitar deploy apontando para `localhost`.
 - A aplicacao aceita `postgres://` e `postgresql://` do Render e converte para `postgresql+psycopg://` internamente.
 - O `healthCheckPath` do Render usa `/docs`, evitando adicionar endpoint novo fora do contrato atual.
+- O arquivo `vercel.json` da raiz declara apenas o servico `frontend` na Vercel para evitar roteamento ambiguo quando o repositorio for detectado como multi-servico.
