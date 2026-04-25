@@ -286,15 +286,6 @@ export function NewAnalysisForm() {
             </label>
           ) : null}
 
-          <p className="text-sm leading-6 text-[var(--cp-muted)]">
-            Tipo atual:{" "}
-            <span className="font-medium text-[var(--cp-text)]">
-              {formatTipoLabel(
-                lockedTipo ??
-                  (selectedTipoOption === "outro" ? customTipo || "outro" : selectedTipoOption),
-              )}
-            </span>
-          </p>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--cp-border)] pt-5">

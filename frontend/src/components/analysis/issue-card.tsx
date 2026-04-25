@@ -7,6 +7,23 @@ import {
 } from "@/components/analysis/issue-severity-badge";
 import type { AnalysisIssue } from "@/lib/types/issue";
 
+const ISSUE_TYPE_LABELS: Record<string, string> = {
+  campo_ausente: "Campo não encontrado",
+  check_address: "Verificação de endereço",
+  check_project_number: "Verificação de número de projeto",
+  check_work_name: "Verificação de nome da obra",
+  divergencia_bairro: "Divergência no bairro",
+  divergencia_endereco: "Divergência no endereço",
+  divergencia_nome_obra: "Divergência no nome da obra",
+  divergencia_projeto_numero: "Divergência no número do projeto",
+  find_replace: "Substituição sugerida",
+  find_text: "Ocorrência encontrada",
+};
+
+function humanizeIssueType(type: string): string {
+  return ISSUE_TYPE_LABELS[type] ?? type.replace(/_/g, " ");
+}
+
 type IssueCardProps = {
   cardId?: string;
   isFocused?: boolean;
@@ -23,7 +40,6 @@ export function IssueCard({
   onToggleSelection,
 }: IssueCardProps) {
   const appearance = getIssueSeverityAppearance(issue.severity);
-  const primaryEvidence = issue.evidences[0] ?? null;
 
   return (
     <article
@@ -41,15 +57,13 @@ export function IssueCard({
                 onChange={() => onToggleSelection(issue.id)}
                 className="h-4 w-4 rounded border border-[var(--cp-border)] bg-transparent accent-[var(--cp-accent)]"
               />
-              Selecionar issue
+              Selecionar
             </label>
           ) : null}
-          <p className="text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
-            Tipo
-          </p>
-          <h3 className="font-mono text-lg font-semibold text-[var(--cp-text)]">
-            {issue.type}
+          <h3 className="text-base font-semibold text-[var(--cp-text)]">
+            {humanizeIssueType(issue.type)}
           </h3>
+          <p className="font-mono text-xs text-[var(--cp-muted)]">{issue.type}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <IssueReviewBadge
@@ -64,25 +78,16 @@ export function IssueCard({
         {issue.description}
       </p>
 
-      {primaryEvidence ? (
-        <div className="mt-4 rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
-          <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-            Evidencia principal
+      {issue.evidences.length > 0 ? (
+        <div className="mt-5 border-t border-[var(--cp-border)] pt-4">
+          <p className="text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
+            Evidencias
           </p>
-          <p className="mt-2 text-sm leading-7 text-[var(--cp-text)]">
-            pagina {primaryEvidence.page} · {primaryEvidence.text}
-          </p>
+          <div className="mt-4">
+            <IssueEvidenceList evidences={issue.evidences} />
+          </div>
         </div>
       ) : null}
-
-      <div className="mt-5 border-t border-[var(--cp-border)] pt-4">
-        <p className="text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
-          Evidencia textual
-        </p>
-        <div className="mt-4">
-          <IssueEvidenceList evidences={issue.evidences} />
-        </div>
-      </div>
 
       <div className="mt-5 border-t border-[var(--cp-border)] pt-4">
         <p className="text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">

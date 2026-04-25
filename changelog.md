@@ -71,6 +71,18 @@
 - Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
+- `AnalysisResultHeader` reescrito como barra horizontal compacta com modo, id, data e status; removidos os seis `MetricCard` que duplicavam dados ja presentes no `AuditSummaryPanel`.
+- `ExecutiveSummary` removido da tela de resultado; os contadores de conflito, revisao, pranchas e arquivos eram redundantes com o `AuditSummaryPanel`.
+- Navegacao lateral da tela de resultado corrigida: `Lista e pranchas` e `Listas e pranchas` renomeados para `LD × Pranchas` e `Listas e deteccoes`, eliminando ambiguidade entre os dois links quase identicos.
+- Separador visual `Diagnostico` adicionado na tela de resultado para distinguir paineis decisorios (fechamento, conclusao, pontos) dos paineis de apoio.
+- `IssueCard` agora exibe o tipo da issue em linguagem natural (ex.: "Divergencia no numero do projeto") em vez do identificador tecnico bruto; o codigo tecnico permanece visivel em fonte menor como referencia.
+- Evidencia duplicada removida do `IssueCard`: o bloco separado de "Evidencia principal" foi eliminado pois a `IssueEvidenceList` ja listava todas as evidencias incluindo a principal.
+- Label do checkbox no `IssueCard` corrigido de "Selecionar issue" para "Selecionar".
+- Filtro "Sem evidencia" no `IssueList` renomeado para "Inconclusivas" para refletir o estado derivado (`inconclusive`) em vez da decisao que o origina.
+- Hero da home simplificado: removidas as caixas `HeroFact` (Melhor para / Fluxo / Saida) que tinham estilo promocional; hero agora e coluna unica com titulo, descricao, pills de etapas e botao.
+- Pills de etapas na home atualizados de 3 para 4 para alinhar com as etapas reais do formulario (Enviar PDFs, Escolher a revisao, Classificar os arquivos, Ler o resultado).
+- `WorkflowPanel` removido da sidebar da home; as etapas do fluxo estao representadas pelas pills no hero, sem repeticao.
+- "Tipo atual:" removido do `NewAnalysisForm`; o tipo selecionado ja e visivel pelo card destacado na grade de opcoes.
 - `vercel.json` removido do repositorio; a configuracao do subdiretorio `frontend` e feita exclusivamente pelo campo `Root Directory` no painel da Vercel, sem necessidade de arquivo de configuracao.
 - Configuracao de API do frontend agora exige `NEXT_PUBLIC_API_URL` em producao e mantem fallback local apenas no desenvolvimento.
 - Backend agora aceita CORS configuravel por ambiente para liberar dominios da Vercel e previews sem alterar a camada de API.

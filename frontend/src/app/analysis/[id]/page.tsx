@@ -64,12 +64,6 @@ type AnalysisResultPageProps = {
   }>;
 };
 
-type ExecutiveMetric = {
-  label: string;
-  tone?: "danger" | "muted" | "success" | "warning";
-  value: string;
-};
-
 export default async function AnalysisResultPage({
   params,
 }: AnalysisResultPageProps) {
@@ -222,33 +216,14 @@ export default async function AnalysisResultPage({
     "Nao foi possivel carregar o resultado da busca ou conferencia desta analise agora.",
   );
 
-  const relevantCount =
-    auditSummary?.metrics.relevant_count ??
-    issues.filter((issue) => issue.severity === "relevante").length;
-  const attentionCount =
-    auditSummary?.metrics.attention_count ??
-    issues.filter((issue) => issue.severity === "atencao").length;
-
-  const executiveMetrics = buildExecutiveMetrics({
-    auditSummary,
-    detectedSheets,
-    drawingLists,
-    fields,
-    packageSummary,
-  });
-
   return (
     <div className="grid gap-5">
       <AnalysisResultHeader
         analysis={analysis}
-        attentionCount={attentionCount}
         auditSummary={auditSummary}
-        issueCount={issues.length}
-        relevantCount={relevantCount}
       />
-      <ExecutiveSummary metrics={executiveMetrics} />
 
-      <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)]">
+      <div className="grid gap-5 lg:grid-cols-[200px_minmax(0,1fr)]">
         <ResultNavigation isDirectedMode={isDirectedMode} />
 
         <div className="grid gap-5">
@@ -289,13 +264,20 @@ export default async function AnalysisResultPage({
               />
             </section>
           ) : null}
+
+          <div className="border-t border-[var(--cp-border)] pt-2">
+            <p className="px-1 text-xs uppercase tracking-[0.2em] text-[var(--cp-muted)]">
+              Diagnostico
+            </p>
+          </div>
+
           <section id="resumo">
             <PackageSummaryPanel
               summary={packageSummary}
               loadError={packageSummaryLoadError}
             />
           </section>
-          <section id="lista-pranchas">
+          <section id="cruzamento">
             <LdSheetCrosscheckPanel
               crosscheck={ldSheetCrosscheck}
               loadError={ldSheetCrosscheckLoadError}
@@ -313,7 +295,7 @@ export default async function AnalysisResultPage({
               loadError={footerAuditLoadError}
             />
           </section>
-          <section id="listas-pranchas" className="grid gap-5">
+          <section id="listas" className="grid gap-5">
             <DrawingListPanel
               drawingLists={drawingLists}
               loadError={drawingListsLoadError}
@@ -341,47 +323,21 @@ export default async function AnalysisResultPage({
   );
 }
 
-function ExecutiveSummary({
-  metrics,
-}: {
-  metrics: ExecutiveMetric[];
-}) {
-  return (
-    <section className="rounded-lg border border-[var(--cp-border)] bg-black/12 p-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {metrics.map((metric) => (
-          <div
-            key={metric.label}
-            className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel-soft)] p-4"
-          >
-            <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-              {metric.label}
-            </p>
-            <p className={`mt-2 font-mono text-2xl font-semibold ${getMetricTone(metric.tone)}`}>
-              {metric.value}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function ResultNavigation({ isDirectedMode }: { isDirectedMode: boolean }) {
   const links = [
     ["#fechamento", "Resumo final"],
-    ["#encerramento", "Conclusao final"],
+    ["#encerramento", "Conclusao"],
     ["#pontos", "Pontos encontrados"],
-    ["#busca", "Busca ou conferencia"],
+    ["#busca", "Busca / conferencia"],
     ["#resumo", "Visao do pacote"],
-    ["#lista-pranchas", "Lista e pranchas"],
+    ["#cruzamento", "LD × Pranchas"],
     ["#memoriais", "Memoriais"],
     ["#rodapes", "Rodapes"],
-    ["#listas-pranchas", "Listas e pranchas"],
-    ["#organizacao", "Organizacao dos arquivos"],
+    ["#listas", "Listas e deteccoes"],
+    ["#organizacao", "Organizacao"],
     ["#paginas", "Tipos de pagina"],
     ["#leitura", "Apoio de leitura"],
-    ["#evidencias", "Trechos separados"],
+    ["#evidencias", "Evidencias"],
   ];
 
   return (
@@ -393,76 +349,17 @@ function ResultNavigation({ isDirectedMode }: { isDirectedMode: boolean }) {
         {links
           .filter(([href]) => href !== "#busca" || isDirectedMode)
           .map(([href, label]) => (
-          <a
-            key={href}
-            href={href}
-            className="rounded-lg px-2 py-2 text-sm text-[var(--cp-muted)] transition-colors hover:bg-white/5 hover:text-[var(--cp-text)]"
-          >
-            {label}
-          </a>
-        ))}
+            <a
+              key={href}
+              href={href}
+              className="rounded-lg px-2 py-1.5 text-sm text-[var(--cp-muted)] transition-colors hover:bg-white/5 hover:text-[var(--cp-text)]"
+            >
+              {label}
+            </a>
+          ))}
       </nav>
     </aside>
   );
-}
-
-function buildExecutiveMetrics({
-  auditSummary,
-  detectedSheets,
-  drawingLists,
-  fields,
-  packageSummary,
-}: {
-  auditSummary: AuditSummary | null;
-  detectedSheets: DetectedSheets | null;
-  drawingLists: DrawingLists | null;
-  fields: ExtractedField[];
-  packageSummary: PackageSummary | null;
-}): ExecutiveMetric[] {
-  return [
-    {
-      label: "Conflitos",
-      tone:
-        (auditSummary?.metrics.relevant_count ?? 0) > 0 ? "danger" : "success",
-      value: (auditSummary?.metrics.relevant_count ?? 0)
-        .toString()
-        .padStart(2, "0"),
-    },
-    {
-      label: "A revisar",
-      tone:
-        (auditSummary?.metrics.attention_count ?? 0) +
-          (auditSummary?.metrics.pending_review_count ?? 0) >
-        0
-          ? "warning"
-          : "success",
-      value: (
-        (auditSummary?.metrics.attention_count ?? 0) +
-        (auditSummary?.metrics.pending_review_count ?? 0)
-      )
-        .toString()
-        .padStart(2, "0"),
-    },
-    {
-      label: "Pranchas",
-      value: (detectedSheets?.stats.sheet_count ?? 0).toString().padStart(2, "0"),
-    },
-    {
-      label: "Arquivos e dados",
-      tone: "muted",
-      value: `${packageSummary?.stats.document_count ?? 0} pdf / ${drawingLists?.stats.row_count ?? 0} LD / ${fields.length} campos`,
-    },
-  ];
-}
-
-function getMetricTone(tone?: "danger" | "muted" | "success" | "warning") {
-  const map = {
-    danger: "text-[var(--cp-error)]",
-    muted: "text-[var(--cp-muted)]",
-    success: "text-[var(--cp-success)]",
-    warning: "text-[var(--cp-warning)]",
-  };
-  return tone ? map[tone] : "text-[var(--cp-text)]";
 }
 
 async function loadAnalysisOrNotFound(analysisId: number): Promise<AnalysisRun> {

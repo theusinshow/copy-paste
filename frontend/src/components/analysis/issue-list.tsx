@@ -12,7 +12,7 @@ const FILTERS = [
   { id: "active", label: "Ativas" },
   { id: "resolved", label: "Resolvidas" },
   { id: "dismissed", label: "Descartadas" },
-  { id: "inconclusive", label: "Sem evidencia" },
+  { id: "inconclusive", label: "Inconclusivas" },
 ] as const;
 
 type FilterId = (typeof FILTERS)[number]["id"];
