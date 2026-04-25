@@ -71,6 +71,7 @@
 - Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
+- `vercel.json` simplificado para remover `experimentalServices`, que causava `404 NOT_FOUND` ao isolar o roteamento como multi-service; a configuracao de subdiretorio `frontend` agora e feita exclusivamente pelo campo `Root Directory` no painel da Vercel.
 - Configuracao de API do frontend agora exige `NEXT_PUBLIC_API_URL` em producao e mantem fallback local apenas no desenvolvimento.
 - Backend agora aceita CORS configuravel por ambiente para liberar dominios da Vercel e previews sem alterar a camada de API.
 - `DATABASE_URL` do backend agora normaliza URLs `postgres://` e `postgresql://` para compatibilidade com o driver `psycopg` no Render.
