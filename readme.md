@@ -30,3 +30,8 @@ Verificar consistência entre:
 
 ## Status
 MVP em desenvolvimento
+
+## Deploy
+- Frontend na Vercel com `Root Directory` em `frontend`
+- Backend no Render com Blueprint em `render.yaml`
+- Guia operacional em `Docs/DEPLOYMENT.md`

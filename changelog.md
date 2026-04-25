@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ### Added
+- Arquivo `render.yaml` para provisionar o backend FastAPI e o PostgreSQL no Render via Blueprint.
+- Guia `Docs/DEPLOYMENT.md` com o fluxo de deploy do frontend na Vercel e do backend no Render.
 - Endpoint `GET /api/v1/analysis/{id}/signoff` para consultar o encerramento formal humano da analise.
 - Endpoint `POST /api/v1/analysis/{id}/signoff` para registrar responsavel, comentario e status final assinado da analise.
 - Entidade `AnalysisSignoff` para persistir o encerramento formal por analise sem substituir o fechamento calculado.
@@ -68,6 +70,9 @@
 - Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
+- Configuracao de API do frontend agora exige `NEXT_PUBLIC_API_URL` em producao e mantem fallback local apenas no desenvolvimento.
+- Backend agora aceita CORS configuravel por ambiente para liberar dominios da Vercel e previews sem alterar a camada de API.
+- `DATABASE_URL` do backend agora normaliza URLs `postgres://` e `postgresql://` para compatibilidade com o driver `psycopg` no Render.
 - Pagina inicial agora abre a criacao de analise a partir de um hero com CTA, revela o upload so depois do inicio e organiza o formulario em etapas mais claras para revisao principal, busca textual, verificacao pontual e tipo de arquivo.
 - Tela de resultado reorganizada para usuario leigo, com navegacao renomeada, secoes decisorias no topo e paineis tecnicos reescritos com linguagem mais clara sobre pacote, listas, pranchas, memoriais e trechos separados.
 - Relatorio de exportacao agora aceita `md` e `html`, incorpora sign-off humano quando existir e inclui a saida dos modos dirigidos.
