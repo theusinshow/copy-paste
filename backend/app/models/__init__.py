@@ -1,4 +1,5 @@
 from app.models.analysis_run import AnalysisRun
+from app.models.analysis_signoff import AnalysisSignoff
 from app.models.document_page import DocumentPage
 from app.models.extracted_field import ExtractedField
 from app.models.input_document import InputDocument
@@ -9,6 +10,7 @@ from app.models.text_span import TextSpan
 
 __all__ = [
     "AnalysisRun",
+    "AnalysisSignoff",
     "InputDocument",
     "DocumentPage",
     "ExtractedField",

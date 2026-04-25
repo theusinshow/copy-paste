@@ -109,6 +109,94 @@ class PackageSummarySchema(BaseModel):
     alerts: list[PackageSummaryAlertSchema]
 
 
+class AuditSummaryStatusSchema(BaseModel):
+    code: str
+    label: str
+    summary: str
+    tone: str
+
+
+class AuditSummaryHighlightSchema(BaseModel):
+    message: str
+    tone: str
+
+
+class AuditSummaryMetricsSchema(BaseModel):
+    active_issue_count: int
+    attention_count: int
+    dismissed_issue_count: int
+    document_count: int
+    incomplete_count: int
+    inconclusive_issue_count: int
+    issue_count: int
+    ld_row_count: int
+    page_count: int
+    pending_review_count: int
+    relevant_count: int
+    resolved_issue_count: int
+    reviewed_issue_count: int
+    sheet_count: int
+    undeclared_sheet_count: int
+
+
+class AuditSummarySourceSchema(BaseModel):
+    active_count: int
+    attention_count: int
+    dismissed_count: int
+    incomplete_count: int
+    inconclusive_count: int
+    item_count: int
+    label: str
+    pending_review_count: int
+    relevant_count: int
+    resolved_count: int
+    reviewed_count: int
+    source: str
+    summary: str
+    undeclared_sheet_count: int = 0
+
+
+class AuditSummarySchema(BaseModel):
+    highlights: list[AuditSummaryHighlightSchema]
+    metrics: AuditSummaryMetricsSchema
+    sources: list[AuditSummarySourceSchema]
+    status: AuditSummaryStatusSchema
+
+
+class DirectedModeStatsSchema(BaseModel):
+    divergent_count: int
+    document_count: int
+    matching_count: int
+    occurrence_count: int
+    page_count: int
+
+
+class DirectedModeEntrySchema(BaseModel):
+    bbox: Any | None
+    context: str
+    document_id: int | None
+    expected_value: str | None
+    field_name: str | None
+    filename: str
+    kind: str
+    page: int | None
+    replacement_preview: str | None
+    severity: str
+    value: str
+
+
+class DirectedModeOutputSchema(BaseModel):
+    entries: list[DirectedModeEntrySchema]
+    expected: str | None
+    field_label: str | None
+    mode: str
+    query: str | None
+    replace: str | None
+    stats: DirectedModeStatsSchema
+    summary: str
+    title: str
+
+
 class PackageMapSectionSchema(BaseModel):
     document_id: int
     document_filename: str
@@ -338,6 +426,16 @@ class LdSheetMatchedSheetSchema(BaseModel):
     source_text: str
 
 
+class LdMatchedRowSchema(BaseModel):
+    description: str
+    document_code: str
+    filename: str
+    item: str
+    page: int
+    scope_id: int | None = None
+    source_text: str
+
+
 class LdSheetCrosscheckResultSchema(BaseModel):
     category: str
     ld_description: str
@@ -354,19 +452,46 @@ class LdSheetCrosscheckResultSchema(BaseModel):
     type: str
 
 
+class DetectedSheetCrosscheckResultSchema(BaseModel):
+    category: str
+    matched_ld_row: LdMatchedRowSchema | None
+    message: str
+    reason: str
+    severity: str
+    sheet_code: str
+    sheet_description: str | None
+    sheet_filename: str
+    sheet_item: str | None
+    sheet_page: int
+    sheet_scope_id: int | None = None
+    sheet_source_text: str
+    type: str
+
+
 class LdSheetCrosscheckStatsSchema(BaseModel):
     attention_count: int
     compatible_count: int
+    combined_extraction_limit_count: int
+    combined_needs_review_count: int
+    combined_probable_issue_count: int
     extraction_limit_count: int
     needs_review_count: int
     ok_count: int
     probable_issue_count: int
     relevant_count: int
+    reverse_extraction_limit_count: int
+    reverse_needs_review_count: int
+    reverse_other_document_count: int
+    reverse_other_section_count: int
+    reverse_probable_issue_count: int
+    reverse_total_count: int
     total_count: int
+    undeclared_sheet_count: int
 
 
 class LdSheetCrosscheckSchema(BaseModel):
     results: list[LdSheetCrosscheckResultSchema]
+    reverse_results: list[DetectedSheetCrosscheckResultSchema]
     stats: LdSheetCrosscheckStatsSchema
 
 

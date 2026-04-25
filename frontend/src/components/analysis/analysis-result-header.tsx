@@ -4,11 +4,12 @@ import { AnalysisModeBadge } from "@/components/analysis/analysis-mode-badge";
 import { AnalysisStatusBadge } from "@/components/analysis/analysis-status-badge";
 import { getAnalysisModeLabel } from "@/lib/analysis/analysis-modes";
 import { formatAnalysisDate } from "@/lib/formatters";
-import type { AnalysisRun } from "@/lib/types/analysis";
+import type { AnalysisRun, AuditSummary } from "@/lib/types/analysis";
 
 type AnalysisResultHeaderProps = {
   analysis: AnalysisRun;
   attentionCount: number;
+  auditSummary: AuditSummary | null;
   issueCount: number;
   relevantCount: number;
 };
@@ -16,6 +17,7 @@ type AnalysisResultHeaderProps = {
 export function AnalysisResultHeader({
   analysis,
   attentionCount,
+  auditSummary,
   issueCount,
   relevantCount,
 }: AnalysisResultHeaderProps) {
@@ -55,10 +57,22 @@ export function AnalysisResultHeader({
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
         <MetricCard label="Criada em" value={formatAnalysisDate(analysis.created_at)} />
         <MetricCard label="Modo" value={getAnalysisModeLabel(analysis.analysis_mode)} />
+        <MetricCard
+          label="Fechamento"
+          value={auditSummary?.status.label || "Aguardando consolidado"}
+        />
         <MetricCard label="Issues totais" value={issueCount.toString().padStart(2, "0")} />
         <MetricCard
           label="Severidades"
           value={`${relevantCount} relevante / ${attentionCount} atencao`}
+        />
+        <MetricCard
+          label="Revisao"
+          value={
+            auditSummary
+              ? `${auditSummary.metrics.reviewed_issue_count}/${auditSummary.metrics.issue_count} revisadas · ${auditSummary.metrics.pending_review_count} pendente(s)`
+              : "Sem consolidado"
+          }
         />
       </div>
     </section>

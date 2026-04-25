@@ -59,6 +59,8 @@ GET /analysis/{id}
 GET /analysis/{id}/issues
 → lista issues
 - retorna `Issue` com `evidences`
+- retorna `review` quando a issue ja possui decisao humana registrada
+- retorna `review_status` e `review_status_label` para classificar a fila em `pending_review`, `active`, `resolved`, `dismissed` ou `inconclusive`
 - `evidences` mantem `issue_id`, `field_id`, `page`, `bbox`
 - `evidences.text` e derivado de `ExtractedField.raw_value` apenas para leitura
 
@@ -66,6 +68,36 @@ GET /analysis/{id}/fields
 → lista campos extraídos
 - retorna `ExtractedField` com contexto de `page`, `document_filename` e `document_tipo`
 - usado para revisar evidências mesmo quando nenhuma issue é gerada
+
+GET /analysis/{id}/audit-summary
+→ consolida o fechamento executivo da analise
+- retorna status final da auditoria: `sem incongruencia relevante`, `com pontos de atencao`, `com incongruencia relevante` ou `analise incompleta por falta de evidencia`
+- agrega contadores de conflitos ativos, revisoes pendentes, resolvidas, descartadas, sem evidencia, pranchas sem LD e limites de extracao
+- aplica as decisoes humanas das issues antes de fechar o rules engine no consolidado
+- resume as camadas `rules_engine`, `drawing_lists`, `ld_sheet_crosscheck`, `memorial_audit` e `footer_audit`
+
+GET /analysis/{id}/signoff
+→ consulta o encerramento formal humano da analise
+- retorna `null` quando a analise ainda nao recebeu sign-off
+- quando existe, retorna `final_status_code`, `final_status_label`, `reviewer_name`, `comment`, `created_at` e `updated_at`
+
+POST /analysis/{id}/signoff
+→ registra ou atualiza o encerramento formal humano da analise
+- permitido apenas para analises com `status = completed`
+- body:
+```json
+{
+  "final_status_code": "needs_review",
+  "reviewer_name": "Matheus",
+  "comment": "Pacote encerrado com pendencias formais."
+}
+```
+- `final_status_code` aceita apenas:
+  - `clean`
+  - `needs_review`
+  - `relevant_issue`
+  - `incomplete`
+- nao substitui o fechamento calculado; apenas registra a decisao final humana
 
 GET /analysis/{id}/package-summary
 → resume o pacote documental analisado
@@ -114,10 +146,13 @@ GET /analysis/{id}/ld-sheet-crosscheck
 → cruza linhas de LD com pranchas detectadas
 - retorna cada item da LD com status `ok`, `atencao` ou `relevante`
 - retorna `category` para separar `compatible`, `needs_review`, `probable_issue` e `extraction_limit`
+- retorna tambem `reverse_results` para listar pranchas detectadas que ficaram sem LD coerente
 - retorna `reason` técnico para explicar a classificação sem depender de interpretação subjetiva
 - compara codigo, folha e descricao normalizada com evidencias da LD e da prancha
 - quando um mesmo PDF possui mais de uma LD, o cruzamento respeita a seção interna da LD antes de buscar correspondências fora dela
 - quando um codigo aparece fora da seção correta, retorna motivo específico para contexto errado
+- quando uma prancha e detectada sem linha correspondente na LD, retorna achado especifico para `detected_sheet_missing_from_ld`
+- quando a prancha so encontra LD em outra secao ou outro documento, retorna motivo especifico para esse contexto
 
 GET /analysis/{id}/memorial-audit
 → audita campos de identidade encontrados em memoriais
@@ -125,11 +160,36 @@ GET /analysis/{id}/memorial-audit
 - retorna achados por `category`, separando divergencia provavel, revisao necessaria e limite de extracao
 - ausência de campo no memorial não é tratada como erro
 
+GET /analysis/{id}/mode-output
+→ retorna a saida operacional dos modos dirigidos
+- retorna `null` quando a analise nao esta em modo dirigido
+- em `find_text`, devolve ocorrencias agrupadas por linha com `query`, `summary`, `stats` e `entries`
+- em `find_replace`, devolve ocorrencias agrupadas por linha com `query`, `replace`, `summary`, `stats` e `entries`
+- em `check_address`, `check_project_number` e `check_work_name`, devolve conferencias por campo com `expected`, `field_label`, `summary`, `stats` e `entries`
+- cada `entry` preserva evidencia textual ou de campo; nao altera o PDF original
+
 GET /issues/{id}
 → detalhe
+- retorna a issue com `evidences`, `review` atual e status derivado da fila de revisao
 
 POST /issues/{id}/review
 → revisão
+- body: `{ "decision": "confirmada|falso_positivo|corrigido|nao_aplicavel|sem_evidencia", "comment": "texto opcional" }`
+- cria ou atualiza a `ReviewDecision` associada a issue
+- retorna a issue atualizada com a revisao registrada
+
+POST /analysis/{id}/issues/review-batch
+→ revisão em lote
+- body: `{ "issue_ids": [1, 2, 3], "decision": "confirmada|falso_positivo|corrigido|nao_aplicavel|sem_evidencia", "comment": "texto opcional" }`
+- valida que todos os `issue_ids` existem e pertencem a analise informada
+- cria ou atualiza a `ReviewDecision` de todas as issues selecionadas
+- retorna contagem atualizada e label humana da decisao aplicada
 
 GET /analysis/{id}/export
 → relatório
+- `format=md` retorna relatorio Markdown baixavel
+- `format=html` retorna relatorio HTML printavel
+- formatos aceitos:
+  - `md`
+  - `html`
+- inclui fechamento executivo, sign-off humano quando existir, grupos de issues por status, pranchas sem LD correspondente e saida de modo dirigido quando aplicavel

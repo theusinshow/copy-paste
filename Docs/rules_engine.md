@@ -12,6 +12,34 @@
 - atencao
 - relevante
 
+## Revisao humana das issues
+- `confirmada`: mantem a issue ativa no fechamento
+- `falso_positivo`: remove a issue do fechamento e registra descarte
+- `corrigido`: remove a issue do fechamento e registra resolucao
+- `nao_aplicavel`: remove a issue do fechamento e registra descarte por contexto
+- `sem_evidencia`: tira a issue da fila ativa, mas marca o fechamento como inconclusivo quando ela e o unico bloqueio restante
+- issue sem decisao registrada permanece em `pending_review` e impede fechamento limpo
+- a aplicacao em lote dessas decisoes deve apenas repetir a mesma justificativa para varias issues; nao muda a regra nem a severidade base automaticamente
+
+## Encerramento formal da analise
+- o `AuditSummary` continua sendo o fechamento calculado pelo sistema
+- o `AnalysisSignoff` registra a decisao humana final do pacote com:
+  - `clean`
+  - `needs_review`
+  - `relevant_issue`
+  - `incomplete`
+- o sign-off nao cria regra nova nem altera evidencias; apenas formaliza a conclusao humana sobre o pacote
+- sign-off sem evidencias suficientes deve usar `incomplete`
+
+## Modos dirigidos
+- `find_text` e `find_replace` operam sobre texto extraido e retornam evidencias agrupadas por linha
+- `check_address`, `check_project_number` e `check_work_name` operam sobre `ExtractedField`
+- a saida dirigida e sempre consultiva:
+  - lista ocorrencias
+  - mostra valor esperado ou sugestao
+  - nao salva alteracao em PDF
+  - nao inventa incongruencia quando nao houver evidencia extraida
+
 ## Categorias de cruzamento
 - compatible: evidencias batem de forma suficiente
 - needs_review: ha diferenca textual que exige revisao humana
@@ -84,6 +112,21 @@
 - condição: o código declarado na LD não aparece na seção correta, mas aparece em outro PDF do pacote
 - severidade: atencao
 - observação: usado quando o pacote pode estar dividido em arquivos diferentes e exige revisão humana
+
+### Prancha detectada sem LD correspondente
+- condição: uma prancha é detectada fora das páginas de LD, mas seu código não aparece em nenhuma Lista de Documentos do pacote
+- severidade: relevante
+- observação: usada para indicar folha que entrou no pacote sem declaração documental explícita
+
+### Prancha detectada com LD em outra seção
+- condição: a prancha é detectada em uma seção interna, mas a linha correspondente da LD aparece em outra seção do mesmo PDF
+- severidade: relevante
+- observação: indica possível mistura entre subvolumes, seção fora de ordem ou reorganização indevida do pacote
+
+### Prancha detectada com LD em outro documento
+- condição: a prancha é detectada em um PDF, mas a linha correspondente da LD só aparece em outro documento do pacote
+- severidade: atencao
+- observação: usada quando a montagem do pacote pode estar distribuída em arquivos diferentes e exige revisão humana
 
 ### Rodapé com número de projeto divergente
 - condição: número de projeto detectado no rodapé diverge da identidade principal do pacote

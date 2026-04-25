@@ -1,4 +1,5 @@
 import type {
+  DetectedSheetCrosscheckResult,
   LdSheetCrosscheck,
   LdSheetCrosscheckResult,
 } from "@/lib/types/analysis";
@@ -30,12 +31,15 @@ export function LdSheetCrosscheckPanel({
         {crosscheck ? (
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <Metric label="Total" value={crosscheck.stats.total_count} />
-            <Metric label="Conflitos" value={crosscheck.stats.probable_issue_count} />
-            <Metric label="Revisar" value={crosscheck.stats.needs_review_count} />
             <Metric
-              label="Limites"
-              value={crosscheck.stats.extraction_limit_count}
+              label="Conflitos"
+              value={crosscheck.stats.combined_probable_issue_count}
             />
+            <Metric
+              label="Revisar"
+              value={crosscheck.stats.combined_needs_review_count}
+            />
+            <Metric label="Sem LD" value={crosscheck.stats.undeclared_sheet_count} />
           </div>
         ) : null}
       </div>
@@ -48,12 +52,16 @@ export function LdSheetCrosscheckPanel({
 
       {!loadError && crosscheck ? (
         <div className="mt-6 grid gap-4">
-          {crosscheck.results.length === 0 ? (
+          {crosscheck.results.length === 0 &&
+          crosscheck.reverse_results.length === 0 ? (
             <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
-              Nenhum item de LD foi encontrado para cruzar com pranchas.
+              Nenhum item de LD ou prancha fora de contexto foi encontrado para cruzamento.
             </div>
           ) : (
-            <GroupedResults crosscheck={crosscheck} />
+            <div className="grid gap-6">
+              <GroupedResults crosscheck={crosscheck} />
+              <ReverseGroupedResults crosscheck={crosscheck} />
+            </div>
           )}
         </div>
       ) : null}
@@ -115,6 +123,71 @@ function GroupedResults({ crosscheck }: { crosscheck: LdSheetCrosscheck }) {
   );
 }
 
+function ReverseGroupedResults({ crosscheck }: { crosscheck: LdSheetCrosscheck }) {
+  if (crosscheck.reverse_results.length === 0) {
+    return (
+      <div className="rounded-lg border border-[var(--cp-success)]/30 bg-[var(--cp-success)]/10 p-4 text-sm text-[var(--cp-text)]">
+        Nenhuma prancha extra ficou sem contexto de LD no pacote analisado.
+      </div>
+    );
+  }
+
+  const groups = [
+    {
+      category: "probable_issue",
+      description: "Pranchas detectadas sem LD correspondente ou em secao incorreta.",
+      title: "Pranchas sem LD compativel",
+    },
+    {
+      category: "needs_review",
+      description: "Pranchas que aparecem neste PDF, mas foram declaradas em outro documento.",
+      title: "Pranchas para revisar",
+    },
+  ];
+
+  return (
+    <div className="grid gap-5 border-t border-[var(--cp-border)] pt-5">
+      <div>
+        <p className="text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
+          Leitura reversa
+        </p>
+        <p className="mt-1 text-sm text-[var(--cp-muted)]">
+          O motor agora tambem verifica pranchas detectadas que nao encontraram
+          uma declaracao coerente nas LDs.
+        </p>
+      </div>
+
+      {groups.map((group) => {
+        const results = crosscheck.reverse_results.filter(
+          (result) => result.category === group.category,
+        );
+        if (results.length === 0) {
+          return null;
+        }
+
+        return (
+          <div key={group.category} className="grid gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
+                {group.title} · {results.length}
+              </p>
+              <p className="mt-1 text-sm text-[var(--cp-muted)]">
+                {group.description}
+              </p>
+            </div>
+            {results.map((result) => (
+              <ReverseCrosscheckCard
+                key={`${result.sheet_filename}-${result.sheet_page}-${result.sheet_code}`}
+                result={result}
+              />
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function CrosscheckCard({ result }: { result: LdSheetCrosscheckResult }) {
   return (
     <article className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
@@ -156,6 +229,58 @@ function CrosscheckCard({ result }: { result: LdSheetCrosscheckResult }) {
         ) : (
           <div className="rounded-lg border border-[var(--cp-border)] p-3 text-sm text-[var(--cp-muted)]">
             Nenhuma prancha correspondente foi detectada fora da LD.
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function ReverseCrosscheckCard({
+  result,
+}: {
+  result: DetectedSheetCrosscheckResult;
+}) {
+  return (
+    <article className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <p className="font-mono text-sm font-semibold text-[var(--cp-text)]">
+            {result.sheet_code}
+          </p>
+          <p className="mt-2 text-sm leading-6 text-[var(--cp-text)]">
+            {result.message}
+          </p>
+          <p className="mt-2 text-xs text-[var(--cp-muted)]">
+            Motivo: {formatReason(result.reason)}
+          </p>
+        </div>
+        <SeverityPill category={result.category} severity={result.severity} />
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        <EvidenceBlock
+          description={result.sheet_description || "Nao detectada"}
+          filename={result.sheet_filename}
+          item={result.sheet_item || "-"}
+          label="Prancha"
+          page={result.sheet_page}
+          scopeId={result.sheet_scope_id}
+          title={result.sheet_source_text}
+        />
+        {result.matched_ld_row ? (
+          <EvidenceBlock
+            description={result.matched_ld_row.description}
+            filename={result.matched_ld_row.filename}
+            item={result.matched_ld_row.item}
+            label="LD"
+            page={result.matched_ld_row.page}
+            scopeId={result.matched_ld_row.scope_id}
+            title={result.matched_ld_row.source_text}
+          />
+        ) : (
+          <div className="rounded-lg border border-[var(--cp-border)] p-3 text-sm text-[var(--cp-muted)]">
+            Nenhuma linha de LD correspondente foi detectada no pacote.
           </div>
         )}
       </div>
@@ -251,6 +376,11 @@ function SeverityPill({
 function formatReason(reason: string) {
   const labels: Record<string, string> = {
     description_mismatch: "descricao divergente",
+    detected_sheet_declared_in_other_document:
+      "prancha declarada apenas em outro documento",
+    detected_sheet_declared_in_other_section:
+      "prancha declarada em outra secao do mesmo pdf",
+    detected_sheet_missing_from_ld: "prancha sem declaracao em ld",
     matched_code_item_and_description: "codigo, folha e descricao compativeis",
     sheet_code_found_in_other_document_context:
       "codigo encontrado em outro documento",

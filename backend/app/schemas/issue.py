@@ -2,6 +2,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.review import ReviewDecisionSchema
+
 
 class IssueSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -28,3 +30,6 @@ class IssueEvidenceReadSchema(IssueEvidenceSchema):
 
 class IssueWithEvidencesSchema(IssueSchema):
     evidences: list[IssueEvidenceReadSchema]
+    review: ReviewDecisionSchema | None = None
+    review_status: str
+    review_status_label: str

@@ -68,6 +68,104 @@ export type PackageSummaryDocument = {
   volume: string | null;
 };
 
+export type AuditSummary = {
+  highlights: AuditSummaryHighlight[];
+  metrics: AuditSummaryMetrics;
+  sources: AuditSummarySource[];
+  status: AuditSummaryStatus;
+};
+
+export type AnalysisSignoff = {
+  analysis_run_id: number;
+  comment: string;
+  created_at: string;
+  final_status_code: string;
+  final_status_label: string;
+  reviewer_name: string;
+  updated_at: string;
+};
+
+export type AuditSummaryStatus = {
+  code: string;
+  label: string;
+  summary: string;
+  tone: string;
+};
+
+export type AuditSummaryHighlight = {
+  message: string;
+  tone: string;
+};
+
+export type AuditSummaryMetrics = {
+  active_issue_count: number;
+  attention_count: number;
+  dismissed_issue_count: number;
+  document_count: number;
+  incomplete_count: number;
+  inconclusive_issue_count: number;
+  issue_count: number;
+  ld_row_count: number;
+  page_count: number;
+  pending_review_count: number;
+  relevant_count: number;
+  resolved_issue_count: number;
+  reviewed_issue_count: number;
+  sheet_count: number;
+  undeclared_sheet_count: number;
+};
+
+export type AuditSummarySource = {
+  active_count: number;
+  attention_count: number;
+  dismissed_count: number;
+  incomplete_count: number;
+  inconclusive_count: number;
+  item_count: number;
+  label: string;
+  pending_review_count: number;
+  relevant_count: number;
+  resolved_count: number;
+  reviewed_count: number;
+  source: string;
+  summary: string;
+  undeclared_sheet_count: number;
+};
+
+export type DirectedModeOutput = {
+  entries: DirectedModeEntry[];
+  expected: string | null;
+  field_label: string | null;
+  mode: string;
+  query: string | null;
+  replace: string | null;
+  stats: DirectedModeStats;
+  summary: string;
+  title: string;
+};
+
+export type DirectedModeStats = {
+  divergent_count: number;
+  document_count: number;
+  matching_count: number;
+  occurrence_count: number;
+  page_count: number;
+};
+
+export type DirectedModeEntry = {
+  bbox: Record<string, number> | null;
+  context: string;
+  document_id: number | null;
+  expected_value: string | null;
+  field_name: string | null;
+  filename: string;
+  kind: string;
+  page: number | null;
+  replacement_preview: string | null;
+  severity: string;
+  value: string;
+};
+
 export type PackageMap = {
   documents: PackageMapDocument[];
   identity: PackageSummary["identity"];
@@ -274,16 +372,27 @@ export type DetectedSheet = {
 };
 
 export type LdSheetCrosscheck = {
+  reverse_results: DetectedSheetCrosscheckResult[];
   results: LdSheetCrosscheckResult[];
   stats: {
     attention_count: number;
     compatible_count: number;
+    combined_extraction_limit_count: number;
+    combined_needs_review_count: number;
+    combined_probable_issue_count: number;
     extraction_limit_count: number;
     needs_review_count: number;
     ok_count: number;
     probable_issue_count: number;
     relevant_count: number;
+    reverse_extraction_limit_count: number;
+    reverse_needs_review_count: number;
+    reverse_other_document_count: number;
+    reverse_other_section_count: number;
+    reverse_probable_issue_count: number;
+    reverse_total_count: number;
     total_count: number;
+    undeclared_sheet_count: number;
   };
 };
 
@@ -311,6 +420,32 @@ export type LdSheetMatchedSheet = {
   scope_id: number | null;
   sheet_code: string;
   source_text: string;
+};
+
+export type LdMatchedRow = {
+  description: string;
+  document_code: string;
+  filename: string;
+  item: string;
+  page: number;
+  scope_id: number | null;
+  source_text: string;
+};
+
+export type DetectedSheetCrosscheckResult = {
+  category: string;
+  matched_ld_row: LdMatchedRow | null;
+  message: string;
+  reason: string;
+  severity: string;
+  sheet_code: string;
+  sheet_description: string | null;
+  sheet_filename: string;
+  sheet_item: string | null;
+  sheet_page: number;
+  sheet_scope_id: number | null;
+  sheet_source_text: string;
+  type: string;
 };
 
 export type MemorialAudit = {

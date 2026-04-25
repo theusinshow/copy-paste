@@ -3,6 +3,23 @@
 ## [Unreleased]
 
 ### Added
+- Endpoint `GET /api/v1/analysis/{id}/signoff` para consultar o encerramento formal humano da analise.
+- Endpoint `POST /api/v1/analysis/{id}/signoff` para registrar responsavel, comentario e status final assinado da analise.
+- Entidade `AnalysisSignoff` para persistir o encerramento formal por analise sem substituir o fechamento calculado.
+- Endpoint `GET /api/v1/analysis/{id}/mode-output` para expor a saida operacional dos modos dirigidos com evidencias e contadores.
+- Painel `Sign-off` na tela de resultado para registrar a conclusao humana final do pacote.
+- Painel `Modo dirigido` na tela de resultado para revisar busca textual, sugestao de substituicao e verificacoes pontuais sem alterar PDF.
+- Exportacao HTML em `GET /api/v1/analysis/{id}/export?format=html` para gerar relatorio printavel do pacote.
+- Endpoint `GET /api/v1/analysis/{id}/audit-summary` para consolidar status final, métricas executivas e sinais por camada da auditoria.
+- Painel `Fechamento` na tela de resultado para resumir conflitos, pontos de revisão, issues pendentes e pranchas sem LD.
+- Endpoint `GET /api/v1/issues/{id}` para retornar a issue com evidências e revisão humana registrada.
+- Endpoint `POST /api/v1/issues/{id}/review` para criar ou atualizar a decisão humana associada a uma issue.
+- Formulário de revisão humana embutido em cada issue da tela de resultado.
+- Endpoint `GET /api/v1/analysis/{id}/export` para baixar um relatorio Markdown com fechamento executivo e grupos de issues por status.
+- Filtros visuais na lista de issues para separar pendentes, ativas, resolvidas, descartadas e sem evidencia.
+- Badge de status de revisao por issue para explicitar fila humana e impacto no fechamento.
+- Endpoint `POST /api/v1/analysis/{id}/issues/review-batch` para aplicar a mesma decisao humana a varias issues da mesma analise.
+- Central de revisao em lote na tela de resultado com selecao multipla, selecao dos itens visiveis e aplicacao rapida de decisao.
 - Endpoint `GET /api/v1/analysis/{id}/page-map` para classificar paginas por tipo, confianca, sinais e evidencia textual.
 - Painel `Mapa de paginas` na tela de resultado para revisar capa, LD, separatriz, prancha, memorial, sumario e paginas nao classificadas.
 - Endpoint `GET /api/v1/analysis/{id}/ai-review` para preparar contextos de leitura inteligente e sugestoes estruturais auditaveis.
@@ -51,6 +68,17 @@
 - Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
+- Relatorio de exportacao agora aceita `md` e `html`, incorpora sign-off humano quando existir e inclui a saida dos modos dirigidos.
+- Tela de resultado agora ganhou secao de encerramento formal e navegacao dedicada para modo dirigido quando a analise usa configuracao dirigida.
+- Lista de issues agora prioriza pendencias e conflitos na navegacao de revisao operacional, com foco sequencial entre cards.
+- `GET /api/v1/analysis/{id}/issues` agora retorna tambem a `review` registrada para cada issue.
+- Revisao humana das issues agora aceita apenas decisoes padronizadas e devolve status derivado por issue para fila operacional.
+- `audit-summary` agora usa as decisoes humanas para separar issues ativas, pendentes, resolvidas, descartadas e sem evidencia antes de fechar o pacote.
+- Painel `Fechamento`, cabecalho da analise e resumo executivo agora mostram contadores reais da fila de revisao humana.
+- Formulario de revisao das issues agora usa selecao guiada de decisoes, em vez de texto livre.
+- Lista de issues agora permite selecao por card e organiza a fila para revisao operacional em lote sem perder a revisao individual.
+- `LD x Pranchas` agora faz leitura reversa para apontar pranchas sem LD correspondente e pranchas declaradas apenas em outra secao ou outro documento.
+- Cabecalho e resumo executivo da tela de resultado agora usam o consolidado do fechamento para refletir o status real da auditoria.
 - `Mapa de paginas` agora detecta siglas de disciplina como `EST`, `FND`, `HIS`, `DRE` e usa essas siglas para classificar pranchas e separatrizes.
 - `Mapa do pacote` agora prioriza siglas de disciplina dos codigos de LD e pranchas para classificar secoes internas.
 - Cruzamento `LD x Pranchas` agora usa o contexto do mapa do pacote para diferenciar prancha ausente, prancha em outra secao e prancha em outro documento.
@@ -79,6 +107,9 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Fechamento executivo agora nao trata issue relevante sem revisao como conflito ativo confirmado; ela permanece pendente ate decisao humana.
+- Decisao `sem_evidencia` agora move a issue para estado inconclusivo e alimenta corretamente o status `analise incompleta por falta de evidencia`.
+- Tela de resultado agora carrega os paineis de forma independente para evitar falha total quando um endpoint isolado nao responde.
 - Auditoria de memoriais agora ignora bairros invalidos formados por conectivos ou valores de uma letra, como `E`.
 - Cruzamento `LD x Pranchas` agora respeita secoes internas quando um PDF contem mais de uma LD, reduzindo mistura entre volumes dentro do mesmo arquivo.
 - Auditoria de memoriais agora filtra frases genericas de bairro/obra e detecta proprietario ou cliente apontando municipio divergente.

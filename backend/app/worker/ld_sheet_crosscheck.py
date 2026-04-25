@@ -32,7 +32,9 @@ def build_ld_sheet_crosscheck(
     drawing_lists = build_drawing_lists(documents, page_texts_by_document_id)
     detected_sheets = build_detected_sheets(documents, page_texts_by_document_id)
     sheets_by_code = _index_sheets_by_code(detected_sheets)
+    rows_by_code = _index_ld_rows_by_code(drawing_lists)
     results: list[dict[str, Any]] = []
+    reverse_results: list[dict[str, Any]] = []
 
     for drawing_list in drawing_lists["lists"]:
         for row in drawing_list["rows"]:
@@ -47,8 +49,41 @@ def build_ld_sheet_crosscheck(
                 )
             )
 
+    for document in detected_sheets["documents"]:
+        for sheet in document["sheets"]:
+            sheet_code = _normalize_code(sheet["sheet_code"])
+            matching_rows = rows_by_code.get(sheet_code, [])
+            reverse_result = _compare_sheet_with_ld_rows(
+                sheet_document_id=document["document_id"],
+                sheet_filename=document["filename"],
+                sheet=sheet,
+                matching_ld_rows=matching_rows,
+            )
+            if reverse_result is not None:
+                reverse_results.append(reverse_result)
+
+    forward_probable_issue_count = sum(
+        1 for result in results if result["category"] == "probable_issue"
+    )
+    forward_needs_review_count = sum(
+        1 for result in results if result["category"] == "needs_review"
+    )
+    forward_extraction_limit_count = sum(
+        1 for result in results if result["category"] == "extraction_limit"
+    )
+    reverse_probable_issue_count = sum(
+        1 for result in reverse_results if result["category"] == "probable_issue"
+    )
+    reverse_needs_review_count = sum(
+        1 for result in reverse_results if result["category"] == "needs_review"
+    )
+    reverse_extraction_limit_count = sum(
+        1 for result in reverse_results if result["category"] == "extraction_limit"
+    )
+
     return {
         "results": results,
+        "reverse_results": reverse_results,
         "stats": {
             "attention_count": sum(
                 1 for result in results if result["severity"] == "atencao"
@@ -56,20 +91,42 @@ def build_ld_sheet_crosscheck(
             "compatible_count": sum(
                 1 for result in results if result["category"] == "compatible"
             ),
-            "extraction_limit_count": sum(
-                1 for result in results if result["category"] == "extraction_limit"
+            "combined_extraction_limit_count": (
+                forward_extraction_limit_count + reverse_extraction_limit_count
             ),
-            "needs_review_count": sum(
-                1 for result in results if result["category"] == "needs_review"
+            "combined_needs_review_count": (
+                forward_needs_review_count + reverse_needs_review_count
             ),
+            "combined_probable_issue_count": (
+                forward_probable_issue_count + reverse_probable_issue_count
+            ),
+            "extraction_limit_count": forward_extraction_limit_count,
+            "needs_review_count": forward_needs_review_count,
             "ok_count": sum(1 for result in results if result["severity"] == "ok"),
-            "probable_issue_count": sum(
-                1 for result in results if result["category"] == "probable_issue"
-            ),
+            "probable_issue_count": forward_probable_issue_count,
             "relevant_count": sum(
                 1 for result in results if result["severity"] == "relevante"
             ),
+            "reverse_extraction_limit_count": reverse_extraction_limit_count,
+            "reverse_needs_review_count": reverse_needs_review_count,
+            "reverse_other_document_count": sum(
+                1
+                for result in reverse_results
+                if result["reason"] == "detected_sheet_declared_in_other_document"
+            ),
+            "reverse_other_section_count": sum(
+                1
+                for result in reverse_results
+                if result["reason"] == "detected_sheet_declared_in_other_section"
+            ),
+            "reverse_probable_issue_count": reverse_probable_issue_count,
+            "reverse_total_count": len(reverse_results),
             "total_count": len(results),
+            "undeclared_sheet_count": sum(
+                1
+                for result in reverse_results
+                if result["reason"] == "detected_sheet_missing_from_ld"
+            ),
         },
     }
 
@@ -84,6 +141,19 @@ def _index_sheets_by_code(detected_sheets: dict[str, Any]) -> dict[str, list[dic
                 "filename": document["filename"],
             }
             index.setdefault(_normalize_code(sheet["sheet_code"]), []).append(enriched_sheet)
+    return index
+
+
+def _index_ld_rows_by_code(drawing_lists: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    index: dict[str, list[dict[str, Any]]] = {}
+    for drawing_list in drawing_lists["lists"]:
+        for row in drawing_list["rows"]:
+            enriched_row = {
+                **row,
+                "document_id": drawing_list["document_id"],
+                "filename": drawing_list["filename"],
+            }
+            index.setdefault(_normalize_code(row["document_code"]), []).append(enriched_row)
     return index
 
 
@@ -288,6 +358,152 @@ def _build_matched_sheet(sheet: dict[str, Any]) -> dict[str, Any]:
         "scope_id": sheet.get("scope_id"),
         "sheet_code": sheet["sheet_code"],
         "source_text": sheet["source_text"],
+    }
+
+
+def _compare_sheet_with_ld_rows(
+    sheet_document_id: int,
+    sheet_filename: str,
+    sheet: dict[str, Any],
+    matching_ld_rows: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    sheet_scope_id = sheet.get("scope_id")
+    base_result = {
+        "matched_ld_row": None,
+        "sheet_code": sheet["sheet_code"],
+        "sheet_description": sheet.get("description"),
+        "sheet_filename": sheet_filename,
+        "sheet_item": sheet.get("item"),
+        "sheet_page": sheet["page"],
+        "sheet_scope_id": sheet_scope_id,
+        "sheet_source_text": sheet["source_text"],
+    }
+
+    scoped_matching_rows = _filter_sheet_scope_candidates(
+        sheet_document_id=sheet_document_id,
+        sheet=sheet,
+        matching_ld_rows=matching_ld_rows,
+    )
+    if scoped_matching_rows:
+        return None
+
+    out_of_scope_row = _select_sheet_out_of_scope_row(
+        sheet_document_id=sheet_document_id,
+        sheet=sheet,
+        matching_ld_rows=matching_ld_rows,
+    )
+    if out_of_scope_row:
+        matched_ld_row = _build_matched_ld_row(out_of_scope_row)
+        if out_of_scope_row.get("document_id") == sheet_document_id:
+            return {
+                **base_result,
+                "category": "probable_issue",
+                "matched_ld_row": matched_ld_row,
+                "message": (
+                    f"{sheet['sheet_code']} foi detectada na secao {sheet_scope_id}, "
+                    "mas esta declarada na LD de outra secao do mesmo PDF."
+                ),
+                "reason": "detected_sheet_declared_in_other_section",
+                "severity": "relevante",
+                "type": "detected_sheet_other_section_ld",
+            }
+
+        return {
+            **base_result,
+            "category": "needs_review",
+            "matched_ld_row": matched_ld_row,
+            "message": (
+                f"{sheet['sheet_code']} foi detectada neste PDF, mas a LD "
+                "correspondente apareceu em outro documento do pacote."
+            ),
+            "reason": "detected_sheet_declared_in_other_document",
+            "severity": "atencao",
+            "type": "detected_sheet_other_document_ld",
+        }
+
+    return {
+        **base_result,
+        "category": "probable_issue",
+        "message": (
+            f"{sheet['sheet_code']} foi detectada fora das LDs, mas nao apareceu "
+            "em nenhuma Lista de Documentos do pacote."
+        ),
+        "reason": "detected_sheet_missing_from_ld",
+        "severity": "relevante",
+        "type": "detected_sheet_missing_from_ld",
+    }
+
+
+def _filter_sheet_scope_candidates(
+    sheet_document_id: int,
+    sheet: dict[str, Any],
+    matching_ld_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    same_document_rows = [
+        row for row in matching_ld_rows if row.get("document_id") == sheet_document_id
+    ]
+    if not same_document_rows:
+        return []
+
+    sheet_scope_id = sheet.get("scope_id")
+    if not sheet_scope_id:
+        return same_document_rows
+
+    return [
+        row
+        for row in same_document_rows
+        if row.get("scope_id") == sheet_scope_id
+    ]
+
+
+def _select_sheet_out_of_scope_row(
+    sheet_document_id: int,
+    sheet: dict[str, Any],
+    matching_ld_rows: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    if not matching_ld_rows:
+        return None
+
+    sheet_scope_id = sheet.get("scope_id")
+    same_document_other_scope = [
+        row
+        for row in matching_ld_rows
+        if row.get("document_id") == sheet_document_id
+        and row.get("scope_id") != sheet_scope_id
+    ]
+    if same_document_other_scope:
+        return _select_best_ld_row(same_document_other_scope, sheet)
+
+    other_document_rows = [
+        row for row in matching_ld_rows if row.get("document_id") != sheet_document_id
+    ]
+    if other_document_rows:
+        return _select_best_ld_row(other_document_rows, sheet)
+
+    return None
+
+
+def _select_best_ld_row(
+    matching_ld_rows: list[dict[str, Any]],
+    sheet: dict[str, Any],
+) -> dict[str, Any]:
+    with_same_item = [
+        row for row in matching_ld_rows if row.get("item") == sheet.get("item")
+    ]
+    if with_same_item:
+        return with_same_item[0]
+    return matching_ld_rows[0]
+
+
+def _build_matched_ld_row(row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "description": row["description"],
+        "document_code": row["document_code"],
+        "filename": row["filename"],
+        "item": row["item"],
+        "page": row["page"],
+        "scope_id": row.get("scope_id"),
+        "source_text": row["source_text"],
     }
 
 

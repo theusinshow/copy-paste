@@ -1,9 +1,12 @@
 import { apiFetch } from "@/lib/api/fetcher";
 import type { AnalysisMode } from "@/lib/analysis/analysis-modes";
 import type {
+  AuditSummary,
+  AnalysisSignoff,
   AiReview,
   AnalysisRun,
   DetectedSheets,
+  DirectedModeOutput,
   DrawingLists,
   ExtractedField,
   FooterAudit,
@@ -37,6 +40,32 @@ export async function listAnalysisIssues(analysisId: number) {
 export async function listAnalysisFields(analysisId: number) {
   return apiFetch<ExtractedField[]>(`/api/v1/analysis/${analysisId}/fields`, {
     cache: "no-store",
+  });
+}
+
+export async function getAuditSummary(analysisId: number) {
+  return apiFetch<AuditSummary>(`/api/v1/analysis/${analysisId}/audit-summary`, {
+    cache: "no-store",
+  });
+}
+
+export async function getAnalysisSignoff(analysisId: number) {
+  return apiFetch<AnalysisSignoff | null>(`/api/v1/analysis/${analysisId}/signoff`, {
+    cache: "no-store",
+  });
+}
+
+export async function upsertAnalysisSignoff(
+  analysisId: number,
+  payload: {
+    comment?: string;
+    final_status_code: string;
+    reviewer_name: string;
+  },
+) {
+  return apiFetch<AnalysisSignoff>(`/api/v1/analysis/${analysisId}/signoff`, {
+    body: JSON.stringify(payload),
+    method: "POST",
   });
 }
 
@@ -100,6 +129,15 @@ export async function getLdSheetCrosscheck(analysisId: number) {
 export async function getMemorialAudit(analysisId: number) {
   return apiFetch<MemorialAudit>(
     `/api/v1/analysis/${analysisId}/memorial-audit`,
+    {
+      cache: "no-store",
+    },
+  );
+}
+
+export async function getModeOutput(analysisId: number) {
+  return apiFetch<DirectedModeOutput | null>(
+    `/api/v1/analysis/${analysisId}/mode-output`,
     {
       cache: "no-store",
     },

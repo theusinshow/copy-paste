@@ -1,6 +1,17 @@
-from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Body,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    UploadFile,
+    status,
+)
+from fastapi.responses import HTMLResponse, PlainTextResponse
 
 from app.core.analysis_modes import validate_analysis_payload
+from app.core.audit_closure import normalize_audit_status
 
 from app.db.analysis_runs import (
     ANALYSIS_STATUS_CANCELLED,
@@ -11,6 +22,11 @@ from app.db.analysis_runs import (
     list_analysis_runs,
     set_analysis_run_status,
 )
+from app.db.analysis_signoffs import (
+    get_analysis_signoff_by_analysis_id,
+    upsert_analysis_signoff,
+)
+from app.db.audit_summary import get_audit_summary_by_analysis_id
 from app.db.ai_review import get_ai_review_by_analysis_id
 from app.db.dependencies import DbSession
 from app.db.detected_sheets import get_detected_sheets_by_analysis_id
@@ -18,17 +34,25 @@ from app.db.drawing_lists import get_drawing_lists_by_analysis_id
 from app.db.extracted_fields import list_extracted_fields_by_analysis_id
 from app.db.footer_audit import get_footer_audit_by_analysis_id
 from app.db.input_documents import create_input_documents
-from app.db.issues import list_issues_with_evidences_by_analysis_id
+from app.db.issues import (
+    list_issues_by_ids,
+    list_issues_with_evidences_by_analysis_id,
+    upsert_review_decision,
+)
 from app.db.ld_sheet_crosscheck import get_ld_sheet_crosscheck_by_analysis_id
 from app.db.memorial_audit import get_memorial_audit_by_analysis_id
 from app.db.package_map import get_package_map_by_analysis_id
 from app.db.page_map import get_page_map_by_analysis_id
 from app.db.package_summary import get_package_summary_by_analysis_id
+from app.db.text_spans import list_text_spans_by_analysis_id
+from app.core.review_decisions import get_review_decision_label
 from app.schemas.analysis import (
+    AuditSummarySchema,
     AiReviewSchema,
     AnalysisCreateSchema,
     AnalysisRunSchema,
     DetectedSheetsSchema,
+    DirectedModeOutputSchema,
     DrawingListsSchema,
     ExtractedFieldWithContextSchema,
     FooterAuditSchema,
@@ -40,8 +64,19 @@ from app.schemas.analysis import (
     PackageSummarySchema,
 )
 from app.schemas.issue import IssueWithEvidencesSchema
+from app.schemas.review import (
+    ReviewDecisionBatchResultSchema,
+    ReviewDecisionBatchWriteSchema,
+)
+from app.schemas.signoff import AnalysisSignoffSchema, AnalysisSignoffWriteSchema
 from app.storage.uploads import delete_uploaded_files, save_pdf_upload
 from app.worker.analysis_processor import AnalysisProcessingError, process_analysis
+from app.worker.analysis_export import (
+    build_analysis_export_html,
+    build_analysis_export_markdown,
+    build_analysis_export_payload,
+)
+from app.worker.mode_output import build_mode_output
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
@@ -216,6 +251,60 @@ def list_analysis_issues(
     return list_issues_with_evidences_by_analysis_id(session, analysis_id)
 
 
+@router.post(
+    "/{analysis_id}/issues/review-batch",
+    response_model=ReviewDecisionBatchResultSchema,
+)
+def review_analysis_issues_batch(
+    analysis_id: int,
+    payload: ReviewDecisionBatchWriteSchema,
+    session: DbSession,
+) -> ReviewDecisionBatchResultSchema:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+
+    issues = list_issues_by_ids(session, payload.issue_ids)
+    if len(issues) != len(payload.issue_ids):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="All issue_ids must exist before batch review",
+        )
+
+    invalid_issue_ids = sorted(
+        issue.id for issue in issues if issue.analysis_run_id != analysis_id
+    )
+    if invalid_issue_ids:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "All issue_ids must belong to the requested analysis. "
+                f"Invalid ids: {', '.join(str(issue_id) for issue_id in invalid_issue_ids)}"
+            ),
+        )
+
+    for issue in issues:
+        upsert_review_decision(
+            session=session,
+            issue_id=issue.id,
+            decision=payload.decision,
+            comment=payload.comment,
+        )
+
+    session.commit()
+
+    return ReviewDecisionBatchResultSchema(
+        comment=payload.comment,
+        decision=payload.decision,
+        decision_label=get_review_decision_label(payload.decision),
+        issue_ids=payload.issue_ids,
+        updated_count=len(payload.issue_ids),
+    )
+
+
 @router.get("/{analysis_id}/fields", response_model=list[ExtractedFieldWithContextSchema])
 def list_analysis_fields(
     analysis_id: int,
@@ -228,6 +317,72 @@ def list_analysis_fields(
             detail="Analysis not found",
         )
     return list_extracted_fields_by_analysis_id(session, analysis_id)
+
+
+@router.get("/{analysis_id}/audit-summary", response_model=AuditSummarySchema)
+def get_analysis_audit_summary(
+    analysis_id: int,
+    session: DbSession,
+) -> AuditSummarySchema:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+    return get_audit_summary_by_analysis_id(session, analysis_id)
+
+
+@router.get("/{analysis_id}/signoff", response_model=AnalysisSignoffSchema | None)
+def get_analysis_signoff(
+    analysis_id: int,
+    session: DbSession,
+) -> AnalysisSignoffSchema | None:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+    return get_analysis_signoff_by_analysis_id(session, analysis_id)
+
+
+@router.post("/{analysis_id}/signoff", response_model=AnalysisSignoffSchema)
+def upsert_analysis_signoff_route(
+    analysis_id: int,
+    payload: AnalysisSignoffWriteSchema,
+    session: DbSession,
+) -> AnalysisSignoffSchema:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+
+    if analysis_run.status != ANALYSIS_STATUS_COMPLETED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only completed analyses can receive formal sign-off",
+        )
+
+    normalized_status = normalize_audit_status(payload.final_status_code)
+    upsert_analysis_signoff(
+        session=session,
+        analysis_id=analysis_id,
+        final_status_code=normalized_status,
+        reviewer_name=payload.reviewer_name,
+        comment=payload.comment,
+    )
+    session.commit()
+
+    signoff = get_analysis_signoff_by_analysis_id(session, analysis_id)
+    if signoff is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not persist analysis sign-off",
+        )
+    return signoff
 
 
 @router.get("/{analysis_id}/package-summary", response_model=PackageSummarySchema)
@@ -356,7 +511,82 @@ def get_analysis_memorial_audit(
     return get_memorial_audit_by_analysis_id(session, analysis_id)
 
 
+@router.get("/{analysis_id}/mode-output", response_model=DirectedModeOutputSchema | None)
+def get_analysis_mode_output(
+    analysis_id: int,
+    session: DbSession,
+) -> DirectedModeOutputSchema | None:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+
+    extracted_fields = list_extracted_fields_by_analysis_id(session, analysis_id)
+    text_rows = list_text_spans_by_analysis_id(session, analysis_id)
+    return build_mode_output(
+        analysis_mode=analysis_run.analysis_mode,
+        config=analysis_run.config,
+        text_rows=text_rows,
+        extracted_fields=extracted_fields,
+    )
+
+
 @router.get("/{analysis_id}/export")
-async def export_analysis(analysis_id: int) -> None:
-    del analysis_id
-    _not_implemented()
+def export_analysis(
+    analysis_id: int,
+    session: DbSession,
+    format: str = Query(default="md"),
+) -> PlainTextResponse | HTMLResponse:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+
+    mode_output = build_mode_output(
+        analysis_mode=analysis_run.analysis_mode,
+        config=analysis_run.config,
+        text_rows=list_text_spans_by_analysis_id(session, analysis_id),
+        extracted_fields=list_extracted_fields_by_analysis_id(session, analysis_id),
+    )
+    payload = build_analysis_export_payload(
+        analysis_id=analysis_id,
+        analysis_status=analysis_run.status,
+        package_summary=get_package_summary_by_analysis_id(session, analysis_id),
+        audit_summary=get_audit_summary_by_analysis_id(session, analysis_id),
+        issues=list_issues_with_evidences_by_analysis_id(session, analysis_id),
+        ld_sheet_crosscheck=get_ld_sheet_crosscheck_by_analysis_id(session, analysis_id),
+        signoff=get_analysis_signoff_by_analysis_id(session, analysis_id),
+        mode_output=mode_output,
+    )
+
+    if format not in {"md", "html"}:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="format must be one of: md, html",
+        )
+
+    if format == "html":
+        report = build_analysis_export_html(payload)
+        return HTMLResponse(
+            content=report,
+            headers={
+                "Content-Disposition": (
+                    f'attachment; filename="analysis-{analysis_id:04d}-audit-report.html"'
+                )
+            },
+        )
+
+    report = build_analysis_export_markdown(payload)
+    return PlainTextResponse(
+        content=report,
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="analysis-{analysis_id:04d}-audit-report.md"'
+            )
+        },
+        media_type="text/markdown; charset=utf-8",
+    )
