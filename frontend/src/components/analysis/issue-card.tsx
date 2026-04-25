@@ -44,7 +44,7 @@ export function IssueCard({
   return (
     <article
       id={cardId}
-      className={`rounded-[1.75rem] border bg-[var(--cp-panel)]/85 p-5 ${appearance.cardClassName} ${isFocused ? "ring-2 ring-[var(--cp-accent)] ring-offset-2 ring-offset-transparent" : ""}`}
+      className={`rounded-none border bg-[var(--cp-panel)]/85 p-5 ${appearance.cardClassName} ${isFocused ? "ring-2 ring-[var(--cp-accent)] ring-offset-2 ring-offset-transparent" : ""}`}
       style={{ boxShadow: "var(--cp-shadow-soft)" }}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

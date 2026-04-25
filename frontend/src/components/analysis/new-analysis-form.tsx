@@ -149,7 +149,7 @@ export function NewAnalysisForm() {
 
   return (
     <section
-      className="rounded-[1.75rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/92 p-4 sm:p-5"
+      className="rounded-none border border-[var(--cp-border)] bg-[var(--cp-panel)]/92 p-4 sm:p-5"
       style={{ boxShadow: "var(--cp-shadow)" }}
     >
       <form onSubmit={handleSubmit} className="grid gap-5">
@@ -210,7 +210,7 @@ export function NewAnalysisForm() {
               }}
             />
           ) : (
-            <div className="rounded-[1.5rem] border border-[var(--cp-border)] bg-black/10 p-4 text-sm leading-7 text-[var(--cp-muted)]">
+            <div className="rounded-none border border-[var(--cp-border)] bg-black/10 p-4 text-sm leading-7 text-[var(--cp-muted)]">
               <span className="font-semibold text-[var(--cp-text)]">
                 Modo escolhido:
               </span>{" "}
@@ -220,7 +220,7 @@ export function NewAnalysisForm() {
           )}
         </section>
 
-        <div className="grid gap-4 rounded-[1.5rem] border border-[var(--cp-border)] bg-black/10 p-4">
+        <div className="grid gap-4 rounded-none border border-[var(--cp-border)] bg-black/10 p-4">
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--cp-accent)]">
               Etapa 3
@@ -254,7 +254,7 @@ export function NewAnalysisForm() {
                     key={option.value}
                     type="button"
                     onClick={() => setSelectedTipoOption(option.value)}
-                    className={`rounded-[1.1rem] border p-4 text-left transition-colors ${
+                    className={`rounded-none border p-4 text-left transition-colors ${
                       isSelected
                         ? "border-[var(--cp-accent)] bg-[var(--cp-accent)]/12"
                         : "border-[var(--cp-border)] bg-white/4 hover:border-[var(--cp-accent)]/40"

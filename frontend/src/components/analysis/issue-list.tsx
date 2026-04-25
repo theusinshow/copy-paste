@@ -167,7 +167,7 @@ export function IssueList({
                   key={filter.id}
                   type="button"
                   onClick={() => setActiveFilter(filter.id)}
-                  className={`rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition-colors ${
+                  className={`rounded-none border px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition-colors ${
                     isActive
                       ? "border-[var(--cp-accent)] bg-[var(--cp-accent)]/12 text-[var(--cp-accent)]"
                       : "border-[var(--cp-border)] bg-black/10 text-[var(--cp-muted)] hover:border-[var(--cp-accent)]/40 hover:text-[var(--cp-text)]"
@@ -184,12 +184,12 @@ export function IssueList({
             encontrados na revisao automatica.
           </p>
 
-          <div className="flex flex-wrap items-center gap-2 rounded-[1.25rem] border border-[var(--cp-border)] bg-black/10 p-3">
+          <div className="flex flex-wrap items-center gap-2 rounded-none border border-[var(--cp-border)] bg-black/10 p-3">
             <button
               type="button"
               onClick={() => handleMoveFocus(-1)}
               disabled={visibleIssues.length === 0 || focusedIssueId === visibleIssues[0]?.id}
-              className="rounded-full border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-none border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               Anterior
             </button>
@@ -200,7 +200,7 @@ export function IssueList({
                 visibleIssues.length === 0 ||
                 focusedIssueId === visibleIssues[visibleIssues.length - 1]?.id
               }
-              className="rounded-full border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-none border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               Proxima
             </button>
@@ -208,7 +208,7 @@ export function IssueList({
               type="button"
               onClick={handleFocusFirstPending}
               disabled={!visibleIssues.some((issue) => issue.review_status === "pending_review")}
-              className="rounded-full border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-none border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               Primeira pendente
             </button>
@@ -237,7 +237,7 @@ export function IssueList({
       ) : null}
 
       {!loadError && issues.length === 0 ? (
-        <div className="mt-6 rounded-[1.75rem] border border-[var(--cp-border)] bg-black/15 p-6">
+        <div className="mt-6 rounded-none border border-[var(--cp-border)] bg-black/15 p-6">
           <p className="text-sm font-medium text-[var(--cp-text)]">
             {status === "completed"
               ? "Nenhum ponto de atencao foi apontado nesta analise."
@@ -251,7 +251,7 @@ export function IssueList({
       ) : null}
 
       {!loadError && issues.length > 0 && visibleIssues.length === 0 ? (
-        <div className="mt-6 rounded-[1.75rem] border border-[var(--cp-border)] bg-black/15 p-6">
+        <div className="mt-6 rounded-none border border-[var(--cp-border)] bg-black/15 p-6">
           <p className="text-sm font-medium text-[var(--cp-text)]">
             Nenhum item corresponde ao filtro selecionado.
           </p>

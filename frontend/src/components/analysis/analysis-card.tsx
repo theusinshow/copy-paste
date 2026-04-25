@@ -12,7 +12,7 @@ export function AnalysisCard({ analysis }: { analysis: AnalysisRun }) {
 
   return (
     <article
-      className="rounded-[1.75rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/90 p-5 transition-transform duration-200 hover:-translate-y-0.5"
+      className="rounded-none border border-[var(--cp-border)] bg-[var(--cp-panel)]/90 p-5 transition-transform duration-200 hover:-translate-y-0.5"
       style={{ boxShadow: "var(--cp-shadow-soft)" }}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

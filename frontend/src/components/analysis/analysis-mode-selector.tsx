@@ -13,7 +13,7 @@ export function AnalysisModeSelector(props: {
   title: string;
 }) {
   return (
-    <section className="grid gap-3 rounded-[1.5rem] border border-[var(--cp-border)] bg-black/10 p-4">
+    <section className="grid gap-3 rounded-none border border-[var(--cp-border)] bg-black/10 p-4">
       <div className="space-y-2">
         <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
           {props.title}
@@ -32,7 +32,7 @@ export function AnalysisModeSelector(props: {
               key={mode.value}
               type="button"
               onClick={() => props.onSelect(mode.value)}
-              className={`rounded-[1.25rem] border p-4 text-left transition-all ${
+              className={`rounded-none border p-4 text-left transition-all ${
                 isSelected
                   ? "border-[var(--cp-accent)] bg-[var(--cp-accent)]/12 shadow-[0_0_0_1px_var(--cp-accent-glow)]"
                   : "border-[var(--cp-border)] bg-white/4 hover:border-[var(--cp-accent)]/40"
@@ -48,7 +48,7 @@ export function AnalysisModeSelector(props: {
                   </p>
                 </div>
                 {isSelected ? (
-                  <span className="rounded-full bg-[var(--cp-accent)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--cp-accent-ink)]">
+                  <span className="rounded-none bg-[var(--cp-accent)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--cp-accent-ink)]">
                     Selecionado
                   </span>
                 ) : null}

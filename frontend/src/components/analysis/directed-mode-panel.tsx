@@ -122,7 +122,7 @@ export function DirectedModePanel({
 
 function ConfigChip({ label, value }: { label: string; value: string }) {
   return (
-    <span className="rounded-full border border-[var(--cp-border)] px-3 py-1 text-xs uppercase tracking-[0.18em] text-[var(--cp-text)]">
+    <span className="rounded-none border border-[var(--cp-border)] px-3 py-1 text-xs uppercase tracking-[0.18em] text-[var(--cp-text)]">
       {label}: {value || "-"}
     </span>
   );

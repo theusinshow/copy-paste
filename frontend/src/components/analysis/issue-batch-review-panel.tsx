@@ -75,7 +75,7 @@ export function IssueBatchReviewPanel({
 
   return (
     <form
-      className="grid gap-4 rounded-[1.5rem] border border-[var(--cp-border)] bg-black/10 p-4"
+      className="grid gap-4 rounded-none border border-[var(--cp-border)] bg-black/10 p-4"
       onSubmit={handleSubmit}
     >
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -98,7 +98,7 @@ export function IssueBatchReviewPanel({
             type="button"
             onClick={onSelectVisible}
             disabled={visibleCount === 0 || isSaving || isPending}
-            className="rounded-full border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-none border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Selecionar visiveis
           </button>
@@ -106,7 +106,7 @@ export function IssueBatchReviewPanel({
             type="button"
             onClick={onClearSelection}
             disabled={selectedCount === 0 || isSaving || isPending}
-            className="rounded-full border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-muted)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-text)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-none border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-muted)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-text)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Limpar selecao
           </button>

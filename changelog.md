@@ -71,6 +71,10 @@
 - Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
+- Paleta de cores migrada para grafite profundo (Opcao B): fundo `#141414`, painel `#1c1c1c`, borda `#333333`, texto `#ede9e0`, accent dourado `#c99a2e` mais sóbrio que o amarelo anterior.
+- Sombra global substituida por offset duro `2px 4px 0 rgba(0,0,0,0.85)` com borda de reforco, eliminando o blur suave que dava ar de landing page.
+- Fundo do `body` simplificado para cor solida sem gradiente radial dourado.
+- Todos os `border-radius` zerados via `@theme inline` no Tailwind v4 e por substituicao global de `rounded-[*]` e `rounded-full` nos 22 componentes afetados; a interface agora e totalmente retangular.
 - `AnalysisResultHeader` reescrito como barra horizontal compacta com modo, id, data e status; removidos os seis `MetricCard` que duplicavam dados ja presentes no `AuditSummaryPanel`.
 - `ExecutiveSummary` removido da tela de resultado; os contadores de conflito, revisao, pranchas e arquivos eram redundantes com o `AuditSummaryPanel`.
 - Navegacao lateral da tela de resultado corrigida: `Lista e pranchas` e `Listas e pranchas` renomeados para `LD × Pranchas` e `Listas e deteccoes`, eliminando ambiguidade entre os dois links quase identicos.

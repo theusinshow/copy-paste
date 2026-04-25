@@ -27,7 +27,7 @@ export function IssueSeverityBadge({ severity }: { severity: string }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${appearance.pillClassName}`}
+      className={`inline-flex items-center rounded-none border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${appearance.pillClassName}`}
     >
       {appearance.label}
     </span>

@@ -100,7 +100,7 @@ function SuggestionList({ review }: { review: AiReview }) {
                 {suggestion.reason}
               </p>
             </div>
-            <span className="h-fit w-fit rounded-full border border-[var(--cp-warning)]/40 bg-[var(--cp-warning)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--cp-warning)]">
+            <span className="h-fit w-fit rounded-none border border-[var(--cp-warning)]/40 bg-[var(--cp-warning)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--cp-warning)]">
               {suggestion.severity}
             </span>
           </article>

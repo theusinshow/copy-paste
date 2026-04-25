@@ -142,7 +142,7 @@ export function AuditSummaryPanel({
                       {source.item_count.toString().padStart(2, "0")} itens analisados
                     </p>
                   </div>
-                  <span className="rounded-full border border-[var(--cp-border)] px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[var(--cp-muted)]">
+                  <span className="rounded-none border border-[var(--cp-border)] px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[var(--cp-muted)]">
                     {source.relevant_count} conflito / {source.attention_count} revisar /{" "}
                     {source.incomplete_count} limite
                   </span>
@@ -156,19 +156,19 @@ export function AuditSummaryPanel({
                 source.dismissed_count ||
                 source.inconclusive_count ? (
                   <div className="mt-4 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-                    <span className="rounded-full border border-[var(--cp-border)] px-3 py-1">
+                    <span className="rounded-none border border-[var(--cp-border)] px-3 py-1">
                       {source.active_count} ativa(s)
                     </span>
-                    <span className="rounded-full border border-[var(--cp-border)] px-3 py-1">
+                    <span className="rounded-none border border-[var(--cp-border)] px-3 py-1">
                       {source.pending_review_count} pendente(s)
                     </span>
-                    <span className="rounded-full border border-[var(--cp-border)] px-3 py-1">
+                    <span className="rounded-none border border-[var(--cp-border)] px-3 py-1">
                       {source.resolved_count} resolvida(s)
                     </span>
-                    <span className="rounded-full border border-[var(--cp-border)] px-3 py-1">
+                    <span className="rounded-none border border-[var(--cp-border)] px-3 py-1">
                       {source.dismissed_count} descartada(s)
                     </span>
-                    <span className="rounded-full border border-[var(--cp-border)] px-3 py-1">
+                    <span className="rounded-none border border-[var(--cp-border)] px-3 py-1">
                       {source.inconclusive_count} sem evidencia
                     </span>
                   </div>

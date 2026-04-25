@@ -256,7 +256,7 @@ function ProcessingStep({
           {description}
         </p>
       </div>
-      <span className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${getStepPillClass(state)}`}>
+      <span className={`w-fit rounded-none border px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${getStepPillClass(state)}`}>
         {getStepLabel(state)}
       </span>
     </div>

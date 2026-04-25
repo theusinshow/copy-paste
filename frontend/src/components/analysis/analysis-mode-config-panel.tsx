@@ -14,7 +14,7 @@ export function AnalysisModeConfigPanel(props: {
   const definition = getAnalysisModeDefinition(props.selectedMode);
 
   return (
-    <section className="rounded-[1.5rem] border border-[var(--cp-border)] bg-black/10 p-5">
+    <section className="rounded-none border border-[var(--cp-border)] bg-black/10 p-5">
       <div className="space-y-2">
         <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
           Dados da verificacao

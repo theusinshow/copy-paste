@@ -10,7 +10,7 @@ export function IssueEvidenceList({ evidences }: { evidences: IssueEvidence[] })
         >
           <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
             <span>Pagina {evidence.page}</span>
-            <span className="h-1 w-1 rounded-full bg-[var(--cp-accent)]" />
+            <span className="h-1 w-1 rounded-none bg-[var(--cp-accent)]" />
             <span>Field #{evidence.field_id}</span>
           </div>
           <p className="mt-3 text-sm leading-6 text-[var(--cp-text)]">

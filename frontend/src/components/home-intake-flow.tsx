@@ -31,16 +31,16 @@ export function HomeIntakeFlow() {
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-          <span className="rounded-full border border-[var(--cp-border)] bg-black/10 px-3 py-1.5">
+          <span className="rounded-none border border-[var(--cp-border)] bg-black/10 px-3 py-1.5">
             1. Enviar PDFs
           </span>
-          <span className="rounded-full border border-[var(--cp-border)] bg-black/10 px-3 py-1.5">
+          <span className="rounded-none border border-[var(--cp-border)] bg-black/10 px-3 py-1.5">
             2. Escolher a revisao
           </span>
-          <span className="rounded-full border border-[var(--cp-border)] bg-black/10 px-3 py-1.5">
+          <span className="rounded-none border border-[var(--cp-border)] bg-black/10 px-3 py-1.5">
             3. Classificar os arquivos
           </span>
-          <span className="rounded-full border border-[var(--cp-border)] bg-black/10 px-3 py-1.5">
+          <span className="rounded-none border border-[var(--cp-border)] bg-black/10 px-3 py-1.5">
             4. Ler o resultado
           </span>
         </div>

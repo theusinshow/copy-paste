@@ -195,14 +195,14 @@ function OccurrenceSummary({
               {group.values.slice(0, 12).map((item) => (
                 <span
                   key={`${group.field}-${item.value}`}
-                  className="rounded-full border border-[var(--cp-border)] bg-black/10 px-3 py-1 text-xs text-[var(--cp-muted)]"
+                  className="rounded-none border border-[var(--cp-border)] bg-black/10 px-3 py-1 text-xs text-[var(--cp-muted)]"
                   title={item.pages}
                 >
                   {item.value} · {item.count}x
                 </span>
               ))}
               {group.values.length > 12 ? (
-                <span className="rounded-full border border-[var(--cp-border)] bg-black/10 px-3 py-1 text-xs text-[var(--cp-muted)]">
+                <span className="rounded-none border border-[var(--cp-border)] bg-black/10 px-3 py-1 text-xs text-[var(--cp-muted)]">
                   +{group.values.length - 12}
                 </span>
               ) : null}
@@ -237,7 +237,7 @@ function CategoryPill({ category }: { category: string }) {
 
   return (
     <span
-      className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${className}`}
+      className={`w-fit rounded-none border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${className}`}
     >
       {category === "probable_issue"
         ? "conflito"

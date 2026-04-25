@@ -363,7 +363,7 @@ function SeverityPill({
 
   return (
     <span
-      className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${className}`}
+      className={`w-fit rounded-none border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${className}`}
     >
       {category === "probable_issue"
         ? "conflito"

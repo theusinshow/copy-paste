@@ -43,7 +43,7 @@ export function AnalysisUploadDropzone({
           setIsDragging(false);
           onFilesChange(mergeFiles(files, Array.from(event.dataTransfer.files)));
         }}
-        className={`rounded-[1.5rem] border border-dashed p-5 transition-colors sm:p-6 ${
+        className={`rounded-none border border-dashed p-5 transition-colors sm:p-6 ${
           isDragging
             ? "border-[var(--cp-accent)] bg-[var(--cp-accent)]/10"
             : "border-[var(--cp-border)] bg-black/10 hover:border-[var(--cp-accent)]/40"
