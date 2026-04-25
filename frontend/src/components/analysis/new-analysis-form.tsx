@@ -10,6 +10,7 @@ import { AnalysisUploadDropzone } from "@/components/analysis/analysis-upload-dr
 import { FormSubmitButton } from "@/components/analysis/form-submit-button";
 import {
   ANALYSIS_MODE_DEFAULT,
+  ANALYSIS_MODES,
   buildAnalysisModeConfig,
   getAnalysisModeDefinition,
   getAnalysisModeDefinitions,
@@ -48,14 +49,23 @@ const TIPO_OPTIONS = [
   },
 ] as const;
 
-export function NewAnalysisForm() {
+type NewAnalysisFormProps = {
+  initialConfig?: Record<string, string>;
+  initialMode?: string;
+};
+
+export function NewAnalysisForm({ initialMode, initialConfig }: NewAnalysisFormProps = {}) {
   const router = useRouter();
   const [state, setState] = useState(initialNewAnalysisActionState);
-  const [selectedMode, setSelectedMode] =
-    useState<AnalysisMode>(ANALYSIS_MODE_DEFAULT);
-  const [configValues, setConfigValues] = useState(
-    getInitialConfigValues(ANALYSIS_MODE_DEFAULT),
-  );
+  const validInitialMode =
+    initialMode && ANALYSIS_MODES.includes(initialMode as AnalysisMode)
+      ? (initialMode as AnalysisMode)
+      : ANALYSIS_MODE_DEFAULT;
+  const [selectedMode, setSelectedMode] = useState<AnalysisMode>(validInitialMode);
+  const [configValues, setConfigValues] = useState(() => {
+    const defaults = getInitialConfigValues(validInitialMode);
+    return initialConfig ? { ...defaults, ...initialConfig } : defaults;
+  });
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedTipoOption, setSelectedTipoOption] = useState("pacote");
   const [customTipo, setCustomTipo] = useState("");

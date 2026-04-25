@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { AnalysisModeBadge } from "@/components/analysis/analysis-mode-badge";
 import { AnalysisStatusBadge } from "@/components/analysis/analysis-status-badge";
-import { cancelAnalysis, getAnalysis, startAnalysis } from "@/lib/api/analysis";
+import { cancelAnalysis, startAnalysis } from "@/lib/api/analysis";
 import { extractApiErrorMessage } from "@/lib/api/fetcher";
 import { formatAnalysisDate } from "@/lib/formatters";
 import type { AnalysisRun } from "@/lib/types/analysis";
@@ -41,30 +41,54 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
 
   useEffect(() => {
     let isMounted = true;
-    let intervalId: ReturnType<typeof setInterval> | undefined;
+    let eventSource: EventSource | null = null;
 
-    async function refresh() {
-      try {
-        const nextAnalysis = await getAnalysis(initialAnalysis.id);
-        if (isMounted) {
-          setAnalysis(nextAnalysis);
+    const isAlreadyFinished =
+      initialAnalysis.status === "completed" ||
+      initialAnalysis.status === "failed" ||
+      initialAnalysis.status === "cancelled";
+
+    if (isAlreadyFinished) {
+      return;
+    }
+
+    function openEventSource() {
+      if (!isMounted) return;
+      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
+      eventSource = new EventSource(
+        `${apiBase}/api/v1/analysis/${initialAnalysis.id}/stream`,
+      );
+
+      eventSource.onmessage = (event: MessageEvent) => {
+        if (!isMounted) return;
+        try {
+          const data = JSON.parse(event.data as string) as AnalysisRun;
+          setAnalysis(data);
+          const isTerminal =
+            data.status === "completed" ||
+            data.status === "failed" ||
+            data.status === "cancelled";
+          if (isTerminal) {
+            eventSource?.close();
+            eventSource = null;
+          }
+        } catch {
+          // ignore parse errors
         }
-      } catch (error) {
-        if (isMounted) {
-          setErrorMessage(
-            extractApiErrorMessage(
-              error,
-              "Nao foi possivel atualizar o status da analise agora.",
-            ),
-          );
-        }
-      }
+      };
+
+      eventSource.onerror = () => {
+        if (!isMounted || !eventSource) return;
+        setErrorMessage(
+          "Nao foi possivel acompanhar o processamento em tempo real.",
+        );
+        eventSource.close();
+        eventSource = null;
+      };
     }
 
     async function start() {
-      if (hasStarted.current) {
-        return;
-      }
+      if (hasStarted.current) return;
       hasStarted.current = true;
 
       if (initialAnalysis.status === "created") {
@@ -83,22 +107,19 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
                 "Nao foi possivel iniciar o processamento desta analise.",
               ),
             );
-            await refresh();
           }
+          return;
         }
       }
+
+      openEventSource();
     }
 
     void start();
-    intervalId = setInterval(() => {
-      void refresh();
-    }, 2500);
 
     return () => {
       isMounted = false;
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+      eventSource?.close();
     };
   }, [initialAnalysis]);
 
@@ -226,7 +247,7 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
         ) : null}
         {!isFinished ? (
           <p className="text-sm text-[var(--cp-muted)]">
-            A pagina atualiza o status automaticamente a cada poucos segundos.
+            O status e atualizado em tempo real via conexao direta.
           </p>
         ) : null}
       </div>

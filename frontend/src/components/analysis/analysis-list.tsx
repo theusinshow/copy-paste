@@ -1,8 +1,33 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 
 import { AnalysisCard } from "@/components/analysis/analysis-card";
 import { AnalysisEmptyState } from "@/components/analysis/analysis-empty-state";
 import type { AnalysisRun } from "@/lib/types/analysis";
+
+const STATUS_FILTERS = [
+  { id: "all", label: "Todos" },
+  { id: "completed", label: "Concluidas" },
+  { id: "processing", label: "Em andamento" },
+  { id: "failed", label: "Falha" },
+  { id: "cancelled", label: "Canceladas" },
+  { id: "created", label: "Criadas" },
+] as const;
+
+const MODE_FILTERS = [
+  { id: "all", label: "Todos modos" },
+  { id: "full_check", label: "Completa" },
+  { id: "memorial_only", label: "Memorial" },
+  { id: "sheets_only", label: "Pranchas" },
+  { id: "ld_only", label: "LD" },
+  { id: "find_text", label: "Busca" },
+  { id: "find_replace", label: "Substituicao" },
+  { id: "check_address", label: "Endereco" },
+  { id: "check_project_number", label: "N. projeto" },
+  { id: "check_work_name", label: "Nome da obra" },
+] as const;
 
 type AnalysisListProps = {
   analyses: AnalysisRun[];
@@ -16,6 +41,14 @@ export function AnalysisList({
   variant = "default",
 }: AnalysisListProps) {
   const isCompact = variant === "compact";
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [modeFilter, setModeFilter] = useState<string>("all");
+
+  const filtered = analyses.filter((a) => {
+    if (statusFilter !== "all" && a.status !== statusFilter) return false;
+    if (modeFilter !== "all" && a.analysis_mode !== modeFilter) return false;
+    return true;
+  });
 
   return (
     <section
@@ -62,6 +95,46 @@ export function AnalysisList({
         )}
       </div>
 
+      {!isCompact ? (
+        <div className="mt-5 flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
+            {STATUS_FILTERS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setStatusFilter(f.id)}
+                className={`rounded-none border px-2.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors ${
+                  statusFilter === f.id
+                    ? "border-[var(--cp-accent)] bg-[var(--cp-accent)]/12 text-[var(--cp-accent)]"
+                    : "border-[var(--cp-border)] bg-black/10 text-[var(--cp-muted)] hover:border-[var(--cp-accent)]/40 hover:text-[var(--cp-text)]"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {MODE_FILTERS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setModeFilter(f.id)}
+                className={`rounded-none border px-2.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors ${
+                  modeFilter === f.id
+                    ? "border-[var(--cp-accent)] bg-[var(--cp-accent)]/12 text-[var(--cp-accent)]"
+                    : "border-[var(--cp-border)] bg-black/10 text-[var(--cp-muted)] hover:border-[var(--cp-accent)]/40 hover:text-[var(--cp-text)]"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <span className="ml-auto self-end text-xs text-[var(--cp-muted)]">
+            {filtered.length} de {analyses.length} resultado(s)
+          </span>
+        </div>
+      ) : null}
+
       {loadError ? (
         <div className="mt-6 rounded-lg border border-[var(--cp-error)]/40 bg-[var(--cp-error)]/10 p-4 text-sm text-[var(--cp-text)]">
           {loadError}
@@ -69,11 +142,11 @@ export function AnalysisList({
       ) : null}
 
       <div className="mt-6">
-        {analyses.length === 0 ? (
+        {filtered.length === 0 ? (
           <AnalysisEmptyState />
         ) : (
           <div className="grid gap-4">
-            {analyses.map((analysis) => (
+            {filtered.map((analysis) => (
               <AnalysisCard key={analysis.id} analysis={analysis} />
             ))}
           </div>

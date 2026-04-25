@@ -6,7 +6,21 @@ import type { AnalysisRun } from "@/lib/types/analysis";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
+type HomePageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const params = await searchParams;
+
+  const initialMode = typeof params.mode === "string" ? params.mode : undefined;
+  const initialConfig: Record<string, string> = {};
+  for (const [key, value] of Object.entries(params)) {
+    if (key.startsWith("cfg_") && typeof value === "string") {
+      initialConfig[key.slice(4)] = value;
+    }
+  }
+
   let analyses: AnalysisRun[] = [];
   let loadError: string | null = null;
 
@@ -22,7 +36,7 @@ export default async function HomePage() {
   return (
     <div className="grid gap-6">
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <HomeIntakeFlow />
+        <HomeIntakeFlow initialMode={initialMode} initialConfig={initialConfig} />
 
         <aside className="self-start">
           <AnalysisList

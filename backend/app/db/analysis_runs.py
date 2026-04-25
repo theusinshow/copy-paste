@@ -31,11 +31,22 @@ def create_analysis_run(
     return analysis_run
 
 
-def list_analysis_runs(session: Session) -> list[AnalysisRun]:
+def list_analysis_runs(
+    session: Session,
+    status: str | None = None,
+    mode: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> list[AnalysisRun]:
     statement = select(AnalysisRun).order_by(
         AnalysisRun.created_at.desc(),
         AnalysisRun.id.desc(),
     )
+    if status:
+        statement = statement.where(AnalysisRun.status == status)
+    if mode:
+        statement = statement.where(AnalysisRun.analysis_mode == mode)
+    statement = statement.limit(limit).offset(offset)
     return list(session.scalars(statement).all())
 
 

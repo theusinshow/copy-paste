@@ -4,8 +4,13 @@ import { useEffect, useRef, useState } from "react";
 
 import { NewAnalysisForm } from "@/components/analysis/new-analysis-form";
 
-export function HomeIntakeFlow() {
-  const [isFormVisible, setIsFormVisible] = useState(false);
+type HomeIntakeFlowProps = {
+  initialConfig?: Record<string, string>;
+  initialMode?: string;
+};
+
+export function HomeIntakeFlow({ initialMode, initialConfig }: HomeIntakeFlowProps = {}) {
+  const [isFormVisible, setIsFormVisible] = useState(!!initialMode);
   const formRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -45,20 +50,22 @@ export function HomeIntakeFlow() {
           </span>
         </div>
 
-        <div className="mt-6">
-          <button
-            type="button"
-            onClick={() => setIsFormVisible(true)}
-            className="inline-flex items-center justify-center rounded-xl bg-[var(--cp-accent)] px-5 py-3 text-sm font-semibold text-[var(--cp-accent-ink)] transition-transform duration-200 hover:-translate-y-0.5"
-          >
-            Comecar agora
-          </button>
-        </div>
+        {!isFormVisible ? (
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={() => setIsFormVisible(true)}
+              className="inline-flex items-center justify-center rounded-xl bg-[var(--cp-accent)] px-5 py-3 text-sm font-semibold text-[var(--cp-accent-ink)] transition-transform duration-200 hover:-translate-y-0.5"
+            >
+              Comecar agora
+            </button>
+          </div>
+        ) : null}
       </section>
 
       <div ref={formRef}>
         {isFormVisible ? (
-          <NewAnalysisForm />
+          <NewAnalysisForm initialMode={initialMode} initialConfig={initialConfig} />
         ) : (
           <section className="rounded-lg border border-dashed border-[var(--cp-border)] bg-black/10 p-5 text-sm leading-7 text-[var(--cp-muted)]">
             Clique em{" "}

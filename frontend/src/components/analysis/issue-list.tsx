@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { IssueBatchReviewPanel } from "@/components/analysis/issue-batch-review-panel";
 import { IssueCard } from "@/components/analysis/issue-card";
+import { reviewAnalysisIssuesBatch } from "@/lib/api/issues";
 import type { AnalysisIssue } from "@/lib/types/issue";
 
 const FILTERS = [
@@ -30,9 +32,12 @@ export function IssueList({
   loadError,
   status,
 }: IssueListProps) {
+  const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<FilterId>("all");
   const [focusedIssueId, setFocusedIssueId] = useState<number | null>(null);
   const [selectedIssueIds, setSelectedIssueIds] = useState<number[]>([]);
+  const focusedIssueIdRef = useRef(focusedIssueId);
+  const visibleIssuesRef = useRef<AnalysisIssue[]>([]);
   const sortedIssues = [...issues].sort(compareIssuesForReview);
   const visibleIssues =
     activeFilter === "all"
@@ -77,6 +82,14 @@ export function IssueList({
   }, [focusedIssueId, visibleIssues]);
 
   useEffect(() => {
+    focusedIssueIdRef.current = focusedIssueId;
+  }, [focusedIssueId]);
+
+  useEffect(() => {
+    visibleIssuesRef.current = visibleIssues;
+  }, [visibleIssues]);
+
+  useEffect(() => {
     if (focusedIssueId === null) {
       return;
     }
@@ -84,6 +97,67 @@ export function IssueList({
     const element = document.getElementById(`issue-card-${focusedIssueId}`);
     element?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [focusedIssueId]);
+
+  const handleQuickReview = useCallback(
+    async (decision: string) => {
+      const id = focusedIssueIdRef.current;
+      if (id === null) return;
+      try {
+        await reviewAnalysisIssuesBatch(analysisId, {
+          decision,
+          issue_ids: [id],
+        });
+        router.refresh();
+      } catch {
+        // silently fail for keyboard shortcuts
+      }
+    },
+    [analysisId, router],
+  );
+
+  useEffect(() => {
+    function handleKeydown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement;
+      const tag = target.tagName.toLowerCase();
+      if (
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select" ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      const issues = visibleIssuesRef.current;
+      const currentId = focusedIssueIdRef.current;
+
+      if (event.key === "j") {
+        if (currentId === null) return;
+        const idx = issues.findIndex((i) => i.id === currentId);
+        if (idx !== -1 && issues[idx + 1]) {
+          setFocusedIssueId(issues[idx + 1].id);
+        }
+      } else if (event.key === "k") {
+        if (currentId === null) return;
+        const idx = issues.findIndex((i) => i.id === currentId);
+        if (idx > 0) {
+          setFocusedIssueId(issues[idx - 1].id);
+        }
+      } else if (event.key === "f") {
+        const pending = issues.find((i) => i.review_status === "pending_review");
+        if (pending) setFocusedIssueId(pending.id);
+      } else if (event.key === "r") {
+        void handleQuickReview("resolved");
+      } else if (event.key === "d") {
+        void handleQuickReview("dismissed");
+      } else if (event.key === "a") {
+        void handleQuickReview("active");
+      }
+    }
+
+    document.addEventListener("keydown", handleKeydown);
+    return () => document.removeEventListener("keydown", handleKeydown);
+  }, [handleQuickReview]);
 
   function handleToggleSelection(issueId: number) {
     setSelectedIssueIds((currentIds) =>
@@ -213,10 +287,13 @@ export function IssueList({
               Primeira pendente
             </button>
             <span className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-              Foco atual:{" "}
+              Foco:{" "}
               {focusedIssueId !== null
                 ? `#${focusedIssueId.toString().padStart(3, "0")}`
                 : "nenhum"}
+            </span>
+            <span className="ml-auto hidden text-xs text-[var(--cp-muted)] sm:block">
+              j/k navegar · f pendente · r/d/a decidir
             </span>
           </div>
 

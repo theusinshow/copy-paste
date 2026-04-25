@@ -19,8 +19,19 @@ import type {
 } from "@/lib/types/analysis";
 import type { AnalysisIssue } from "@/lib/types/issue";
 
-export async function listAnalyses() {
-  return apiFetch<AnalysisRun[]>("/api/v1/analysis", {
+export async function listAnalyses(params?: {
+  limit?: number;
+  mode?: string;
+  offset?: number;
+  status?: string;
+}) {
+  const qs = new URLSearchParams();
+  if (params?.status) qs.set("status", params.status);
+  if (params?.mode) qs.set("mode", params.mode);
+  if (params?.limit !== undefined) qs.set("limit", String(params.limit));
+  if (params?.offset !== undefined) qs.set("offset", String(params.offset));
+  const query = qs.toString();
+  return apiFetch<AnalysisRun[]>(`/api/v1/analysis${query ? `?${query}` : ""}`, {
     cache: "no-store",
   });
 }

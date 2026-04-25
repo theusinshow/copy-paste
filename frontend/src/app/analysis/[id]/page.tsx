@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -16,6 +17,7 @@ import { MemorialAuditPanel } from "@/components/analysis/memorial-audit-panel";
 import { PackageMapPanel } from "@/components/analysis/package-map-panel";
 import { PageMapPanel } from "@/components/analysis/page-map-panel";
 import { PackageSummaryPanel } from "@/components/analysis/package-summary-panel";
+import { PanelSkeleton } from "@/components/analysis/panel-skeleton";
 import {
   getAuditSummary,
   getAiReview,
@@ -34,23 +36,7 @@ import {
   listAnalysisIssues,
 } from "@/lib/api/analysis";
 import { ApiError, extractApiErrorMessage } from "@/lib/api/fetcher";
-import type {
-  AuditSummary,
-  AnalysisSignoff,
-  AiReview,
-  AnalysisRun,
-  DetectedSheets,
-  DirectedModeOutput,
-  DrawingLists,
-  ExtractedField,
-  FooterAudit,
-  LdSheetCrosscheck,
-  MemorialAudit,
-  PackageMap,
-  PageMap,
-  PackageSummary,
-} from "@/lib/types/analysis";
-import type { AnalysisIssue } from "@/lib/types/issue";
+import type { AnalysisRun } from "@/lib/types/analysis";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +50,14 @@ type AnalysisResultPageProps = {
   }>;
 };
 
+const DIRECTED_MODES = new Set([
+  "find_text",
+  "find_replace",
+  "check_address",
+  "check_project_number",
+  "check_work_name",
+]);
+
 export default async function AnalysisResultPage({
   params,
 }: AnalysisResultPageProps) {
@@ -75,194 +69,28 @@ export default async function AnalysisResultPage({
   }
 
   const analysis = await loadAnalysisOrNotFound(analysisId);
-
-  let issues: AnalysisIssue[] = [];
-  let issuesLoadError: string | null = null;
-  let fields: ExtractedField[] = [];
-  let fieldsLoadError: string | null = null;
-  let auditSummary: AuditSummary | null = null;
-  let auditSummaryLoadError: string | null = null;
-  let packageSummary: PackageSummary | null = null;
-  let packageSummaryLoadError: string | null = null;
-  let signoff: AnalysisSignoff | null = null;
-  let signoffLoadError: string | null = null;
-  let packageMap: PackageMap | null = null;
-  let packageMapLoadError: string | null = null;
-  let pageMap: PageMap | null = null;
-  let pageMapLoadError: string | null = null;
-  let aiReview: AiReview | null = null;
-  let aiReviewLoadError: string | null = null;
-  let footerAudit: FooterAudit | null = null;
-  let footerAuditLoadError: string | null = null;
-  let drawingLists: DrawingLists | null = null;
-  let drawingListsLoadError: string | null = null;
-  let detectedSheets: DetectedSheets | null = null;
-  let detectedSheetsLoadError: string | null = null;
-  let ldSheetCrosscheck: LdSheetCrosscheck | null = null;
-  let ldSheetCrosscheckLoadError: string | null = null;
-  let memorialAudit: MemorialAudit | null = null;
-  let memorialAuditLoadError: string | null = null;
-  let modeOutput: DirectedModeOutput | null = null;
-  let modeOutputLoadError: string | null = null;
-
-  const isDirectedMode = [
-    "find_text",
-    "find_replace",
-    "check_address",
-    "check_project_number",
-    "check_work_name",
-  ].includes(analysis.analysis_mode);
-
-  const [
-    issuesResult,
-    fieldsResult,
-    auditSummaryResult,
-    packageSummaryResult,
-    signoffResult,
-    packageMapResult,
-    pageMapResult,
-    aiReviewResult,
-    footerAuditResult,
-    drawingListsResult,
-    detectedSheetsResult,
-    ldSheetCrosscheckResult,
-    memorialAuditResult,
-    modeOutputResult,
-  ] = await Promise.allSettled([
-    listAnalysisIssues(analysisId),
-    listAnalysisFields(analysisId),
-    getAuditSummary(analysisId),
-    getPackageSummary(analysisId),
-    getAnalysisSignoff(analysisId),
-    getPackageMap(analysisId),
-    getPageMap(analysisId),
-    getAiReview(analysisId),
-    getFooterAudit(analysisId),
-    getDrawingLists(analysisId),
-    getDetectedSheets(analysisId),
-    getLdSheetCrosscheck(analysisId),
-    getMemorialAudit(analysisId),
-    isDirectedMode ? getModeOutput(analysisId) : Promise.resolve(null),
-  ]);
-
-  issues = readSettledValue(issuesResult, []);
-  issuesLoadError = readSettledError(
-    issuesResult,
-    "Nao foi possivel carregar as issues desta analise agora.",
-  );
-  fields = readSettledValue(fieldsResult, []);
-  fieldsLoadError = readSettledError(
-    fieldsResult,
-    "Nao foi possivel carregar os campos extraidos desta analise agora.",
-  );
-  auditSummary = readSettledValue(auditSummaryResult, null);
-  auditSummaryLoadError = readSettledError(
-    auditSummaryResult,
-    "Nao foi possivel carregar o fechamento desta analise agora.",
-  );
-  packageSummary = readSettledValue(packageSummaryResult, null);
-  packageSummaryLoadError = readSettledError(
-    packageSummaryResult,
-    "Nao foi possivel carregar o resumo do pacote desta analise agora.",
-  );
-  signoff = readSettledValue(signoffResult, null);
-  signoffLoadError = readSettledError(
-    signoffResult,
-    "Nao foi possivel carregar a conclusao final desta analise agora.",
-  );
-  packageMap = readSettledValue(packageMapResult, null);
-  packageMapLoadError = readSettledError(
-    packageMapResult,
-    "Nao foi possivel carregar o mapa do pacote desta analise agora.",
-  );
-  pageMap = readSettledValue(pageMapResult, null);
-  pageMapLoadError = readSettledError(
-    pageMapResult,
-    "Nao foi possivel carregar o mapa de paginas desta analise agora.",
-  );
-  aiReview = readSettledValue(aiReviewResult, null);
-  aiReviewLoadError = readSettledError(
-    aiReviewResult,
-    "Nao foi possivel carregar o apoio de leitura desta analise agora.",
-  );
-  footerAudit = readSettledValue(footerAuditResult, null);
-  footerAuditLoadError = readSettledError(
-    footerAuditResult,
-    "Nao foi possivel carregar a auditoria de rodapes desta analise agora.",
-  );
-  drawingLists = readSettledValue(drawingListsResult, null);
-  drawingListsLoadError = readSettledError(
-    drawingListsResult,
-    "Nao foi possivel carregar a lista de documentos desta analise agora.",
-  );
-  detectedSheets = readSettledValue(detectedSheetsResult, null);
-  detectedSheetsLoadError = readSettledError(
-    detectedSheetsResult,
-    "Nao foi possivel carregar as pranchas detectadas desta analise agora.",
-  );
-  ldSheetCrosscheck = readSettledValue(ldSheetCrosscheckResult, null);
-  ldSheetCrosscheckLoadError = readSettledError(
-    ldSheetCrosscheckResult,
-    "Nao foi possivel carregar a comparacao entre lista e pranchas desta analise agora.",
-  );
-  memorialAudit = readSettledValue(memorialAuditResult, null);
-  memorialAuditLoadError = readSettledError(
-    memorialAuditResult,
-    "Nao foi possivel carregar a auditoria de memoriais desta analise agora.",
-  );
-  modeOutput = readSettledValue(modeOutputResult, null);
-  modeOutputLoadError = readSettledError(
-    modeOutputResult,
-    "Nao foi possivel carregar o resultado da busca ou conferencia desta analise agora.",
-  );
+  const isDirectedMode = DIRECTED_MODES.has(analysis.analysis_mode);
 
   return (
     <div className="grid gap-5">
-      <AnalysisResultHeader
-        analysis={analysis}
-        auditSummary={auditSummary}
-      />
+      <AnalysisResultHeader analysis={analysis} />
 
       <div className="grid gap-5 lg:grid-cols-[200px_minmax(0,1fr)]">
         <ResultNavigation isDirectedMode={isDirectedMode} />
 
         <div className="grid gap-5">
-          <section id="fechamento">
-            <AuditSummaryPanel
-              analysisId={analysisId}
-              summary={auditSummary}
-              loadError={auditSummaryLoadError}
-            />
-          </section>
-          <section id="encerramento">
-            <AnalysisSignoffPanel
-              analysisId={analysisId}
-              analysisStatus={analysis.status}
-              computedStatusCode={auditSummary?.status.code}
-              computedStatusLabel={auditSummary?.status.label}
-              signoff={signoff}
-            />
-            {signoffLoadError ? (
-              <div className="mt-3 rounded-lg border border-[var(--cp-error)]/40 bg-[var(--cp-error)]/10 p-4 text-sm text-[var(--cp-text)]">
-                {signoffLoadError}
-              </div>
-            ) : null}
-          </section>
-          <section id="pontos">
-            <IssueList
-              analysisId={analysisId}
-              issues={issues}
-              loadError={issuesLoadError}
-              status={analysis.status}
-            />
-          </section>
+          <Suspense fallback={<PanelSkeleton rows={5} />}>
+            <ClosureSection analysisId={analysisId} analysis={analysis} />
+          </Suspense>
+
+          <Suspense fallback={<PanelSkeleton rows={6} />}>
+            <IssuesSection analysisId={analysisId} status={analysis.status} />
+          </Suspense>
+
           {isDirectedMode ? (
-            <section id="busca">
-              <DirectedModePanel
-                output={modeOutput}
-                loadError={modeOutputLoadError}
-              />
-            </section>
+            <Suspense fallback={<PanelSkeleton />}>
+              <DirectedSection analysisId={analysisId} />
+            </Suspense>
           ) : null}
 
           <div className="border-t border-[var(--cp-border)] pt-2">
@@ -271,55 +99,222 @@ export default async function AnalysisResultPage({
             </p>
           </div>
 
-          <section id="resumo">
-            <PackageSummaryPanel
-              summary={packageSummary}
-              loadError={packageSummaryLoadError}
-            />
-          </section>
-          <section id="cruzamento">
-            <LdSheetCrosscheckPanel
-              crosscheck={ldSheetCrosscheck}
-              loadError={ldSheetCrosscheckLoadError}
-            />
-          </section>
-          <section id="memoriais">
-            <MemorialAuditPanel
-              audit={memorialAudit}
-              loadError={memorialAuditLoadError}
-            />
-          </section>
-          <section id="rodapes">
-            <FooterAuditPanel
-              audit={footerAudit}
-              loadError={footerAuditLoadError}
-            />
-          </section>
-          <section id="listas" className="grid gap-5">
-            <DrawingListPanel
-              drawingLists={drawingLists}
-              loadError={drawingListsLoadError}
-            />
-            <DetectedSheetsPanel
-              detectedSheets={detectedSheets}
-              loadError={detectedSheetsLoadError}
-            />
-          </section>
-          <section id="organizacao">
-            <PackageMapPanel map={packageMap} loadError={packageMapLoadError} />
-          </section>
-          <section id="paginas">
-            <PageMapPanel map={pageMap} loadError={pageMapLoadError} />
-          </section>
-          <section id="leitura">
-            <AiReviewPanel review={aiReview} loadError={aiReviewLoadError} />
-          </section>
-          <section id="evidencias">
-            <ExtractedFieldList fields={fields} loadError={fieldsLoadError} />
-          </section>
+          <Suspense fallback={<PanelSkeleton rows={8} />}>
+            <DiagnosticSection analysisId={analysisId} />
+          </Suspense>
         </div>
       </div>
     </div>
+  );
+}
+
+async function ClosureSection({
+  analysisId,
+  analysis,
+}: {
+  analysisId: number;
+  analysis: AnalysisRun;
+}) {
+  const [auditSummaryResult, signoffResult] = await Promise.allSettled([
+    getAuditSummary(analysisId),
+    getAnalysisSignoff(analysisId),
+  ]);
+
+  const auditSummary = readSettledValue(auditSummaryResult, null);
+  const auditSummaryLoadError = readSettledError(
+    auditSummaryResult,
+    "Nao foi possivel carregar o fechamento desta analise agora.",
+  );
+  const signoff = readSettledValue(signoffResult, null);
+  const signoffLoadError = readSettledError(
+    signoffResult,
+    "Nao foi possivel carregar a conclusao final desta analise agora.",
+  );
+
+  return (
+    <>
+      <section id="fechamento">
+        <AuditSummaryPanel
+          analysisId={analysisId}
+          summary={auditSummary}
+          loadError={auditSummaryLoadError}
+        />
+      </section>
+      <section id="encerramento">
+        <AnalysisSignoffPanel
+          analysisId={analysisId}
+          analysisStatus={analysis.status}
+          computedStatusCode={auditSummary?.status.code}
+          computedStatusLabel={auditSummary?.status.label}
+          signoff={signoff}
+        />
+        {signoffLoadError ? (
+          <div className="mt-3 rounded-lg border border-[var(--cp-error)]/40 bg-[var(--cp-error)]/10 p-4 text-sm text-[var(--cp-text)]">
+            {signoffLoadError}
+          </div>
+        ) : null}
+      </section>
+    </>
+  );
+}
+
+async function IssuesSection({
+  analysisId,
+  status,
+}: {
+  analysisId: number;
+  status: string;
+}) {
+  const issuesResult = await Promise.allSettled([listAnalysisIssues(analysisId)]);
+  const issues = readSettledValue(issuesResult[0], []);
+  const issuesLoadError = readSettledError(
+    issuesResult[0],
+    "Nao foi possivel carregar as issues desta analise agora.",
+  );
+
+  return (
+    <section id="pontos">
+      <IssueList
+        analysisId={analysisId}
+        issues={issues}
+        loadError={issuesLoadError}
+        status={status}
+      />
+    </section>
+  );
+}
+
+async function DirectedSection({ analysisId }: { analysisId: number }) {
+  const modeOutputResult = await Promise.allSettled([getModeOutput(analysisId)]);
+  const modeOutput = readSettledValue(modeOutputResult[0], null);
+  const modeOutputLoadError = readSettledError(
+    modeOutputResult[0],
+    "Nao foi possivel carregar o resultado da busca ou conferencia desta analise agora.",
+  );
+
+  return (
+    <section id="busca">
+      <DirectedModePanel output={modeOutput} loadError={modeOutputLoadError} />
+    </section>
+  );
+}
+
+async function DiagnosticSection({ analysisId }: { analysisId: number }) {
+  const [
+    packageSummaryResult,
+    ldSheetCrosscheckResult,
+    memorialAuditResult,
+    footerAuditResult,
+    drawingListsResult,
+    detectedSheetsResult,
+    packageMapResult,
+    pageMapResult,
+    aiReviewResult,
+    fieldsResult,
+  ] = await Promise.allSettled([
+    getPackageSummary(analysisId),
+    getLdSheetCrosscheck(analysisId),
+    getMemorialAudit(analysisId),
+    getFooterAudit(analysisId),
+    getDrawingLists(analysisId),
+    getDetectedSheets(analysisId),
+    getPackageMap(analysisId),
+    getPageMap(analysisId),
+    getAiReview(analysisId),
+    listAnalysisFields(analysisId),
+  ]);
+
+  return (
+    <>
+      <section id="resumo">
+        <PackageSummaryPanel
+          summary={readSettledValue(packageSummaryResult, null)}
+          loadError={readSettledError(
+            packageSummaryResult,
+            "Nao foi possivel carregar o resumo do pacote desta analise agora.",
+          )}
+        />
+      </section>
+      <section id="cruzamento">
+        <LdSheetCrosscheckPanel
+          crosscheck={readSettledValue(ldSheetCrosscheckResult, null)}
+          loadError={readSettledError(
+            ldSheetCrosscheckResult,
+            "Nao foi possivel carregar a comparacao entre lista e pranchas desta analise agora.",
+          )}
+        />
+      </section>
+      <section id="memoriais">
+        <MemorialAuditPanel
+          audit={readSettledValue(memorialAuditResult, null)}
+          loadError={readSettledError(
+            memorialAuditResult,
+            "Nao foi possivel carregar a auditoria de memoriais desta analise agora.",
+          )}
+        />
+      </section>
+      <section id="rodapes">
+        <FooterAuditPanel
+          audit={readSettledValue(footerAuditResult, null)}
+          loadError={readSettledError(
+            footerAuditResult,
+            "Nao foi possivel carregar a auditoria de rodapes desta analise agora.",
+          )}
+        />
+      </section>
+      <section id="listas" className="grid gap-5">
+        <DrawingListPanel
+          drawingLists={readSettledValue(drawingListsResult, null)}
+          loadError={readSettledError(
+            drawingListsResult,
+            "Nao foi possivel carregar a lista de documentos desta analise agora.",
+          )}
+        />
+        <DetectedSheetsPanel
+          detectedSheets={readSettledValue(detectedSheetsResult, null)}
+          loadError={readSettledError(
+            detectedSheetsResult,
+            "Nao foi possivel carregar as pranchas detectadas desta analise agora.",
+          )}
+        />
+      </section>
+      <section id="organizacao">
+        <PackageMapPanel
+          map={readSettledValue(packageMapResult, null)}
+          loadError={readSettledError(
+            packageMapResult,
+            "Nao foi possivel carregar o mapa do pacote desta analise agora.",
+          )}
+        />
+      </section>
+      <section id="paginas">
+        <PageMapPanel
+          map={readSettledValue(pageMapResult, null)}
+          loadError={readSettledError(
+            pageMapResult,
+            "Nao foi possivel carregar o mapa de paginas desta analise agora.",
+          )}
+        />
+      </section>
+      <section id="leitura">
+        <AiReviewPanel
+          review={readSettledValue(aiReviewResult, null)}
+          loadError={readSettledError(
+            aiReviewResult,
+            "Nao foi possivel carregar o apoio de leitura desta analise agora.",
+          )}
+        />
+      </section>
+      <section id="evidencias">
+        <ExtractedFieldList
+          fields={readSettledValue(fieldsResult, [])}
+          loadError={readSettledError(
+            fieldsResult,
+            "Nao foi possivel carregar os campos extraidos desta analise agora.",
+          )}
+        />
+      </section>
+    </>
   );
 }
 

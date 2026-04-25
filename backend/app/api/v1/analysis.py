@@ -1,3 +1,6 @@
+import asyncio
+import json
+
 from fastapi import (
     APIRouter,
     Body,
@@ -8,7 +11,7 @@ from fastapi import (
     UploadFile,
     status,
 )
-from fastapi.responses import HTMLResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse, StreamingResponse
 
 from app.core.analysis_modes import validate_analysis_payload
 from app.core.audit_closure import normalize_audit_status
@@ -112,8 +115,14 @@ def create_analysis(
 
 
 @router.get("", response_model=list[AnalysisRunSchema])
-def list_analyses(session: DbSession) -> list[AnalysisRunSchema]:
-    return list_analysis_runs(session)
+def list_analyses(
+    session: DbSession,
+    status: str | None = Query(default=None),
+    mode: str | None = Query(default=None),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+) -> list[AnalysisRunSchema]:
+    return list_analysis_runs(session, status=status, mode=mode, limit=limit, offset=offset)
 
 
 @router.post(
@@ -235,6 +244,45 @@ def get_analysis(analysis_id: int, session: DbSession) -> AnalysisRunSchema:
             detail="Analysis not found",
         )
     return analysis_run
+
+
+@router.get("/{analysis_id}/stream")
+async def stream_analysis_status(analysis_id: int) -> StreamingResponse:
+    async def generate():
+        from app.db.session import SessionLocal
+
+        while True:
+            session = SessionLocal()
+            try:
+                run = get_analysis_run_by_id(session, analysis_id)
+            finally:
+                session.close()
+
+            if run is None:
+                yield f"event: error\ndata: {json.dumps({'detail': 'not_found'})}\n\n"
+                return
+
+            schema = AnalysisRunSchema.model_validate(run)
+            yield f"data: {schema.model_dump_json()}\n\n"
+
+            if run.status in {
+                ANALYSIS_STATUS_COMPLETED,
+                ANALYSIS_STATUS_FAILED,
+                ANALYSIS_STATUS_CANCELLED,
+            }:
+                return
+
+            await asyncio.sleep(1.5)
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
+    )
 
 
 @router.get("/{analysis_id}/issues", response_model=list[IssueWithEvidencesSchema])

@@ -3,6 +3,23 @@
 ## [Unreleased]
 
 ### Added
+- Endpoint `GET /api/v1/analysis/{id}/stream` com SSE (`text/event-stream`) que emite o estado atual da analise a cada 1,5 s e fecha a conexao quando o status for terminal (`completed`, `failed` ou `cancelled`).
+- Parâmetros `status`, `mode`, `limit` e `offset` em `GET /api/v1/analysis` para filtragem e paginacao server-side.
+- Atalhos de teclado na lista de issues da tela de resultado: `j`/`k` navegam entre issues, `f` foca a primeira pendente, `r`/`d`/`a` aplicam revisao rapida na issue em foco.
+- Hint de atalhos exibido na barra de navegacao da lista de issues (`j/k navegar · f pendente · r/d/a decidir`).
+- Filtros client-side na listagem de analises: status (todos, concluidas, em andamento, falha, canceladas, criadas) e modo (todos os modos de analise) com contador de resultados.
+- Botao `Repetir modo` no header da tela de resultado que redireciona para a home pre-preenchida com o mesmo `analysis_mode` e `config` da analise atual.
+- Skeleton loader animado (`PanelSkeleton`) exibido durante o carregamento de cada secao do resultado com streaming via `<Suspense>`.
+- Streaming progressivo na tela de resultado: `ClosureSection` (fechamento + conclusao), `IssuesSection` (pontos) e `DiagnosticSection` (todos os paineis de diagnostico) sao carregados em paralelo e cada um exibe seu skeleton enquanto aguarda.
+- Parametros `initialMode` e `initialConfig` em `NewAnalysisForm` e `HomeIntakeFlow` para pre-preencher o formulario quando a home e acessada com `?mode=X&cfg_key=val`.
+- Leitura de `searchParams` (`mode`, `cfg_*`) na home page para propagar configuracoes de re-execucao.
+
+### Changed
+- `ProcessingMonitor` substituiu o `setInterval` de 2,5 s por `EventSource` conectado ao endpoint SSE; a mensagem de rodape foi atualizada de "a pagina atualiza a cada poucos segundos" para "status atualizado em tempo real via conexao direta".
+- `AnalysisResultHeader` nao recebe mais o prop `auditSummary`; o status de fechamento e exibido dentro de `ClosureSection` junto ao painel correspondente.
+- Tela de resultado refatorada de um unico componente monolitico para quatro componentes async (`ClosureSection`, `IssuesSection`, `DirectedSection`, `DiagnosticSection`) cada um com seu proprio `Promise.allSettled` e envolto em `<Suspense>`.
+
+
 - Arquivo `render.yaml` para provisionar o backend FastAPI e o PostgreSQL no Render via Blueprint.
 - Guia `Docs/DEPLOYMENT.md` com o fluxo de deploy do frontend na Vercel e do backend no Render.
 - Arquivo `vercel.json` para declarar explicitamente o servico `frontend` na Vercel quando o repositorio for detectado como `Services`.
