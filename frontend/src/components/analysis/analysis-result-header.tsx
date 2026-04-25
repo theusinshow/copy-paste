@@ -32,7 +32,7 @@ export function AnalysisResultHeader({
             Voltar
           </Link>
           <span className="rounded-lg bg-[var(--cp-accent)]/10 px-3 py-2 font-medium text-[var(--cp-accent)]">
-            Resultado tecnico
+            Resultado da revisao
           </span>
         </div>
 
@@ -43,11 +43,11 @@ export function AnalysisResultHeader({
             </p>
             <AnalysisModeBadge mode={analysis.analysis_mode} />
             <h1 className="text-3xl font-semibold tracking-tight text-[var(--cp-text)] sm:text-4xl">
-              Resultado consolidado da auditoria.
+              Resumo da revisao dos arquivos.
             </h1>
             <p className="max-w-2xl text-sm leading-6 text-[var(--cp-muted)] sm:text-base">
-              Use os blocos abaixo para revisar identidade do pacote,
-              cruzamento de LDs, memoriais e evidencias extraidas.
+              Veja abaixo o que foi encontrado, o que precisa de atencao e as
+              evidencias usadas para chegar a esse resultado.
             </p>
           </div>
           <AnalysisStatusBadge status={analysis.status} />
@@ -56,21 +56,27 @@ export function AnalysisResultHeader({
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
         <MetricCard label="Criada em" value={formatAnalysisDate(analysis.created_at)} />
-        <MetricCard label="Modo" value={getAnalysisModeLabel(analysis.analysis_mode)} />
         <MetricCard
-          label="Fechamento"
+          label="Tipo de analise"
+          value={getAnalysisModeLabel(analysis.analysis_mode)}
+        />
+        <MetricCard
+          label="Resumo final"
           value={auditSummary?.status.label || "Aguardando consolidado"}
         />
-        <MetricCard label="Issues totais" value={issueCount.toString().padStart(2, "0")} />
         <MetricCard
-          label="Severidades"
-          value={`${relevantCount} relevante / ${attentionCount} atencao`}
+          label="Itens encontrados"
+          value={issueCount.toString().padStart(2, "0")}
         />
         <MetricCard
-          label="Revisao"
+          label="Conflitos e atencao"
+          value={`${relevantCount} conflito(s) / ${attentionCount} revisar`}
+        />
+        <MetricCard
+          label="Itens ja revisados"
           value={
             auditSummary
-              ? `${auditSummary.metrics.reviewed_issue_count}/${auditSummary.metrics.issue_count} revisadas · ${auditSummary.metrics.pending_review_count} pendente(s)`
+              ? `${auditSummary.metrics.reviewed_issue_count}/${auditSummary.metrics.issue_count} revisados · ${auditSummary.metrics.pending_review_count} pendente(s)`
               : "Sem consolidado"
           }
         />

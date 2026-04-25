@@ -14,10 +14,10 @@ export function AiReviewPanel({ review, loadError }: AiReviewPanelProps) {
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
-            Leitura inteligente
+            Apoio de leitura
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Contexto preparado para revisao assistida.
+            Trechos separados para ajudar a revisao.
           </h2>
           {review ? (
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--cp-muted)]">
@@ -59,12 +59,12 @@ function ProviderStatus({ status }: { status: string }) {
   return (
     <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
       <p className="text-xs uppercase tracking-[0.2em] text-[var(--cp-muted)]">
-        Provedor
+        Recurso externo
       </p>
       <p className="mt-2 text-sm leading-6 text-[var(--cp-text)]">
         {isConfigured
-          ? "IA configurada para gerar sugestoes assistidas."
-          : "Sem IA externa configurada. O sistema esta preparando contextos e pontos de revisao com regras estruturais."}
+          ? "Ha um recurso externo configurado para apoiar a leitura."
+          : "Nenhum recurso externo esta configurado. Mesmo assim o sistema separou trechos e pontos para apoiar a revisao humana."}
       </p>
     </div>
   );
@@ -83,7 +83,7 @@ function SuggestionList({ review }: { review: AiReview }) {
     <div className="rounded-lg border border-[var(--cp-border)] bg-black/10">
       <div className="border-b border-[var(--cp-border)] px-4 py-3">
         <p className="text-xs uppercase tracking-[0.2em] text-[var(--cp-muted)]">
-          Pontos sugeridos
+          Pontos sugeridos para olhar
         </p>
       </div>
       <div className="divide-y divide-[var(--cp-border)]">
@@ -123,7 +123,7 @@ function ContextList({ review }: { review: AiReview }) {
     <div className="rounded-lg border border-[var(--cp-border)] bg-black/10">
       <div className="border-b border-[var(--cp-border)] px-4 py-3">
         <p className="text-xs uppercase tracking-[0.2em] text-[var(--cp-muted)]">
-          Contextos de leitura
+          Trechos separados
         </p>
       </div>
       <div className="divide-y divide-[var(--cp-border)]">

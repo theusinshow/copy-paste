@@ -89,21 +89,21 @@ export function AnalysisSignoffPanel({
     >
       <div className="border-b border-[var(--cp-border)] pb-5">
         <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-          Encerramento
+          Conclusao final
         </p>
         <h2 className="mt-2 text-2xl font-semibold text-[var(--cp-text)]">
-          Sign-off formal da analise.
+          Conclusao registrada da analise.
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--cp-muted)]">
-          O fechamento calculado continua existindo, mas aqui registramos a
-          decisao humana final do pacote com responsavel e comentario.
+          Depois de ler o resumo automatico, voce pode registrar aqui a decisao
+          final da revisao com responsavel e comentario.
         </p>
       </div>
 
       <div className="mt-5 grid gap-3 lg:grid-cols-2">
         <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-            Status calculado
+            Resumo automatico
           </p>
           <p className="mt-2 text-lg font-semibold text-[var(--cp-text)]">
             {computedStatusLabel || "Sem consolidado"}
@@ -112,10 +112,10 @@ export function AnalysisSignoffPanel({
 
         <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-            Status assinado
+            Conclusao salva
           </p>
           <p className="mt-2 text-lg font-semibold text-[var(--cp-text)]">
-            {signoff?.final_status_label || "Sem sign-off registrado"}
+            {signoff?.final_status_label || "Nenhuma conclusao registrada"}
           </p>
           {signoff ? (
             <p className="mt-2 text-sm leading-6 text-[var(--cp-muted)]">
@@ -128,7 +128,7 @@ export function AnalysisSignoffPanel({
       <form className="mt-5 grid gap-4" onSubmit={handleSubmit}>
         <div className="grid gap-4 xl:grid-cols-[280px_240px_minmax(0,1fr)]">
           <label className="grid gap-2 text-sm text-[var(--cp-muted)]">
-            <span className="text-xs uppercase tracking-[0.18em]">Status final</span>
+            <span className="text-xs uppercase tracking-[0.18em]">Conclusao final</span>
             <select
               value={finalStatusCode}
               onChange={(event) => setFinalStatusCode(event.target.value)}
@@ -160,7 +160,7 @@ export function AnalysisSignoffPanel({
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               disabled={analysisStatus !== "completed"}
-              placeholder="Registrar contexto do encerramento."
+              placeholder="Explique o motivo da conclusao final."
               rows={3}
               className="rounded-lg border border-[var(--cp-border)] bg-black/10 px-3 py-2 text-sm text-[var(--cp-text)] outline-none transition-colors focus:border-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
             />
@@ -180,8 +180,8 @@ export function AnalysisSignoffPanel({
 
         {analysisStatus !== "completed" ? (
           <div className="rounded-lg border border-[var(--cp-warning)]/40 bg-[var(--cp-warning)]/10 px-3 py-2 text-sm text-[var(--cp-text)]">
-            O sign-off formal so pode ser salvo quando a analise estiver com
-            processamento concluido.
+            A conclusao final so pode ser salva quando a analise terminar o
+            processamento.
           </div>
         ) : null}
 
@@ -191,11 +191,11 @@ export function AnalysisSignoffPanel({
             disabled={!canSubmit || isSaving || isPending}
             className="rounded-lg border border-[var(--cp-accent)] bg-[var(--cp-accent)]/10 px-4 py-2 text-sm font-medium text-[var(--cp-accent)] transition-colors hover:bg-[var(--cp-accent)]/15 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSaving || isPending ? "Salvando..." : "Salvar sign-off"}
+            {isSaving || isPending ? "Salvando..." : "Salvar conclusao final"}
           </button>
 
           <span className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-            Valor atual: {getAuditClosureLabel(finalStatusCode)}
+            Escolha atual: {getAuditClosureLabel(finalStatusCode)}
           </span>
         </div>
 

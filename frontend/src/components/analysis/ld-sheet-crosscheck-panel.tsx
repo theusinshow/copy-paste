@@ -21,10 +21,10 @@ export function LdSheetCrosscheckPanel({
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-            LD x Pranchas
+            Lista e pranchas
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Cruzamento por codigo, folha e descricao.
+            Comparacao entre a lista de documentos e as pranchas.
           </h2>
         </div>
 
@@ -39,7 +39,10 @@ export function LdSheetCrosscheckPanel({
               label="Revisar"
               value={crosscheck.stats.combined_needs_review_count}
             />
-            <Metric label="Sem LD" value={crosscheck.stats.undeclared_sheet_count} />
+            <Metric
+              label="Sem lista"
+              value={crosscheck.stats.undeclared_sheet_count}
+            />
           </div>
         ) : null}
       </div>
@@ -55,7 +58,7 @@ export function LdSheetCrosscheckPanel({
           {crosscheck.results.length === 0 &&
           crosscheck.reverse_results.length === 0 ? (
             <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
-              Nenhum item de LD ou prancha fora de contexto foi encontrado para cruzamento.
+              Nenhuma diferenca relevante foi encontrada entre a lista e as pranchas.
             </div>
           ) : (
             <div className="grid gap-6">
@@ -73,22 +76,22 @@ function GroupedResults({ crosscheck }: { crosscheck: LdSheetCrosscheck }) {
   const groups = [
     {
       category: "probable_issue",
-      description: "Conflitos objetivos encontrados.",
-      title: "Incongruencias provaveis",
+      description: "Diferencas mais objetivas entre o que esta na lista e o que foi lido na prancha.",
+      title: "Divergencias provaveis",
     },
     {
       category: "needs_review",
-      description: "Diferencas textuais que precisam de revisao.",
+      description: "Casos que merecem uma revisao humana antes de concluir.",
       title: "Pontos para revisar",
     },
     {
       category: "extraction_limit",
-      description: "Casos em que a leitura automatica nao confirmou tudo.",
-      title: "Limitacoes de extracao",
+      description: "Casos em que a leitura automatica nao conseguiu confirmar o texto com seguranca.",
+      title: "Leitura incompleta",
     },
     {
       category: "compatible",
-      description: "Itens com codigo, folha e descricao compativeis.",
+      description: "Itens em que lista e prancha ficaram compativeis.",
       title: "Compativeis",
     },
   ];
@@ -127,7 +130,7 @@ function ReverseGroupedResults({ crosscheck }: { crosscheck: LdSheetCrosscheck }
   if (crosscheck.reverse_results.length === 0) {
     return (
       <div className="rounded-lg border border-[var(--cp-success)]/30 bg-[var(--cp-success)]/10 p-4 text-sm text-[var(--cp-text)]">
-        Nenhuma prancha extra ficou sem contexto de LD no pacote analisado.
+        Nenhuma prancha ficou fora da lista de documentos neste pacote.
       </div>
     );
   }
@@ -135,12 +138,12 @@ function ReverseGroupedResults({ crosscheck }: { crosscheck: LdSheetCrosscheck }
   const groups = [
     {
       category: "probable_issue",
-      description: "Pranchas detectadas sem LD correspondente ou em secao incorreta.",
-      title: "Pranchas sem LD compativel",
+      description: "Pranchas encontradas sem item correspondente na lista ou declaradas na parte errada do pacote.",
+      title: "Pranchas com problema de lista",
     },
     {
       category: "needs_review",
-      description: "Pranchas que aparecem neste PDF, mas foram declaradas em outro documento.",
+      description: "Pranchas que apareceram aqui, mas a declaracao foi encontrada em outro documento do pacote.",
       title: "Pranchas para revisar",
     },
   ];
@@ -149,11 +152,11 @@ function ReverseGroupedResults({ crosscheck }: { crosscheck: LdSheetCrosscheck }
     <div className="grid gap-5 border-t border-[var(--cp-border)] pt-5">
       <div>
         <p className="text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
-          Leitura reversa
+          Conferencia das pranchas
         </p>
         <p className="mt-1 text-sm text-[var(--cp-muted)]">
-          O motor agora tambem verifica pranchas detectadas que nao encontraram
-          uma declaracao coerente nas LDs.
+          Aqui aparecem as pranchas lidas no pacote que nao ficaram bem
+          declaradas na lista de documentos.
         </p>
       </div>
 
@@ -211,7 +214,7 @@ function CrosscheckCard({ result }: { result: LdSheetCrosscheckResult }) {
           description={result.ld_description}
           filename={result.ld_filename}
           item={result.ld_item}
-          label="LD"
+          label="Lista"
           page={result.ld_page}
           scopeId={result.ld_scope_id}
           title={result.ld_source_text}
@@ -228,7 +231,7 @@ function CrosscheckCard({ result }: { result: LdSheetCrosscheckResult }) {
           />
         ) : (
           <div className="rounded-lg border border-[var(--cp-border)] p-3 text-sm text-[var(--cp-muted)]">
-            Nenhuma prancha correspondente foi detectada fora da LD.
+            Nenhuma prancha correspondente foi detectada nessa mesma parte do pacote.
           </div>
         )}
       </div>
@@ -273,14 +276,14 @@ function ReverseCrosscheckCard({
             description={result.matched_ld_row.description}
             filename={result.matched_ld_row.filename}
             item={result.matched_ld_row.item}
-            label="LD"
+            label="Lista"
             page={result.matched_ld_row.page}
             scopeId={result.matched_ld_row.scope_id}
             title={result.matched_ld_row.source_text}
           />
         ) : (
           <div className="rounded-lg border border-[var(--cp-border)] p-3 text-sm text-[var(--cp-muted)]">
-            Nenhuma linha de LD correspondente foi detectada no pacote.
+            Nenhum item correspondente foi detectado na lista do pacote.
           </div>
         )}
       </div>
@@ -322,7 +325,7 @@ function EvidenceBlock({
       </p>
       <p className="mt-1 text-xs text-[var(--cp-muted)]">
         folha {item} · p{page}
-        {scopeId ? ` · secao ${scopeId}` : ""}
+        {scopeId ? ` · parte ${scopeId}` : ""}
       </p>
       <p className="mt-2 leading-6 text-[var(--cp-text)]">{description}</p>
     </div>
@@ -375,20 +378,21 @@ function SeverityPill({
 
 function formatReason(reason: string) {
   const labels: Record<string, string> = {
-    description_mismatch: "descricao divergente",
+    description_mismatch: "descricao diferente entre lista e prancha",
     detected_sheet_declared_in_other_document:
       "prancha declarada apenas em outro documento",
     detected_sheet_declared_in_other_section:
-      "prancha declarada em outra secao do mesmo pdf",
-    detected_sheet_missing_from_ld: "prancha sem declaracao em ld",
+      "prancha declarada em outra parte do mesmo pdf",
+    detected_sheet_missing_from_ld: "prancha sem declaracao na lista",
     matched_code_item_and_description: "codigo, folha e descricao compativeis",
     sheet_code_found_in_other_document_context:
       "codigo encontrado em outro documento",
-    sheet_code_found_outside_ld_section: "codigo encontrado fora da secao da LD",
+    sheet_code_found_outside_ld_section:
+      "codigo encontrado fora da parte esperada da lista",
     sheet_code_not_detected_in_ld_section:
-      "codigo nao confirmado na secao da LD",
-    sheet_code_not_detected_outside_ld: "codigo nao confirmado fora da LD",
-    sheet_description_low_confidence: "descricao da prancha com baixa confianca",
+      "codigo nao confirmado na parte esperada da lista",
+    sheet_code_not_detected_outside_ld: "codigo nao confirmado fora da lista",
+    sheet_description_low_confidence: "descricao da prancha lida com baixa confianca",
     sheet_item_mismatch: "folha divergente",
   };
 

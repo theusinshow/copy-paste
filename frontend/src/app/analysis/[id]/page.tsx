@@ -174,7 +174,7 @@ export default async function AnalysisResultPage({
   signoff = readSettledValue(signoffResult, null);
   signoffLoadError = readSettledError(
     signoffResult,
-    "Nao foi possivel carregar o sign-off desta analise agora.",
+    "Nao foi possivel carregar a conclusao final desta analise agora.",
   );
   packageMap = readSettledValue(packageMapResult, null);
   packageMapLoadError = readSettledError(
@@ -189,7 +189,7 @@ export default async function AnalysisResultPage({
   aiReview = readSettledValue(aiReviewResult, null);
   aiReviewLoadError = readSettledError(
     aiReviewResult,
-    "Nao foi possivel carregar a leitura inteligente desta analise agora.",
+    "Nao foi possivel carregar o apoio de leitura desta analise agora.",
   );
   footerAudit = readSettledValue(footerAuditResult, null);
   footerAuditLoadError = readSettledError(
@@ -199,7 +199,7 @@ export default async function AnalysisResultPage({
   drawingLists = readSettledValue(drawingListsResult, null);
   drawingListsLoadError = readSettledError(
     drawingListsResult,
-    "Nao foi possivel carregar as Listas de Documentos desta analise agora.",
+    "Nao foi possivel carregar a lista de documentos desta analise agora.",
   );
   detectedSheets = readSettledValue(detectedSheetsResult, null);
   detectedSheetsLoadError = readSettledError(
@@ -209,7 +209,7 @@ export default async function AnalysisResultPage({
   ldSheetCrosscheck = readSettledValue(ldSheetCrosscheckResult, null);
   ldSheetCrosscheckLoadError = readSettledError(
     ldSheetCrosscheckResult,
-    "Nao foi possivel carregar o cruzamento LD x Pranchas desta analise agora.",
+    "Nao foi possivel carregar a comparacao entre lista e pranchas desta analise agora.",
   );
   memorialAudit = readSettledValue(memorialAuditResult, null);
   memorialAuditLoadError = readSettledError(
@@ -219,7 +219,7 @@ export default async function AnalysisResultPage({
   modeOutput = readSettledValue(modeOutputResult, null);
   modeOutputLoadError = readSettledError(
     modeOutputResult,
-    "Nao foi possivel carregar a saida dirigida desta analise agora.",
+    "Nao foi possivel carregar o resultado da busca ou conferencia desta analise agora.",
   );
 
   const relevantCount =
@@ -273,30 +273,29 @@ export default async function AnalysisResultPage({
               </div>
             ) : null}
           </section>
-          <section id="resumo">
-            <PackageSummaryPanel
-              summary={packageSummary}
-              loadError={packageSummaryLoadError}
+          <section id="pontos">
+            <IssueList
+              analysisId={analysisId}
+              issues={issues}
+              loadError={issuesLoadError}
+              status={analysis.status}
             />
           </section>
-          <section id="mapa">
-            <PackageMapPanel map={packageMap} loadError={packageMapLoadError} />
-          </section>
-          <section id="paginas">
-            <PageMapPanel map={pageMap} loadError={pageMapLoadError} />
-          </section>
-          <section id="leitura">
-            <AiReviewPanel review={aiReview} loadError={aiReviewLoadError} />
-          </section>
           {isDirectedMode ? (
-            <section id="modo-dirigido">
+            <section id="busca">
               <DirectedModePanel
                 output={modeOutput}
                 loadError={modeOutputLoadError}
               />
             </section>
           ) : null}
-          <section id="ld">
+          <section id="resumo">
+            <PackageSummaryPanel
+              summary={packageSummary}
+              loadError={packageSummaryLoadError}
+            />
+          </section>
+          <section id="lista-pranchas">
             <LdSheetCrosscheckPanel
               crosscheck={ldSheetCrosscheck}
               loadError={ldSheetCrosscheckLoadError}
@@ -314,7 +313,7 @@ export default async function AnalysisResultPage({
               loadError={footerAuditLoadError}
             />
           </section>
-          <section id="detalhes" className="grid gap-5">
+          <section id="listas-pranchas" className="grid gap-5">
             <DrawingListPanel
               drawingLists={drawingLists}
               loadError={drawingListsLoadError}
@@ -324,13 +323,16 @@ export default async function AnalysisResultPage({
               loadError={detectedSheetsLoadError}
             />
           </section>
-          <section id="evidencias" className="grid gap-5">
-            <IssueList
-              analysisId={analysisId}
-              issues={issues}
-              loadError={issuesLoadError}
-              status={analysis.status}
-            />
+          <section id="organizacao">
+            <PackageMapPanel map={packageMap} loadError={packageMapLoadError} />
+          </section>
+          <section id="paginas">
+            <PageMapPanel map={pageMap} loadError={pageMapLoadError} />
+          </section>
+          <section id="leitura">
+            <AiReviewPanel review={aiReview} loadError={aiReviewLoadError} />
+          </section>
+          <section id="evidencias">
             <ExtractedFieldList fields={fields} loadError={fieldsLoadError} />
           </section>
         </div>
@@ -367,28 +369,29 @@ function ExecutiveSummary({
 
 function ResultNavigation({ isDirectedMode }: { isDirectedMode: boolean }) {
   const links = [
-    ["#fechamento", "Fechamento"],
-    ["#encerramento", "Sign-off"],
-    ["#resumo", "Resumo"],
-    ["#mapa", "Mapa"],
-    ["#paginas", "Paginas"],
-    ["#leitura", "Leitura"],
-    ["#modo-dirigido", "Modo dirigido"],
-    ["#ld", "LD x Pranchas"],
+    ["#fechamento", "Resumo final"],
+    ["#encerramento", "Conclusao final"],
+    ["#pontos", "Pontos encontrados"],
+    ["#busca", "Busca ou conferencia"],
+    ["#resumo", "Visao do pacote"],
+    ["#lista-pranchas", "Lista e pranchas"],
     ["#memoriais", "Memoriais"],
     ["#rodapes", "Rodapes"],
-    ["#detalhes", "Detalhes"],
-    ["#evidencias", "Evidencias"],
+    ["#listas-pranchas", "Listas e pranchas"],
+    ["#organizacao", "Organizacao dos arquivos"],
+    ["#paginas", "Tipos de pagina"],
+    ["#leitura", "Apoio de leitura"],
+    ["#evidencias", "Trechos separados"],
   ];
 
   return (
     <aside className="hidden self-start rounded-lg border border-[var(--cp-border)] bg-black/12 p-3 lg:sticky lg:top-24 lg:block">
       <p className="px-2 pb-3 text-xs uppercase tracking-[0.2em] text-[var(--cp-accent)]">
-        Resultado
+        Navegacao
       </p>
       <nav className="grid gap-1">
         {links
-          .filter(([href]) => href !== "#modo-dirigido" || isDirectedMode)
+          .filter(([href]) => href !== "#busca" || isDirectedMode)
           .map(([href, label]) => (
           <a
             key={href}
@@ -426,7 +429,7 @@ function buildExecutiveMetrics({
         .padStart(2, "0"),
     },
     {
-      label: "Revisar",
+      label: "A revisar",
       tone:
         (auditSummary?.metrics.attention_count ?? 0) +
           (auditSummary?.metrics.pending_review_count ?? 0) >
@@ -445,7 +448,7 @@ function buildExecutiveMetrics({
       value: (detectedSheets?.stats.sheet_count ?? 0).toString().padStart(2, "0"),
     },
     {
-      label: "Pacote",
+      label: "Arquivos e dados",
       tone: "muted",
       value: `${packageSummary?.stats.document_count ?? 0} pdf / ${drawingLists?.stats.row_count ?? 0} LD / ${fields.length} campos`,
     },

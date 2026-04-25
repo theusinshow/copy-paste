@@ -20,14 +20,14 @@ export function DirectedModePanel({
     >
       <div className="border-b border-[var(--cp-border)] pb-5">
         <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-          Modo dirigido
+          Busca ou conferencia
         </p>
         <h2 className="mt-2 text-2xl font-semibold text-[var(--cp-text)]">
-          Saida operacional da analise configurada.
+          Resultado da busca ou da conferencia escolhida.
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--cp-muted)]">
-          Esta secao consolida busca textual, busca e substituicao ou verificacao
-          pontual sem alterar o PDF original.
+          Esta secao mostra a busca textual, a sugestao de troca de texto ou a
+          conferencia pontual sem alterar o PDF original.
         </p>
       </div>
 

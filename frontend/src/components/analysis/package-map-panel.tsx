@@ -14,18 +14,18 @@ export function PackageMapPanel({ loadError, map }: PackageMapPanelProps) {
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
-            Mapa do pacote
+            Organizacao dos arquivos
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Documentos, secoes internas e contexto.
+            Como o sistema separou cada PDF por parte interna.
           </h2>
         </div>
 
         {map ? (
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-            <Metric label="Docs" value={map.stats.document_count} />
-            <Metric label="Secoes" value={map.stats.section_count} />
-            <Metric label="LDs" value={map.stats.ld_section_count} />
+            <Metric label="Arquivos" value={map.stats.document_count} />
+            <Metric label="Partes" value={map.stats.section_count} />
+            <Metric label="Listas" value={map.stats.ld_section_count} />
             <Metric label="Pranchas" value={map.stats.sheet_count} />
           </div>
         ) : null}
@@ -41,7 +41,7 @@ export function PackageMapPanel({ loadError, map }: PackageMapPanelProps) {
         <div className="mt-5 grid gap-4">
           {map.documents.length === 0 ? (
             <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
-              Nenhum documento foi mapeado nesta analise.
+              Nenhum arquivo foi organizado automaticamente nesta analise.
             </div>
           ) : (
             map.documents.map((document) => (
@@ -62,7 +62,7 @@ export function PackageMapPanel({ loadError, map }: PackageMapPanelProps) {
                     </p>
                   </div>
                   <p className="text-xs uppercase tracking-[0.16em] text-[var(--cp-muted)]">
-                    {document.page_count} paginas · {document.sections.length} secao(oes)
+                    {document.page_count} paginas · {document.sections.length} parte(s)
                   </p>
                 </div>
 
@@ -79,11 +79,11 @@ export function PackageMapPanel({ loadError, map }: PackageMapPanelProps) {
                         <p className="mt-1 text-xs text-[var(--cp-muted)]">
                           {section.section_label} ·{" "}
                           paginas {section.start_page}-{section.end_page}
-                          {section.ld_page ? ` · LD p${section.ld_page}` : " · sem LD"}
+                          {section.ld_page ? ` · lista p${section.ld_page}` : " · sem lista"}
                         </p>
-                        <CodeList codes={section.ld_codes} emptyLabel="Sem codigos de LD" />
+                        <CodeList codes={section.ld_codes} emptyLabel="Sem codigos listados" />
                       </div>
-                      <SmallStat label="Linhas LD" value={section.ld_row_count} />
+                      <SmallStat label="Itens da lista" value={section.ld_row_count} />
                       <SmallStat label="Pranchas" value={section.sheet_count} />
                     </div>
                   ))}

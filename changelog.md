@@ -68,6 +68,8 @@
 - Contrato inicial de `analysis_mode` e `config` em `AnalysisRun`, com suporte a `full_check`, modos por documento, busca textual e verificacoes pontuais
 
 ### Changed
+- Pagina inicial agora abre a criacao de analise a partir de um hero com CTA, revela o upload so depois do inicio e organiza o formulario em etapas mais claras para revisao principal, busca textual, verificacao pontual e tipo de arquivo.
+- Tela de resultado reorganizada para usuario leigo, com navegacao renomeada, secoes decisorias no topo e paineis tecnicos reescritos com linguagem mais clara sobre pacote, listas, pranchas, memoriais e trechos separados.
 - Relatorio de exportacao agora aceita `md` e `html`, incorpora sign-off humano quando existir e inclui a saida dos modos dirigidos.
 - Tela de resultado agora ganhou secao de encerramento formal e navegacao dedicada para modo dirigido quando a analise usa configuracao dirigida.
 - Lista de issues agora prioriza pendencias e conflitos na navegacao de revisao operacional, com foco sequencial entre cards.
@@ -107,6 +109,8 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Leitura do selo das pranchas agora remove metadados administrativos como data, disciplina e arquivo, recupera melhor titulos proximos ao marcador de disciplina e reduz falso positivo no cruzamento entre lista e prancha quando o carimbo nao traz descricao util.
+- Backend voltou a iniciar com a rota de exportacao habilitada, desativando o `response_model` implicito de um retorno `PlainTextResponse | HTMLResponse` que quebrava o startup do FastAPI.
 - Fechamento executivo agora nao trata issue relevante sem revisao como conflito ativo confirmado; ela permanece pendente ate decisao humana.
 - Decisao `sem_evidencia` agora move a issue para estado inconclusivo e alimenta corretamente o status `analise incompleta por falta de evidencia`.
 - Tela de resultado agora carrega os paineis de forma independente para evitar falha total quando um endpoint isolado nao responde.

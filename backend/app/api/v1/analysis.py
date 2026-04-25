@@ -533,7 +533,7 @@ def get_analysis_mode_output(
     )
 
 
-@router.get("/{analysis_id}/export")
+@router.get("/{analysis_id}/export", response_model=None)
 def export_analysis(
     analysis_id: int,
     session: DbSession,

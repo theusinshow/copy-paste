@@ -17,17 +17,17 @@ export function DrawingListPanel({
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-            Listas de documentos
+            Lista de documentos
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Linhas de LD detectadas.
+            Itens encontrados na lista enviada.
           </h2>
         </div>
 
         {drawingLists ? (
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <Metric label="LDs" value={drawingLists.stats.document_count} />
-            <Metric label="Linhas" value={drawingLists.stats.row_count} />
+            <Metric label="Arquivos" value={drawingLists.stats.document_count} />
+            <Metric label="Itens" value={drawingLists.stats.row_count} />
             <Metric label="Alertas" value={drawingLists.stats.alert_count} />
           </div>
         ) : null}
@@ -44,7 +44,7 @@ export function DrawingListPanel({
           <AlertList drawingLists={drawingLists} />
           {drawingLists.lists.length === 0 ? (
             <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
-              Nenhuma linha de Lista de Documentos foi detectada nesta analise.
+              Nenhum item de lista foi detectado nesta analise.
             </div>
           ) : (
             drawingLists.lists.map((list) => (
@@ -105,7 +105,7 @@ function AlertList({ drawingLists }: { drawingLists: DrawingLists }) {
   if (drawingLists.alerts.length === 0) {
     return (
       <div className="rounded-lg border border-[var(--cp-success)]/30 bg-[var(--cp-success)]/10 p-4 text-sm text-[var(--cp-text)]">
-        Nenhum alerta inicial foi detectado no cruzamento das LDs.
+        Nenhum alerta inicial foi detectado ao ler as listas de documentos.
       </div>
     );
   }

@@ -43,7 +43,7 @@ export function AnalysisUploadDropzone({
           setIsDragging(false);
           onFilesChange(mergeFiles(files, Array.from(event.dataTransfer.files)));
         }}
-        className={`rounded-lg border border-dashed p-5 transition-colors sm:p-6 ${
+        className={`rounded-[1.5rem] border border-dashed p-5 transition-colors sm:p-6 ${
           isDragging
             ? "border-[var(--cp-accent)] bg-[var(--cp-accent)]/10"
             : "border-[var(--cp-border)] bg-black/10 hover:border-[var(--cp-accent)]/40"
@@ -63,13 +63,14 @@ export function AnalysisUploadDropzone({
 
         <div className="grid gap-2">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--cp-accent)]">
-            Arquivos
+            Etapa 1
           </p>
           <h3 className="text-xl font-semibold text-[var(--cp-text)] sm:text-2xl">
-            Arraste PDFs ou clique para selecionar.
+            Arraste os PDFs aqui ou clique para selecionar.
           </h3>
           <p className="max-w-2xl text-sm leading-6 text-[var(--cp-muted)]">
-            Envie um ou mais PDFs do volume ou pacote a revisar.
+            Envie um ou mais arquivos para iniciar a revisao. Voce pode montar
+            um pacote completo ou mandar apenas o material que quer conferir.
           </p>
         </div>
       </div>

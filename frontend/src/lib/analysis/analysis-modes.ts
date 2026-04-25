@@ -38,133 +38,139 @@ export type AnalysisModeGroup = {
 
 export type AnalysisModeConfigValues = Record<string, string>;
 
-const modeDefinitions: AnalysisModeDefinition[] = [
+export const ANALYSIS_MODE_DEFINITIONS: AnalysisModeDefinition[] = [
   {
     configFields: [],
-    description: "Executa o fluxo completo atual com extracao, regras e issues.",
+    description: "Revisa o pacote completo e junta os principais cruzamentos e alertas.",
     group: "Auditoria completa",
-    helper: "Mantem o comportamento atual do sistema.",
+    helper: "Recomendado quando voce quer uma leitura geral do material enviado.",
     label: "Analise completa",
     value: "full_check",
   },
   {
     configFields: [],
-    description: "Recorta a avaliacao para documentos classificados como memorial.",
+    description: "Foca a leitura apenas nos memoriais enviados.",
     group: "Recorte por documento",
-    helper: "Usa o tipo do documento para focar o processamento no memorial.",
-    label: "So memorial",
+    helper: "Bom para conferir dados textuais e identidade do memorial.",
+    label: "Analise de memorial",
     lockedTipo: "memorial",
     value: "memorial_only",
   },
   {
     configFields: [],
-    description: "Recorta a avaliacao para pranchas e plantas.",
+    description: "Foca a leitura apenas em pranchas e plantas.",
     group: "Recorte por documento",
-    helper: "Ideal para cargas concentradas em pranchas.",
-    label: "So pranchas",
+    helper: "Use quando o material principal do pacote estiver nas pranchas.",
+    label: "Analise de pranchas",
     lockedTipo: "prancha",
     value: "sheets_only",
   },
   {
     configFields: [],
-    description: "Recorta a avaliacao para arquivos classificados como LD.",
+    description: "Foca a leitura na lista de documentos enviada.",
     group: "Recorte por documento",
-    helper: "Mantem o pipeline focado apenas em LD.",
-    label: "So LD",
+    helper: "Use quando o foco principal estiver na lista de documentos.",
+    label: "Lista de documentos (LD)",
     lockedTipo: "ld",
     value: "ld_only",
   },
   {
     configFields: [
       {
-        description: "Texto literal que deve ser encontrado no PDF.",
+        description: "Texto exato que voce quer localizar nos arquivos enviados.",
         key: "query",
         label: "Texto a buscar",
         placeholder: "Ex.: concreto",
       },
     ],
-    description: "Prepara a analise para localizar um texto especifico na base enviada.",
+    description: "Procura um texto especifico nos PDFs enviados.",
     group: "Busca textual",
-    helper: "Armazena a consulta no contrato da analise.",
+    helper: "Use quando voce quer localizar uma palavra, frase ou termo tecnico.",
     label: "Buscar texto",
     value: "find_text",
   },
   {
     configFields: [
       {
-        description: "Texto original a localizar.",
+        description: "Texto original que deve ser localizado.",
         key: "find",
         label: "Buscar",
         placeholder: "Ex.: Rua antiga",
       },
       {
-        description: "Texto de substituicao pretendido.",
+        description: "Texto que voce gostaria de colocar no lugar.",
         key: "replace",
         label: "Substituir por",
         placeholder: "Ex.: Avenida nova",
       },
     ],
-    description: "Configura uma verificacao dirigida de busca e substituicao.",
+    description: "Lista onde um texto aparece e mostra a substituicao desejada sem alterar o PDF.",
     group: "Busca textual",
-    helper: "Mantem a dupla buscar/substituir registrada na analise.",
+    helper: "Bom para revisar trocas de endereco, nomes ou termos repetidos.",
     label: "Buscar e substituir",
     value: "find_replace",
   },
   {
     configFields: [
       {
-        description: "Endereco esperado para comparacoes futuras.",
+        description: "Valor esperado para comparar com o que for lido nos arquivos.",
         key: "expected",
         label: "Endereco esperado",
         placeholder: "Ex.: Rua das Flores, 120",
       },
     ],
-    description: "Configura uma verificacao pontual do endereco.",
+    description: "Compara o endereco encontrado com o endereco informado por voce.",
     group: "Verificacao pontual",
-    helper: "Preserva o valor esperado na configuracao da analise.",
+    helper: "Use quando voce quer checar um endereco especifico.",
     label: "Checar endereco",
     value: "check_address",
   },
   {
     configFields: [
       {
-        description: "Numero de projeto esperado para comparacoes futuras.",
+        description: "Valor esperado para comparar com o que for lido nos arquivos.",
         key: "expected",
         label: "Numero esperado",
         placeholder: "Ex.: 24-1087",
       },
     ],
-    description: "Configura uma verificacao pontual do numero do projeto.",
+    description: "Compara o numero do projeto encontrado com o numero informado por voce.",
     group: "Verificacao pontual",
-    helper: "Preserva o numero esperado na configuracao da analise.",
+    helper: "Use quando voce quer validar um numero de projeto especifico.",
     label: "Checar numero do projeto",
     value: "check_project_number",
   },
   {
     configFields: [
       {
-        description: "Nome da obra esperado para comparacoes futuras.",
+        description: "Valor esperado para comparar com o que for lido nos arquivos.",
         key: "expected",
         label: "Nome esperado",
         placeholder: "Ex.: Estacao Central",
       },
     ],
-    description: "Configura uma verificacao pontual do nome da obra.",
+    description: "Compara o nome da obra encontrado com o nome informado por voce.",
     group: "Verificacao pontual",
-    helper: "Preserva o nome esperado na configuracao da analise.",
+    helper: "Use quando voce quer validar o nome oficial da obra.",
     label: "Checar nome da obra",
     value: "check_work_name",
   },
 ];
 
-export const ANALYSIS_MODE_GROUPS: AnalysisModeGroup[] = buildGroups(modeDefinitions);
+export const ANALYSIS_MODE_GROUPS: AnalysisModeGroup[] = buildGroups(
+  ANALYSIS_MODE_DEFINITIONS,
+);
 
 const modeDefinitionMap = Object.fromEntries(
-  modeDefinitions.map((definition) => [definition.value, definition]),
+  ANALYSIS_MODE_DEFINITIONS.map((definition) => [definition.value, definition]),
 ) as Record<AnalysisMode, AnalysisModeDefinition>;
 
 export function getAnalysisModeDefinition(mode: AnalysisMode) {
   return modeDefinitionMap[mode];
+}
+
+export function getAnalysisModeDefinitions(modes: AnalysisMode[]) {
+  return modes.map((mode) => getAnalysisModeDefinition(mode));
 }
 
 export function getAnalysisModeLabel(mode: AnalysisMode | string) {
@@ -253,10 +259,10 @@ function buildGroups(definitions: AnalysisModeDefinition[]) {
 
 function getGroupDescription(group: string) {
   const descriptions: Record<string, string> = {
-    "Auditoria completa": "Fluxo atual completo do produto.",
-    "Busca textual": "Modos guiados por texto configurado na analise.",
-    "Recorte por documento": "Foco em um subconjunto de documentos da carga.",
-    "Verificacao pontual": "Analises com um valor esperado explicito.",
+    "Auditoria completa": "Fluxo geral para revisar o pacote como um todo.",
+    "Busca textual": "Opcoes para localizar texto ou revisar uma troca de texto.",
+    "Recorte por documento": "Opcoes para focar a leitura em um tipo especifico de arquivo.",
+    "Verificacao pontual": "Opcoes para comparar um valor esperado com o que for encontrado.",
   };
 
   return descriptions[group] ?? "Grupo tecnico de configuracao da analise.";

@@ -16,10 +16,10 @@ export function ExtractedFieldList({
     >
       <div className="border-b border-[var(--cp-border)] pb-5">
         <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-          Campos extraidos
+          Trechos separados
         </p>
         <h2 className="mt-3 text-2xl font-semibold text-[var(--cp-text)]">
-          Evidencias que entraram na verificacao.
+          Dados que ajudaram a montar a revisao.
         </h2>
       </div>
 
@@ -31,8 +31,8 @@ export function ExtractedFieldList({
 
       {!loadError && fields.length === 0 ? (
         <div className="mt-5 rounded-lg border border-[var(--cp-border)] bg-black/10 p-5 text-sm leading-6 text-[var(--cp-muted)]">
-          Nenhum campo conhecido foi extraido. Sem campo extraido, o rules engine
-          nao gera incongruencia porque toda issue precisa de evidencia.
+          Nenhum dado conhecido foi separado automaticamente. Quando isso
+          acontece, a analise evita criar alerta sem evidencia suficiente.
         </div>
       ) : null}
 

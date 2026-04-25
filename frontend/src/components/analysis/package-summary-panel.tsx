@@ -17,10 +17,10 @@ export function PackageSummaryPanel({
       <div className="flex flex-col gap-5 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-            Resumo do pacote
+            Visao do pacote
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Identidade e estrutura detectadas.
+            O que foi identificado nos PDFs enviados.
           </h2>
         </div>
 
@@ -29,7 +29,7 @@ export function PackageSummaryPanel({
             <SummaryMetric label="PDFs" value={summary.stats.document_count} />
             <SummaryMetric label="Paginas" value={summary.stats.page_count} />
             <SummaryMetric label="Volumes" value={summary.stats.volume_count} />
-            <SummaryMetric label="LDs" value={summary.stats.ld_count} />
+            <SummaryMetric label="Listas" value={summary.stats.ld_count} />
           </div>
         ) : null}
       </div>
@@ -105,10 +105,10 @@ function DocumentTable({ summary }: { summary: PackageSummary }) {
   return (
     <div className="overflow-hidden rounded-lg border border-[var(--cp-border)]">
       <div className="hidden grid-cols-[minmax(0,1fr)_90px_90px_90px] gap-3 bg-black/20 px-4 py-3 text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)] md:grid">
-        <span>Documento</span>
+        <span>Arquivo</span>
         <span>Volume</span>
         <span>Paginas</span>
-        <span>LD</span>
+        <span>Lista</span>
       </div>
       <div className="divide-y divide-[var(--cp-border)]">
         {summary.documents.map((document) => (
@@ -131,7 +131,7 @@ function DocumentTable({ summary }: { summary: PackageSummary }) {
             <span className="text-[var(--cp-muted)] before:mr-2 before:text-xs before:uppercase before:tracking-[0.18em] before:content-['Paginas'] md:before:content-none">
               {document.page_count}
             </span>
-            <span className="text-[var(--cp-muted)] before:mr-2 before:text-xs before:uppercase before:tracking-[0.18em] before:content-['LD'] md:before:content-none">
+            <span className="text-[var(--cp-muted)] before:mr-2 before:text-xs before:uppercase before:tracking-[0.18em] before:content-['Lista'] md:before:content-none">
               {document.ld_pages.length > 0
                 ? document.ld_pages.map((page) => `p${page}`).join(", ")
                 : "-"}
@@ -147,7 +147,7 @@ function AlertList({ summary }: { summary: PackageSummary }) {
   if (summary.alerts.length === 0) {
     return (
       <div className="rounded-lg border border-[var(--cp-success)]/30 bg-[var(--cp-success)]/10 p-4 text-sm text-[var(--cp-text)]">
-        Nenhum ponto de atencao inicial foi detectado no resumo do pacote.
+        Nenhum ponto de atencao inicial foi detectado na leitura geral do pacote.
       </div>
     );
   }

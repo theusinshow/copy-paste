@@ -14,10 +14,10 @@ export function FooterAuditPanel({ audit, loadError }: FooterAuditPanelProps) {
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
-            Rodapes
+            Conferencia do rodape
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Conferencia de identidade nos rodapes.
+            Comparacao dos numeros de projeto lidos no rodape.
           </h2>
         </div>
 
@@ -89,9 +89,9 @@ function OccurrenceSummary({ audit }: { audit: FooterAudit }) {
   }
 
   return (
-    <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
+      <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
       <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-        Valores encontrados
+        Numeros encontrados
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         {[...counts.entries()].map(([value, count]) => (

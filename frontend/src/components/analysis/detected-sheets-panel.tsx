@@ -17,10 +17,10 @@ export function DetectedSheetsPanel({
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-            Pranchas detectadas
+            Pranchas encontradas
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Codigos encontrados fora das LDs.
+            Codigos e descricoes lidos nas pranchas do pacote.
           </h2>
         </div>
 
@@ -42,7 +42,7 @@ export function DetectedSheetsPanel({
         <div className="mt-6 grid gap-5">
           {detectedSheets.documents.length === 0 ? (
             <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
-              Nenhum codigo de prancha foi detectado fora das Listas de Documentos.
+              Nenhuma prancha foi detectada fora das paginas de lista.
             </div>
           ) : (
             detectedSheets.documents.map((document) => (
@@ -63,7 +63,7 @@ export function DetectedSheetsPanel({
                   <span>Codigo</span>
                   <span>Folha</span>
                   <span>Pagina</span>
-                  <span>Descricao proxima</span>
+                  <span>Descricao lida</span>
                 </div>
                 <div className="divide-y divide-[var(--cp-border)]">
                   {document.sheets.map((sheet) => (

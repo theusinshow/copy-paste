@@ -11,12 +11,42 @@ import { FormSubmitButton } from "@/components/analysis/form-submit-button";
 import {
   ANALYSIS_MODE_DEFAULT,
   buildAnalysisModeConfig,
+  getAnalysisModeDefinition,
+  getAnalysisModeDefinitions,
   getInitialConfigValues,
   getLockedTipoForMode,
   type AnalysisMode,
 } from "@/lib/analysis/analysis-modes";
 import { runNewAnalysisFlow } from "@/lib/analysis/run-new-analysis-flow";
 import { initialNewAnalysisActionState } from "@/lib/types/new-analysis-action";
+
+const TIPO_OPTIONS = [
+  {
+    description: "Quando voce esta enviando um conjunto com tipos mistos de PDF.",
+    label: "Pacote misto",
+    value: "pacote",
+  },
+  {
+    description: "Quando todos os arquivos enviados forem memoriais.",
+    label: "Memorial",
+    value: "memorial",
+  },
+  {
+    description: "Quando os arquivos enviados forem pranchas ou plantas.",
+    label: "Pranchas",
+    value: "prancha",
+  },
+  {
+    description: "Quando o envio trouxer apenas a lista de documentos.",
+    label: "Lista de documentos",
+    value: "ld",
+  },
+  {
+    description: "Use apenas se nenhuma das opcoes acima servir.",
+    label: "Outro",
+    value: "outro",
+  },
+] as const;
 
 export function NewAnalysisForm() {
   const router = useRouter();
@@ -27,8 +57,24 @@ export function NewAnalysisForm() {
     getInitialConfigValues(ANALYSIS_MODE_DEFAULT),
   );
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [manualTipo, setManualTipo] = useState("");
+  const [selectedTipoOption, setSelectedTipoOption] = useState("pacote");
+  const [customTipo, setCustomTipo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const lockedTipo = getLockedTipoForMode(selectedMode);
+  const selectedDefinition = getAnalysisModeDefinition(selectedMode);
+  const primaryModes = getAnalysisModeDefinitions([
+    "full_check",
+    "memorial_only",
+    "sheets_only",
+    "ld_only",
+  ]);
+  const textModes = getAnalysisModeDefinitions(["find_text", "find_replace"]);
+  const pointCheckModes = getAnalysisModeDefinitions([
+    "check_address",
+    "check_project_number",
+    "check_work_name",
+  ]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,7 +82,11 @@ export function NewAnalysisForm() {
       return;
     }
 
-    const tipo = getLockedTipoForMode(selectedMode) ?? manualTipo.trim();
+    const tipo =
+      lockedTipo ??
+      (selectedTipoOption === "outro"
+        ? customTipo.trim()
+        : selectedTipoOption.trim());
     const { config, error: configError } = buildAnalysisModeConfig(
       selectedMode,
       configValues,
@@ -55,7 +105,7 @@ export function NewAnalysisForm() {
     if (!tipo) {
       setState({
         ...initialNewAnalysisActionState,
-        message: "Informe o tipo aplicado aos PDFs desta analise.",
+        message: "Explique que tipo de arquivo esta sendo enviado.",
         status: "failed",
         tone: "error",
       });
@@ -92,9 +142,14 @@ export function NewAnalysisForm() {
     }
   }
 
+  function handleModeSelect(mode: AnalysisMode) {
+    setSelectedMode(mode);
+    setConfigValues(getInitialConfigValues(mode));
+  }
+
   return (
     <section
-      className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel)]/92 p-4 sm:p-5"
+      className="rounded-[1.75rem] border border-[var(--cp-border)] bg-[var(--cp-panel)]/92 p-4 sm:p-5"
       style={{ boxShadow: "var(--cp-shadow)" }}
     >
       <form onSubmit={handleSubmit} className="grid gap-5">
@@ -107,74 +162,145 @@ export function NewAnalysisForm() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--cp-accent)]">
-                Verificacao
+                Etapa 2
               </p>
               <h2 className="mt-2 text-lg font-semibold text-[var(--cp-text)]">
-                Defina o escopo da analise.
+                Escolha como voce quer revisar os arquivos.
               </h2>
             </div>
-            <p className="max-w-xs text-sm leading-6 text-[var(--cp-muted)]">
-              Use analise completa para pacotes; use modos dirigidos para conferir
-              um campo especifico.
+            <p className="max-w-sm text-sm leading-6 text-[var(--cp-muted)]">
+              Voce escolhe um modo por vez. O card selecionado define a analise
+              que sera criada agora.
             </p>
           </div>
 
           <AnalysisModeSelector
+            title="Revisao principal"
+            description="Escolha uma opcao para revisar o pacote inteiro ou focar em um tipo especifico de arquivo."
+            modes={primaryModes}
             selectedMode={selectedMode}
-            onSelect={(mode) => {
-              setSelectedMode(mode);
-              setConfigValues(getInitialConfigValues(mode));
-            }}
+            onSelect={handleModeSelect}
           />
 
-          <AnalysisModeConfigPanel
+          <AnalysisModeSelector
+            title="Busca textual"
+            description="Se voce quer localizar um texto ou revisar uma substituicao, escolha uma das opcoes abaixo."
+            modes={textModes}
             selectedMode={selectedMode}
-            configValues={configValues}
-            onChange={(fieldKey, value) => {
-              setConfigValues((currentValues) => ({
-                ...currentValues,
-                [fieldKey]: value,
-              }));
-            }}
+            onSelect={handleModeSelect}
           />
-        </section>
 
-        <div className="grid gap-2 rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
-          <label
-            htmlFor="tipo"
-            className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--cp-muted)]"
-          >
-            Tipo aplicado aos arquivos
-          </label>
-          {getLockedTipoForMode(selectedMode) ? (
-            <input
-              id="tipo"
-              value={getLockedTipoForMode(selectedMode) ?? ""}
-              readOnly
-              className="w-full rounded-lg border border-[var(--cp-border)] bg-white/6 px-4 py-3 text-sm text-[var(--cp-text)] outline-none"
+          <AnalysisModeSelector
+            title="Verificacao pontual"
+            description="Use estas opcoes quando voce ja sabe qual valor quer conferir nos arquivos."
+            modes={pointCheckModes}
+            selectedMode={selectedMode}
+            onSelect={handleModeSelect}
+          />
+
+          {selectedDefinition.configFields.length > 0 ? (
+            <AnalysisModeConfigPanel
+              selectedMode={selectedMode}
+              configValues={configValues}
+              onChange={(fieldKey, value) => {
+                setConfigValues((currentValues) => ({
+                  ...currentValues,
+                  [fieldKey]: value,
+                }));
+              }}
             />
           ) : (
-            <input
-              id="tipo"
-              name="tipo"
-              type="text"
-              value={manualTipo}
-              onChange={(event) => setManualTipo(event.target.value)}
-              required
-              placeholder="Ex.: planta, memorial, levantamento"
-              className="w-full rounded-lg border border-[var(--cp-border)] bg-black/20 px-4 py-3 text-sm text-[var(--cp-text)] outline-none transition-colors placeholder:text-[var(--cp-muted)] focus:border-[var(--cp-accent)]"
-            />
+            <div className="rounded-[1.5rem] border border-[var(--cp-border)] bg-black/10 p-4 text-sm leading-7 text-[var(--cp-muted)]">
+              <span className="font-semibold text-[var(--cp-text)]">
+                Modo escolhido:
+              </span>{" "}
+              {selectedDefinition.label}. Esse modo nao precisa de nenhum
+              preenchimento extra.
+            </div>
           )}
+        </section>
+
+        <div className="grid gap-4 rounded-[1.5rem] border border-[var(--cp-border)] bg-black/10 p-4">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--cp-accent)]">
+              Etapa 3
+            </p>
+            <h2 className="text-lg font-semibold text-[var(--cp-text)]">
+              Como os arquivos devem ser tratados?
+            </h2>
+            <p className="text-sm leading-6 text-[var(--cp-muted)]">
+              Isso ajuda o sistema a entender o que voce esta enviando antes de
+              iniciar a leitura dos PDFs.
+            </p>
+          </div>
+
+          {lockedTipo ? (
+            <div className="rounded-xl border border-[var(--cp-accent)]/30 bg-[var(--cp-accent)]/10 p-4">
+              <p className="text-sm font-medium text-[var(--cp-text)]">
+                Neste modo, os arquivos serao tratados automaticamente como{" "}
+                <span className="text-[var(--cp-accent)]">
+                  {formatTipoLabel(lockedTipo)}
+                </span>
+                .
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              {TIPO_OPTIONS.map((option) => {
+                const isSelected = selectedTipoOption === option.value;
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setSelectedTipoOption(option.value)}
+                    className={`rounded-[1.1rem] border p-4 text-left transition-colors ${
+                      isSelected
+                        ? "border-[var(--cp-accent)] bg-[var(--cp-accent)]/12"
+                        : "border-[var(--cp-border)] bg-white/4 hover:border-[var(--cp-accent)]/40"
+                    }`}
+                  >
+                    <p className="text-sm font-semibold text-[var(--cp-text)]">
+                      {option.label}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-[var(--cp-muted)]">
+                      {option.description}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {!lockedTipo && selectedTipoOption === "outro" ? (
+            <label className="grid gap-2 text-sm text-[var(--cp-muted)]">
+              <span className="text-xs font-semibold uppercase tracking-[0.22em]">
+                Descreva o tipo dos arquivos
+              </span>
+              <input
+                value={customTipo}
+                onChange={(event) => setCustomTipo(event.target.value)}
+                placeholder="Ex.: levantamento, relatorio, conjunto misto"
+                className="w-full rounded-lg border border-[var(--cp-border)] bg-black/20 px-4 py-3 text-sm text-[var(--cp-text)] outline-none transition-colors placeholder:text-[var(--cp-muted)] focus:border-[var(--cp-accent)]"
+              />
+            </label>
+          ) : null}
+
           <p className="text-sm leading-6 text-[var(--cp-muted)]">
-            {getLockedTipoForMode(selectedMode)
-              ? "Este modo fixa automaticamente o tipo tecnico enviado ao backend."
-              : "O backend atual aplica este tipo a todos os PDFs enviados na mesma submissao."}
+            Tipo atual:{" "}
+            <span className="font-medium text-[var(--cp-text)]">
+              {formatTipoLabel(
+                lockedTipo ??
+                  (selectedTipoOption === "outro" ? customTipo || "outro" : selectedTipoOption),
+              )}
+            </span>
           </p>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--cp-border)] pt-5">
-          <p className="text-xs text-[var(--cp-muted)]">
-            PDFs nao sao mantidos permanentemente.
+          <p className="text-xs leading-6 text-[var(--cp-muted)]">
+            Os arquivos sao usados para a leitura da analise e nao ficam
+            guardados permanentemente.
           </p>
           <FormSubmitButton pending={isSubmitting} />
         </div>
@@ -183,4 +309,16 @@ export function NewAnalysisForm() {
       <AnalysisStartStatus state={state} />
     </section>
   );
+}
+
+function formatTipoLabel(value: string) {
+  const normalizedValue = value.trim().toLowerCase();
+  const labelMap: Record<string, string> = {
+    ld: "lista de documentos",
+    memorial: "memorial",
+    pacote: "pacote misto",
+    prancha: "pranchas",
+  };
+
+  return (labelMap[normalizedValue] ?? value) || "nao definido";
 }

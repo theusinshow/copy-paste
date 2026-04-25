@@ -14,10 +14,10 @@ export function AnalysisModeConfigPanel(props: {
   const definition = getAnalysisModeDefinition(props.selectedMode);
 
   return (
-    <section className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-5">
+    <section className="rounded-[1.5rem] border border-[var(--cp-border)] bg-black/10 p-5">
       <div className="space-y-2">
         <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
-          Configuracao do modo
+          Dados da verificacao
         </p>
         <h2 className="text-xl font-semibold text-[var(--cp-text)]">
           {definition.label}
@@ -29,8 +29,8 @@ export function AnalysisModeConfigPanel(props: {
 
       {definition.configFields.length === 0 ? (
         <div className="mt-5 rounded-lg border border-dashed border-[var(--cp-border)] bg-white/3 p-4 text-sm leading-6 text-[var(--cp-muted)]">
-          Este modo nao exige configuracao adicional. O contrato sera enviado
-          com config vazio e `analysis_mode = {definition.value}`.
+          Este modo nao exige nenhum preenchimento extra. Basta enviar os
+          arquivos e iniciar a analise.
         </div>
       ) : (
         <div className="mt-5 grid gap-4">

@@ -18,6 +18,46 @@ FULL_SHEET_ITEM_PATTERN = re.compile(r"\b\d{2}/\d{2}\b")
 PARTIAL_SHEET_ITEM_PATTERN = re.compile(r"\b(?P<number>\d{2})/\s*")
 SHEET_TOTAL_PATTERN = re.compile(r"\bARQUIVO:\s*(?P<total>\d{2})\b")
 WHITESPACE_PATTERN = re.compile(r"\s+")
+STAMP_DISCIPLINE_CODES = {
+    "ARQ",
+    "AUT",
+    "DRE",
+    "ELE",
+    "EST",
+    "FND",
+    "HID",
+    "INC",
+    "MEC",
+    "SAN",
+    "TEL",
+    "URB",
+}
+STAMP_NOISE_TOKENS = {
+    *STAMP_DISCIPLINE_CODES,
+    "ARQUIVO",
+    "DATA",
+    "DISC",
+    "DISCIPLINA",
+    "EMISSAO",
+    "ESCALA",
+    "RESP",
+    "RESPONSAVEL",
+    "REV",
+    "REVISAO",
+    "TECNICO",
+}
+STAMP_NOISE_TAIL_PATTERNS = (
+    re.compile(r"\bDATA\b.*$"),
+    re.compile(r"\bARQUIVO\s*:?\s*[A-Z0-9._/-]*\d[A-Z0-9._/-]*\b.*$"),
+    re.compile(r"\bDISC(?:IPLINA)?\s*:?\s*[A-Z]{2,5}\b.*$"),
+    re.compile(r"\bESCALA\s*:?\s*(?:\d+(?::\d+)?|S/E)\b.*$"),
+    re.compile(r"\bEMISSAO\b.*$"),
+    re.compile(r"\bREV(?:ISAO)?\s*:?\s*[A-Z0-9._/-]*\b.*$"),
+    re.compile(r"\bRESP(?:ONSAVEL)?(?:\s+TECNICO)?\b.*$"),
+)
+STAMP_DISCIPLINE_SUFFIX_PATTERN = re.compile(
+    rf"\b(?:{'|'.join(sorted(STAMP_DISCIPLINE_CODES))})\s+\d{{2}}/\d{{2}}\b.*$"
+)
 
 
 def build_detected_sheets(
@@ -202,23 +242,24 @@ def _clean_stamp_description(description: str | None) -> str | None:
         return None
 
     description = re.sub(r"\bDIREITOS AUTORAIS\b.*$", "", description)
-    description = re.sub(r"\bESCALA:\b.*$", "", description)
-    description = re.sub(r"\bDATA:\b.*$", "", description)
-    description = re.sub(r"\bARQUIVO:\b.*$", "", description)
-    description = re.sub(r"\bRESPONSAVEL TECNICO\b.*$", "", description)
-    description = re.sub(r"\bCLIENTE:\b.*$", "", description)
+    description = re.sub(r"\bP:\\.*$", "", description)
+    description = STAMP_DISCIPLINE_SUFFIX_PATTERN.sub("", description)
+    for pattern in STAMP_NOISE_TAIL_PATTERNS:
+        description = pattern.sub("", description)
     description = re.sub(r"^\d+\s+", "", description)
     description = re.sub(r"\s+\d+$", "", description)
     description = description.strip(" |:-")
 
     if not description or "DIREITOS AUTORAIS" in description:
         return None
+    if not _has_meaningful_stamp_description(description):
+        return None
     return description[:160]
 
 
 def _extract_discipline_code(code: str) -> str | None:
     parts = code.replace("-", "_").split("_")
-    return parts[-2] if len(parts) >= 4 else None
+    return parts[2] if len(parts) >= 4 else None
 
 
 def _keep_tail_words(value: str, max_words: int) -> str:
@@ -253,6 +294,16 @@ def _build_sheet_code_from_base(base_code: str, item: str | None) -> str | None:
         return None
 
     return "_".join([*base_parts[:-1], sheet_number.zfill(3), base_parts[-1]]).upper()
+
+
+def _has_meaningful_stamp_description(description: str) -> bool:
+    tokens = re.findall(r"[A-Z0-9]+", description)
+    meaningful_tokens = [
+        token
+        for token in tokens
+        if len(token) > 2 and not token.isdigit() and token not in STAMP_NOISE_TOKENS
+    ]
+    return len(meaningful_tokens) > 0
 
 
 def _normalize_text(value: str) -> str:

@@ -139,14 +139,14 @@ export function IssueList({
     >
       <div className="border-b border-[var(--cp-border)] pb-6">
         <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-          Resultado
+          Pontos encontrados
         </p>
         <h2 className="mt-2 text-2xl font-semibold text-[var(--cp-text)]">
-          Issues geradas pelo rules engine.
+          Itens que merecem atencao na revisao.
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--cp-muted)]">
-          A listagem mostra apenas a estrutura textual e a evidencia associada.
-          Viewer PDF e highlight visual continuam fora de escopo nesta etapa.
+          Cada card mostra o que foi encontrado, a evidencia principal e a
+          decisao humana registrada ate agora.
         </p>
       </div>
 
@@ -180,8 +180,8 @@ export function IssueList({
           </div>
 
           <p className="text-sm text-[var(--cp-muted)]">
-            Exibindo {visibleIssues.length} de {issues.length} issue(s) do rules
-            engine.
+            Exibindo {visibleIssues.length} de {issues.length} item(ns)
+            encontrados na revisao automatica.
           </p>
 
           <div className="flex flex-wrap items-center gap-2 rounded-[1.25rem] border border-[var(--cp-border)] bg-black/10 p-3">
@@ -240,12 +240,12 @@ export function IssueList({
         <div className="mt-6 rounded-[1.75rem] border border-[var(--cp-border)] bg-black/15 p-6">
           <p className="text-sm font-medium text-[var(--cp-text)]">
             {status === "completed"
-              ? "Nenhuma issue foi gerada para esta analise."
-              : "As issues aparecerao aqui quando a analise concluir o processamento."}
+              ? "Nenhum ponto de atencao foi apontado nesta analise."
+              : "Os pontos encontrados aparecerao aqui quando a analise terminar o processamento."}
           </p>
           <p className="mt-2 text-sm leading-6 text-[var(--cp-muted)]">
-            Enquanto isso, a visualizacao continua focada no status tecnico e
-            nas evidencias textuais quando elas existirem.
+            Enquanto isso, voce ainda pode acompanhar o andamento e os demais
+            blocos do resultado.
           </p>
         </div>
       ) : null}
@@ -253,11 +253,11 @@ export function IssueList({
       {!loadError && issues.length > 0 && visibleIssues.length === 0 ? (
         <div className="mt-6 rounded-[1.75rem] border border-[var(--cp-border)] bg-black/15 p-6">
           <p className="text-sm font-medium text-[var(--cp-text)]">
-            Nenhuma issue corresponde ao filtro selecionado.
+            Nenhum item corresponde ao filtro selecionado.
           </p>
           <p className="mt-2 text-sm leading-6 text-[var(--cp-muted)]">
-            Troque o filtro para revisar outra fila ou registre novas decisoes
-            humanas nas issues abaixo.
+            Troque o filtro para revisar outra fila ou continue registrando
+            decisoes humanas nos cards visiveis.
           </p>
         </div>
       ) : null}

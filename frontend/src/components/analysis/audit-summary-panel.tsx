@@ -20,14 +20,15 @@ export function AuditSummaryPanel({
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-3">
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-            Fechamento
+            Resumo final
           </p>
           <h2 className="text-2xl font-semibold text-[var(--cp-text)]">
-            Status final da auditoria do pacote.
+            O que o sistema concluiu sobre os arquivos.
           </h2>
           <p className="max-w-3xl text-sm leading-6 text-[var(--cp-muted)]">
-            O fechamento consolida rules engine, LD x pranchas, memoriais,
-            rodapes e as revisoes registradas nas issues.
+            Esse quadro junta o que foi encontrado nos arquivos, na lista de
+            documentos, nas pranchas, nos memoriais, nos rodapes e no que ja
+            foi revisado por uma pessoa.
           </p>
         </div>
 
@@ -39,7 +40,7 @@ export function AuditSummaryPanel({
               rel="noreferrer"
               className="inline-flex items-center justify-center rounded-lg border border-[var(--cp-border)] bg-black/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)]"
             >
-              Exportar MD
+              Baixar texto
             </a>
             <a
               href={buildApiUrl(`/api/v1/analysis/${analysisId}/export?format=html`)}
@@ -47,7 +48,7 @@ export function AuditSummaryPanel({
               rel="noreferrer"
               className="inline-flex items-center justify-center rounded-lg border border-[var(--cp-border)] bg-black/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)]"
             >
-              Exportar HTML
+              Versao para impressao
             </a>
           </div>
 
@@ -56,7 +57,7 @@ export function AuditSummaryPanel({
               className={`rounded-2xl border px-4 py-3 ${getToneClassName(summary.status.tone)}`}
             >
               <p className="text-[10px] uppercase tracking-[0.22em]">
-                Status final
+                Situacao geral
               </p>
               <p className="mt-2 text-lg font-semibold">{summary.status.label}</p>
             </div>
@@ -74,22 +75,22 @@ export function AuditSummaryPanel({
         <div className="mt-6 grid gap-6">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <SummaryMetric
-              label="Ativos"
+              label="Conflitos"
               tone={summary.metrics.relevant_count > 0 ? "danger" : "success"}
               value={summary.metrics.relevant_count.toString().padStart(2, "0")}
             />
             <SummaryMetric
-              label="Revisar"
+              label="Atencao"
               tone={summary.metrics.attention_count > 0 ? "warning" : "success"}
               value={summary.metrics.attention_count.toString().padStart(2, "0")}
             />
             <SummaryMetric
-              label="Pendentes"
+              label="Aguardando revisao"
               tone={summary.metrics.pending_review_count > 0 ? "muted" : "success"}
               value={summary.metrics.pending_review_count.toString().padStart(2, "0")}
             />
             <SummaryMetric
-              label="Encerradas"
+              label="Concluidos"
               tone={
                 summary.metrics.resolved_issue_count +
                   summary.metrics.dismissed_issue_count >
@@ -108,7 +109,7 @@ export function AuditSummaryPanel({
 
           <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-              Resumo executivo
+              Leitura rapida
             </p>
             <p className="mt-3 text-sm leading-7 text-[var(--cp-text)]">
               {summary.status.summary}
@@ -138,12 +139,12 @@ export function AuditSummaryPanel({
                       {source.label}
                     </p>
                     <p className="mt-2 text-lg font-semibold text-[var(--cp-text)]">
-                      {source.item_count.toString().padStart(2, "0")} itens
+                      {source.item_count.toString().padStart(2, "0")} itens analisados
                     </p>
                   </div>
                   <span className="rounded-full border border-[var(--cp-border)] px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-                    {source.relevant_count} rel / {source.attention_count} rev /{" "}
-                    {source.incomplete_count} lim
+                    {source.relevant_count} conflito / {source.attention_count} revisar /{" "}
+                    {source.incomplete_count} limite
                   </span>
                 </div>
                 <p className="mt-4 text-sm leading-6 text-[var(--cp-muted)]">

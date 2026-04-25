@@ -27,16 +27,16 @@ export function MemorialAuditPanel({
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-            Memoriais
+            Revisao dos memoriais
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Revisao de identidade textual.
+            Comparacao dos dados principais escritos nos memoriais.
           </h2>
         </div>
 
         {audit ? (
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-            <Metric label="Docs" value={audit.stats.document_count} />
+            <Metric label="Arquivos" value={audit.stats.document_count} />
             <Metric label="Valores" value={uniqueOccurrenceCount(audit.occurrences)} />
             <Metric label="Conflitos" value={audit.stats.probable_issue_count} />
             <Metric label="Revisar" value={audit.stats.needs_review_count} />
@@ -92,7 +92,7 @@ function FindingList({ findings }: { findings: MemorialAuditFinding[] }) {
   if (findings.length === 0) {
     return (
       <div className="rounded-lg border border-[var(--cp-success)]/30 bg-[var(--cp-success)]/10 p-4 text-sm text-[var(--cp-text)]">
-        Nenhuma divergencia objetiva foi detectada nos memoriais.
+        Nenhuma divergencia objetiva foi detectada nos memoriais lidos.
       </div>
     );
   }
@@ -169,7 +169,7 @@ function OccurrenceSummary({
   if (grouped.length === 0) {
     return (
       <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
-        Nenhum campo de identidade foi extraido dos memoriais.
+        Nenhum dado principal foi separado automaticamente dos memoriais.
       </div>
     );
   }
@@ -178,7 +178,7 @@ function OccurrenceSummary({
     <div className="rounded-lg border border-[var(--cp-border)] bg-black/10">
       <div className="border-b border-[var(--cp-border)] px-4 py-3">
         <p className="text-xs uppercase tracking-[0.2em] text-[var(--cp-muted)]">
-          Valores extraidos
+          Valores encontrados
         </p>
       </div>
 

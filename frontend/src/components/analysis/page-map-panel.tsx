@@ -17,7 +17,7 @@ const PAGE_TYPE_ORDER = [
 
 const PAGE_TYPE_LABELS: Record<string, string> = {
   cover: "Capa",
-  drawing_list: "LD",
+  drawing_list: "Lista",
   memorial: "Memorial",
   separator: "Separatriz",
   sheet: "Prancha",
@@ -34,10 +34,10 @@ export function PageMapPanel({ loadError, map }: PageMapPanelProps) {
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
-            Mapa de paginas
+            Tipos de pagina
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Classificacao objetiva por pagina.
+            Leitura pagina por pagina para entender o papel de cada folha.
           </h2>
         </div>
 
@@ -111,7 +111,7 @@ function PageRow({ page }: { page: PageMapPage }) {
           p{page.page.toString().padStart(2, "0")}
         </p>
         <p className="mt-1 text-xs text-[var(--cp-muted)]">
-          {page.scope_id ? `secao ${page.scope_id}` : "sem secao"}
+          {page.scope_id ? `parte ${page.scope_id}` : "sem parte"}
         </p>
       </div>
       <div>
@@ -129,7 +129,7 @@ function PageRow({ page }: { page: PageMapPage }) {
       </div>
       <div className="min-w-0">
         <p className="truncate text-xs leading-6 text-[var(--cp-muted)]">
-          {page.evidence_text || "Sem evidencia textual destacada"}
+          {page.evidence_text || "Sem trecho textual destacado"}
         </p>
         <p className="mt-1 truncate text-[11px] text-[var(--cp-muted)]">
           {page.signals.join(", ")}
