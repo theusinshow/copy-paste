@@ -13,7 +13,7 @@ export function FormSubmitButton({
     >
       {pending
         ? "Enviando arquivos e iniciando a analise..."
-        : "Criar analise e comecar a revisao"}
+        : "Iniciar analise"}
     </button>
   );
 }

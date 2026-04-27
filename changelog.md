@@ -13,6 +13,8 @@
 - **Link ativo no nav**: pagina corrente e destacada no menu de navegacao com borda dourada e fundo sutil, via `usePathname`.
 
 ### Changed
+- Fluxo principal de nova analise simplificado para duas escolhas de usuario: **Volume de projeto** (`full_check`) e **Memorial** (`memorial_only`), mantendo modos dirigidos apenas como capacidade tecnica.
+- Tela de resultado reorganizada para priorizar resumo, pontos encontrados, conferencia principal e conclusao final, movendo paineis tecnicos para uma secao recolhida de detalhes.
 - Regras de divergencia estendidas para cobrir `municipio` e `orgao_cliente` (antes apenas `nome_obra`, `numero_projeto` e `bairro` eram cruzados).
 - Severidade de `campo_obrigatorio_ausente` agora e dinamica: RELEVANTE quando o campo esta ausente na maioria dos documentos, ATENCAO quando ausente apenas em minoria. Descricao atualizada para indicar contagem exata (ex: "ausente em 3 de 4 documentos").
 - `AnalysisResultHeader` convertido para componente cliente para suportar os botoes de exportar com URL do backend.

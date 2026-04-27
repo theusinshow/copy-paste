@@ -19,6 +19,12 @@ Sistema que:
 - permite modos configuráveis de análise com `full_check` como padrão
 
 ## Modos de análise
+- A interface principal expõe dois fluxos cotidianos:
+  - `full_check` como **Volume de projeto**
+  - `memorial_only` como **Memorial**
+- Os demais modos continuam como capacidades técnicas dirigidas e não precisam aparecer no fluxo principal.
+
+## Modos técnicos disponíveis
 - `full_check`
 - `memorial_only`
 - `sheets_only`

@@ -41,18 +41,18 @@ export type AnalysisModeConfigValues = Record<string, string>;
 export const ANALYSIS_MODE_DEFINITIONS: AnalysisModeDefinition[] = [
   {
     configFields: [],
-    description: "Revisa o pacote completo e junta os principais cruzamentos e alertas.",
-    group: "Auditoria completa",
-    helper: "Recomendado quando voce quer uma leitura geral do material enviado.",
-    label: "Analise completa",
+    description: "Confere capa, separatrizes, listas de documentos e pranchas do volume.",
+    group: "Fluxo principal",
+    helper: "Use para revisar o volume tecnico do projeto antes de liberar o pacote.",
+    label: "Volume de projeto",
     value: "full_check",
   },
   {
     configFields: [],
-    description: "Foca a leitura apenas nos memoriais enviados.",
-    group: "Recorte por documento",
-    helper: "Bom para conferir dados textuais e identidade do memorial.",
-    label: "Analise de memorial",
+    description: "Confere identidade, endereco, municipio, cliente e sinais textuais do memorial.",
+    group: "Fluxo principal",
+    helper: "Use quando o envio for apenas memorial ou documento textual equivalente.",
+    label: "Memorial",
     lockedTipo: "memorial",
     value: "memorial_only",
   },
@@ -261,6 +261,7 @@ function getGroupDescription(group: string) {
   const descriptions: Record<string, string> = {
     "Auditoria completa": "Fluxo geral para revisar o pacote como um todo.",
     "Busca textual": "Opcoes para localizar texto ou revisar uma troca de texto.",
+    "Fluxo principal": "Fluxos visiveis para a revisao cotidiana do pacote.",
     "Recorte por documento": "Opcoes para focar a leitura em um tipo especifico de arquivo.",
     "Verificacao pontual": "Opcoes para comparar um valor esperado com o que for encontrado.",
   };

@@ -70,17 +70,23 @@ export default async function AnalysisResultPage({
 
   const analysis = await loadAnalysisOrNotFound(analysisId);
   const isDirectedMode = DIRECTED_MODES.has(analysis.analysis_mode);
+  const isMemorialMode = analysis.analysis_mode === "memorial_only";
+  const isProjectVolumeMode = analysis.analysis_mode === "full_check";
 
   return (
     <div className="grid gap-5">
       <AnalysisResultHeader analysis={analysis} />
 
       <div className="grid gap-5 lg:grid-cols-[200px_minmax(0,1fr)]">
-        <ResultNavigation isDirectedMode={isDirectedMode} />
+        <ResultNavigation
+          isDirectedMode={isDirectedMode}
+          isMemorialMode={isMemorialMode}
+          isProjectVolumeMode={isProjectVolumeMode}
+        />
 
         <div className="grid gap-5">
           <Suspense fallback={<PanelSkeleton rows={5} />}>
-            <ClosureSection analysisId={analysisId} analysis={analysis} />
+            <SummarySection analysisId={analysisId} />
           </Suspense>
 
           <Suspense fallback={<PanelSkeleton rows={6} />}>
@@ -93,22 +99,62 @@ export default async function AnalysisResultPage({
             </Suspense>
           ) : null}
 
-          <div className="border-t border-[var(--cp-border)] pt-2">
-            <p className="px-1 text-xs uppercase tracking-[0.2em] text-[var(--cp-muted)]">
-              Diagnostico
-            </p>
-          </div>
+          {isProjectVolumeMode ? (
+            <Suspense fallback={<PanelSkeleton rows={5} />}>
+              <ProjectVolumeSection analysisId={analysisId} />
+            </Suspense>
+          ) : null}
 
-          <Suspense fallback={<PanelSkeleton rows={8} />}>
-            <DiagnosticSection analysisId={analysisId} />
+          {isMemorialMode ? (
+            <Suspense fallback={<PanelSkeleton rows={5} />}>
+              <MemorialReviewSection analysisId={analysisId} />
+            </Suspense>
+          ) : null}
+
+          <Suspense fallback={<PanelSkeleton rows={4} />}>
+            <SignoffSection analysisId={analysisId} analysis={analysis} />
           </Suspense>
+
+          <details
+            id="detalhes"
+            className="rounded-lg border border-[var(--cp-border)] bg-black/12 p-4"
+          >
+            <summary className="cursor-pointer text-sm font-semibold uppercase tracking-[0.18em] text-[var(--cp-muted)] transition-colors hover:text-[var(--cp-text)]">
+              Detalhes tecnicos
+            </summary>
+            <div className="mt-5 grid gap-5">
+              <Suspense fallback={<PanelSkeleton rows={8} />}>
+                <DiagnosticSection analysisId={analysisId} />
+              </Suspense>
+            </div>
+          </details>
         </div>
       </div>
     </div>
   );
 }
 
-async function ClosureSection({
+async function SummarySection({ analysisId }: { analysisId: number }) {
+  const auditSummaryResult = await Promise.allSettled([getAuditSummary(analysisId)]);
+
+  const auditSummary = readSettledValue(auditSummaryResult[0], null);
+  const auditSummaryLoadError = readSettledError(
+    auditSummaryResult[0],
+    "Nao foi possivel carregar o fechamento desta analise agora.",
+  );
+
+  return (
+    <section id="resumo-final">
+      <AuditSummaryPanel
+        analysisId={analysisId}
+        summary={auditSummary}
+        loadError={auditSummaryLoadError}
+      />
+    </section>
+  );
+}
+
+async function SignoffSection({
   analysisId,
   analysis,
 }: {
@@ -121,10 +167,6 @@ async function ClosureSection({
   ]);
 
   const auditSummary = readSettledValue(auditSummaryResult, null);
-  const auditSummaryLoadError = readSettledError(
-    auditSummaryResult,
-    "Nao foi possivel carregar o fechamento desta analise agora.",
-  );
   const signoff = readSettledValue(signoffResult, null);
   const signoffLoadError = readSettledError(
     signoffResult,
@@ -132,30 +174,21 @@ async function ClosureSection({
   );
 
   return (
-    <>
-      <section id="fechamento">
-        <AuditSummaryPanel
-          analysisId={analysisId}
-          summary={auditSummary}
-          loadError={auditSummaryLoadError}
-        />
-      </section>
-      <section id="encerramento">
-        <AnalysisSignoffPanel
-          key={signoff?.updated_at ?? auditSummary?.status.code ?? "new"}
-          analysisId={analysisId}
-          analysisStatus={analysis.status}
-          computedStatusCode={auditSummary?.status.code}
-          computedStatusLabel={auditSummary?.status.label}
-          signoff={signoff}
-        />
-        {signoffLoadError ? (
-          <div className="mt-3 rounded-lg border border-[var(--cp-error)]/40 bg-[var(--cp-error)]/10 p-4 text-sm text-[var(--cp-text)]">
-            {signoffLoadError}
-          </div>
-        ) : null}
-      </section>
-    </>
+    <section id="encerramento">
+      <AnalysisSignoffPanel
+        key={signoff?.updated_at ?? auditSummary?.status.code ?? "new"}
+        analysisId={analysisId}
+        analysisStatus={analysis.status}
+        computedStatusCode={auditSummary?.status.code}
+        computedStatusLabel={auditSummary?.status.label}
+        signoff={signoff}
+      />
+      {signoffLoadError ? (
+        <div className="mt-3 rounded-lg border border-[var(--cp-error)]/40 bg-[var(--cp-error)]/10 p-4 text-sm text-[var(--cp-text)]">
+          {signoffLoadError}
+        </div>
+      ) : null}
+    </section>
   );
 }
 
@@ -200,6 +233,38 @@ async function DirectedSection({ analysisId }: { analysisId: number }) {
   );
 }
 
+async function ProjectVolumeSection({ analysisId }: { analysisId: number }) {
+  const result = await Promise.allSettled([getLdSheetCrosscheck(analysisId)]);
+
+  return (
+    <section id="conferencia-volume">
+      <LdSheetCrosscheckPanel
+        crosscheck={readSettledValue(result[0], null)}
+        loadError={readSettledError(
+          result[0],
+          "Nao foi possivel carregar a comparacao entre lista e pranchas desta analise agora.",
+        )}
+      />
+    </section>
+  );
+}
+
+async function MemorialReviewSection({ analysisId }: { analysisId: number }) {
+  const result = await Promise.allSettled([getMemorialAudit(analysisId)]);
+
+  return (
+    <section id="conferencia-memorial">
+      <MemorialAuditPanel
+        audit={readSettledValue(result[0], null)}
+        loadError={readSettledError(
+          result[0],
+          "Nao foi possivel carregar a auditoria de memoriais desta analise agora.",
+        )}
+      />
+    </section>
+  );
+}
+
 async function DiagnosticSection({ analysisId }: { analysisId: number }) {
   const [
     packageSummaryResult,
@@ -227,7 +292,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
 
   return (
     <>
-      <section id="resumo">
+      <section id="tecnico-resumo">
         <PackageSummaryPanel
           summary={readSettledValue(packageSummaryResult, null)}
           loadError={readSettledError(
@@ -236,7 +301,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           )}
         />
       </section>
-      <section id="cruzamento">
+      <section id="tecnico-cruzamento">
         <LdSheetCrosscheckPanel
           crosscheck={readSettledValue(ldSheetCrosscheckResult, null)}
           loadError={readSettledError(
@@ -245,7 +310,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           )}
         />
       </section>
-      <section id="memoriais">
+      <section id="tecnico-memoriais">
         <MemorialAuditPanel
           audit={readSettledValue(memorialAuditResult, null)}
           loadError={readSettledError(
@@ -254,7 +319,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           )}
         />
       </section>
-      <section id="rodapes">
+      <section id="tecnico-rodapes">
         <FooterAuditPanel
           audit={readSettledValue(footerAuditResult, null)}
           loadError={readSettledError(
@@ -263,7 +328,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           )}
         />
       </section>
-      <section id="listas" className="grid gap-5">
+      <section id="tecnico-listas" className="grid gap-5">
         <DrawingListPanel
           drawingLists={readSettledValue(drawingListsResult, null)}
           loadError={readSettledError(
@@ -279,7 +344,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           )}
         />
       </section>
-      <section id="organizacao">
+      <section id="tecnico-organizacao">
         <PackageMapPanel
           map={readSettledValue(packageMapResult, null)}
           loadError={readSettledError(
@@ -288,7 +353,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           )}
         />
       </section>
-      <section id="paginas">
+      <section id="tecnico-paginas">
         <PageMapPanel
           map={readSettledValue(pageMapResult, null)}
           loadError={readSettledError(
@@ -297,7 +362,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           )}
         />
       </section>
-      <section id="leitura">
+      <section id="tecnico-leitura">
         <AiReviewPanel
           review={readSettledValue(aiReviewResult, null)}
           loadError={readSettledError(
@@ -306,7 +371,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           )}
         />
       </section>
-      <section id="evidencias">
+      <section id="tecnico-evidencias">
         <ExtractedFieldList
           fields={readSettledValue(fieldsResult, [])}
           loadError={readSettledError(
@@ -319,21 +384,23 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
   );
 }
 
-function ResultNavigation({ isDirectedMode }: { isDirectedMode: boolean }) {
+function ResultNavigation({
+  isDirectedMode,
+  isMemorialMode,
+  isProjectVolumeMode,
+}: {
+  isDirectedMode: boolean;
+  isMemorialMode: boolean;
+  isProjectVolumeMode: boolean;
+}) {
   const links = [
-    ["#fechamento", "Resumo final"],
-    ["#encerramento", "Conclusao"],
+    ["#resumo-final", "Resumo"],
     ["#pontos", "Pontos encontrados"],
     ["#busca", "Busca / conferencia"],
-    ["#resumo", "Visao do pacote"],
-    ["#cruzamento", "LD × Pranchas"],
-    ["#memoriais", "Memoriais"],
-    ["#rodapes", "Rodapes"],
-    ["#listas", "Listas e deteccoes"],
-    ["#organizacao", "Organizacao"],
-    ["#paginas", "Tipos de pagina"],
-    ["#leitura", "Apoio de leitura"],
-    ["#evidencias", "Evidencias"],
+    ["#conferencia-volume", "LD x Pranchas"],
+    ["#conferencia-memorial", "Memorial"],
+    ["#encerramento", "Conclusao"],
+    ["#detalhes", "Detalhes tecnicos"],
   ];
 
   return (
@@ -344,6 +411,8 @@ function ResultNavigation({ isDirectedMode }: { isDirectedMode: boolean }) {
       <nav className="grid gap-1">
         {links
           .filter(([href]) => href !== "#busca" || isDirectedMode)
+          .filter(([href]) => href !== "#conferencia-volume" || isProjectVolumeMode)
+          .filter(([href]) => href !== "#conferencia-memorial" || isMemorialMode)
           .map(([href, label]) => (
             <a
               key={href}

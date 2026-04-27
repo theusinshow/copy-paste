@@ -28,11 +28,11 @@ export function HomeIntakeFlow({ initialMode, initialConfig }: HomeIntakeFlowPro
           Copy&amp;Paste
         </p>
         <h1 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-[var(--cp-text)]">
-          Revise pacotes de PDFs com um fluxo guiado.
+          Revise volume de projeto ou memorial.
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--cp-muted)]">
-          Envie os arquivos, escolha o tipo de verificacao e receba um resultado
-          com evidencias e sem decisao automatica por IA.
+          Envie os PDFs, escolha entre volume de projeto ou memorial e receba
+          uma lista objetiva do que precisa ser revisado, sempre com evidencias.
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
@@ -40,13 +40,13 @@ export function HomeIntakeFlow({ initialMode, initialConfig }: HomeIntakeFlowPro
             1. Enviar PDFs
           </span>
           <span className="rounded-none border border-[var(--cp-border)] bg-black/10 px-3 py-1.5">
-            2. Escolher a revisao
+            2. Escolher volume ou memorial
           </span>
           <span className="rounded-none border border-[var(--cp-border)] bg-black/10 px-3 py-1.5">
-            3. Classificar os arquivos
+            3. Acompanhar processamento
           </span>
           <span className="rounded-none border border-[var(--cp-border)] bg-black/10 px-3 py-1.5">
-            4. Ler o resultado
+            4. Revisar pendencias
           </span>
         </div>
 
