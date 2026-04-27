@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "./uploads"
     CORS_ALLOWED_ORIGINS: str = ""
     CORS_ALLOWED_ORIGIN_REGEX: str = r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
+    GROQ_API_KEY: str = ""
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

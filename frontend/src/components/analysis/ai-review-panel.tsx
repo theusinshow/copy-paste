@@ -14,10 +14,12 @@ export function AiReviewPanel({ review, loadError }: AiReviewPanelProps) {
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
-            Apoio de leitura
+            {review?.provider_status === "ok" ? "Analise assistida por IA" : "Apoio de leitura"}
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Trechos separados para ajudar a revisao.
+            {review?.provider_status === "ok"
+              ? "Revisao gerada pelo modelo de linguagem."
+              : "Trechos separados para ajudar a revisao."}
           </h2>
           {review ? (
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--cp-muted)]">
@@ -44,7 +46,8 @@ export function AiReviewPanel({ review, loadError }: AiReviewPanelProps) {
 
       {!loadError && review ? (
         <div className="mt-5 grid gap-5">
-          <ProviderStatus status={review.provider_status} />
+          <ProviderStatus review={review} />
+          {review.ai_narrative ? <AiNarrative review={review} /> : null}
           <SuggestionList review={review} />
           <ContextList review={review} />
         </div>
@@ -53,8 +56,32 @@ export function AiReviewPanel({ review, loadError }: AiReviewPanelProps) {
   );
 }
 
-function ProviderStatus({ status }: { status: string }) {
-  const isConfigured = status === "configured";
+function ProviderStatus({ review }: { review: AiReview }) {
+  const { provider_status, ai_model } = review;
+
+  if (provider_status === "ok") {
+    return (
+      <div className="flex items-center gap-3 rounded-lg border border-[var(--cp-accent)]/30 bg-[var(--cp-accent)]/5 px-4 py-3">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--cp-accent)]" />
+        <p className="text-xs text-[var(--cp-muted)]">
+          Analise gerada por{" "}
+          <span className="font-semibold text-[var(--cp-text)]">{ai_model}</span>{" "}
+          via Groq
+        </p>
+      </div>
+    );
+  }
+
+  if (provider_status === "error") {
+    return (
+      <div className="flex items-center gap-3 rounded-lg border border-[var(--cp-error)]/30 bg-[var(--cp-error)]/5 px-4 py-3">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--cp-error)]" />
+        <p className="text-xs text-[var(--cp-muted)]">
+          O modelo de linguagem nao respondeu. Exibindo analise estrutural.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
@@ -62,10 +89,35 @@ function ProviderStatus({ status }: { status: string }) {
         Recurso externo
       </p>
       <p className="mt-2 text-sm leading-6 text-[var(--cp-text)]">
-        {isConfigured
-          ? "Ha um recurso externo configurado para apoiar a leitura."
-          : "Nenhum recurso externo esta configurado. Mesmo assim o sistema separou trechos e pontos para apoiar a revisao humana."}
+        Nenhum modelo de linguagem configurado. Configure{" "}
+        <code className="rounded bg-black/20 px-1 py-0.5 font-mono text-xs">
+          GROQ_API_KEY
+        </code>{" "}
+        no backend para ativar a analise assistida.
       </p>
+    </div>
+  );
+}
+
+function AiNarrative({ review }: { review: AiReview }) {
+  const paragraphs = (review.ai_narrative ?? "")
+    .split("\n")
+    .filter((line) => line.trim());
+
+  return (
+    <div className="rounded-lg border border-[var(--cp-accent)]/20 bg-black/10">
+      <div className="flex items-center gap-3 border-b border-[var(--cp-border)] px-4 py-3">
+        <p className="text-xs uppercase tracking-[0.2em] text-[var(--cp-accent)]">
+          Analise do modelo
+        </p>
+      </div>
+      <div className="space-y-3 px-4 py-4">
+        {paragraphs.map((paragraph, i) => (
+          <p key={i} className="text-sm leading-6 text-[var(--cp-text)]">
+            {paragraph}
+          </p>
+        ))}
+      </div>
     </div>
   );
 }

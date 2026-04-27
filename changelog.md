@@ -3,6 +3,9 @@
 ## [Unreleased]
 
 ### Added
+- Integracao com **Groq API** (LLaMA 3.3 70B) para analise assistida por IA: quando `GROQ_API_KEY` esta configurado, o endpoint `/ai-review` envia identidade do pacote, problemas detectados e trechos dos documentos ao modelo e retorna uma narrativa tecnica com resumo executivo, avaliacao dos findings e proximo passo sugerido. Fallback gracioso para modo estrutural quando a chave nao esta configurada ou a chamada falha.
+- `app/worker/groq_client.py` — cliente Groq isolado com timeout de 30s e modelo configuravel.
+- Campo `GROQ_API_KEY` em `Settings` e em `.env.example`.
 - Logo `Simbolo.svg` integrado ao header substituindo o badge "CP", com favicon SVG via Next.js app router (`icon.svg`). Lockup horizontal disponivel em `/logo-lockup.png`.
 - Animacoes Three.js: background de particulas conectadas na home, animacao do simbolo como scanner durante o processamento e transicao de camera ao navegar entre paginas.
 - Micro-animacoes de UI via Framer Motion e CSS: borda dourada animada no hover de botoes, ripple ao clicar, shimmer interno no estado de loading, lift com sombra dourada nos cards de analise, scroll reveal com borda colorida deslizante, `AnimatePresence` com fade + slide entre paginas, underline dourado deslizante na navegacao, colapso animado de issues ao mudar status, contagem progressiva dos stats ao montar a tela, crossfade no skeleton → conteudo, toggle de review com spring, toast com bounce de entrada e slide de saida.

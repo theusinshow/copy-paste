@@ -265,6 +265,8 @@ class AiReviewStatsSchema(BaseModel):
 
 
 class AiReviewSchema(BaseModel):
+    ai_model: str | None
+    ai_narrative: str | None
     contexts: list[AiReviewContextSchema]
     identity: PackageSummaryIdentitySchema
     mode: str

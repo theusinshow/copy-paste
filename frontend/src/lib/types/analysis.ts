@@ -206,6 +206,8 @@ export type PackageMapSection = {
 };
 
 export type AiReview = {
+  ai_model: string | null;
+  ai_narrative: string | null;
   contexts: AiReviewContext[];
   identity: PackageSummary["identity"];
   mode: string;

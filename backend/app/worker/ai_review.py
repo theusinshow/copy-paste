@@ -2,6 +2,7 @@ import re
 from typing import Any
 
 from app.models.input_document import InputDocument
+from app.worker.groq_client import GROQ_MODEL, call_groq, is_groq_configured
 from app.worker.package_map import build_package_map
 from app.worker.package_summary import build_package_summary
 
@@ -19,11 +20,26 @@ def build_ai_review(
     contexts = _build_contexts(documents, page_texts_by_document_id, package_map)
     suggestions = _build_structural_suggestions(package_summary, package_map, contexts)
 
+    ai_narrative: str | None = None
+    ai_model: str | None = None
+    provider_status = "not_configured"
+
+    if is_groq_configured():
+        try:
+            prompt = _build_groq_prompt(package_summary, suggestions, contexts)
+            ai_narrative = call_groq(prompt)
+            ai_model = GROQ_MODEL
+            provider_status = "ok"
+        except Exception:
+            provider_status = "error"
+
     return {
+        "ai_model": ai_model,
+        "ai_narrative": ai_narrative,
         "contexts": contexts,
         "identity": package_summary["identity"],
-        "mode": "structural_context",
-        "provider_status": "not_configured",
+        "mode": "groq_assisted" if provider_status == "ok" else "structural_context",
+        "provider_status": provider_status,
         "summary": _build_summary(package_summary, package_map, contexts),
         "suggestions": suggestions,
         "stats": {
@@ -207,3 +223,52 @@ def _find_document(
 
 def _clean_text(value: str) -> str:
     return WHITESPACE_PATTERN.sub(" ", value).strip()
+
+
+def _build_groq_prompt(
+    package_summary: dict[str, Any],
+    suggestions: list[dict[str, Any]],
+    contexts: list[dict[str, Any]],
+) -> str:
+    identity = package_summary["identity"]
+
+    lines: list[str] = [
+        "Voce e um auditor tecnico especializado em documentacao de obras publicas municipais.",
+        "Analise o pacote de documentos abaixo e os problemas ja detectados automaticamente.",
+        "",
+        "## IDENTIDADE DO PACOTE",
+    ]
+    if identity.get("project_code"):
+        lines.append(f"- Codigo do projeto: {identity['project_code']}")
+    if identity.get("municipality"):
+        lines.append(f"- Municipio: {identity['municipality']}")
+    if identity.get("work_name"):
+        lines.append(f"- Obra: {identity['work_name']}")
+    if identity.get("bairro"):
+        lines.append(f"- Bairro: {identity['bairro']}")
+    if identity.get("client"):
+        lines.append(f"- Cliente/Orgao: {identity['client']}")
+
+    if suggestions:
+        lines += ["", "## PROBLEMAS DETECTADOS PELO SISTEMA"]
+        for i, s in enumerate(suggestions, 1):
+            severity = s.get("severity", "")
+            lines.append(f"{i}. [{severity.upper()}] {s['message']}")
+
+    if contexts:
+        lines += ["", "## TRECHOS DOS DOCUMENTOS"]
+        for ctx in contexts[:8]:
+            lines.append(f"\n### {ctx['title']} (p.{ctx['page_start']})")
+            lines.append(ctx["evidence_text"])
+
+    lines += [
+        "",
+        "## SUA ANALISE",
+        "Responda em portugues, de forma direta e tecnica, em ate 5 paragrafos curtos:",
+        "1. Resumo executivo do pacote (1 paragrafo)",
+        "2. Avaliacao dos problemas detectados — algum esta subestimado ou superestimado?",
+        "3. Problemas que o sistema pode ter perdido com base nos trechos apresentados",
+        "4. Proximo passo mais importante para o auditor",
+    ]
+
+    return "\n".join(lines)
