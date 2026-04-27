@@ -177,6 +177,7 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Configuracao do PostCSS/Tailwind no frontend agora fixa a base no diretorio `frontend`, evitando erro do `next dev` ao resolver `tailwindcss` pela raiz do repositorio.
 - Tela de acompanhamento agora usa consulta periodica como fallback quando a conexao SSE cai, sem marcar a analise como `failed` apenas por falha de conexao em tempo real.
 - Worker em background do backend agora registra excecoes de processamento no log, evitando falhas silenciosas quando uma analise termina como `failed`.
 - Build do frontend corrigido ao fixar o root do Turbopack no diretorio `frontend`, evitando que o Next.js escolha um workspace externo quando existe outro lockfile em `C:\Dev`.

@@ -1,10 +1,8 @@
-import { fileURLToPath } from "node:url";
-
-const base = fileURLToPath(new URL(".", import.meta.url));
-
 const config = {
   plugins: {
-    "@tailwindcss/postcss": { base },
+    "@tailwindcss/postcss": {
+      base: "C:/Dev/pessoal/projetos/copy-paste/frontend",
+    },
   },
 };
 
