@@ -38,7 +38,7 @@ export function IssueReviewForm({ issueId, review }: IssueReviewFormProps) {
         comment,
         decision,
       });
-      setFeedback("Revisao salva com sucesso.");
+      setFeedback("Revisão salva com sucesso.");
       startTransition(() => {
         router.refresh();
       });
@@ -46,7 +46,7 @@ export function IssueReviewForm({ issueId, review }: IssueReviewFormProps) {
       setError(
         extractApiErrorMessage(
           submissionError,
-          "Nao foi possivel salvar a revisao desta issue agora.",
+          "Não foi possível salvar a revisão deste ponto agora.",
         ),
       );
     } finally {

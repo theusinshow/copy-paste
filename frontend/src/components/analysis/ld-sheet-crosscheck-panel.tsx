@@ -32,7 +32,7 @@ export function LdSheetCrosscheckPanel({
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <Metric label="Total" value={crosscheck.stats.total_count} />
             <Metric
-              label="Conflitos"
+              label="Verificar"
               value={crosscheck.stats.combined_probable_issue_count}
             />
             <Metric
@@ -78,8 +78,8 @@ function GroupedResults({ crosscheck }: { crosscheck: LdSheetCrosscheck }) {
   const groups = [
     {
       category: "probable_issue",
-      description: "Diferenças mais objetivas entre o que está na lista e o que foi lido na prancha.",
-      title: "Divergências prováveis",
+      description: "Diferenças objetivas encontradas pela leitura. Conferir no documento antes de concluir.",
+      title: "Pontos para verificar",
     },
     {
       category: "needs_review",
@@ -140,8 +140,8 @@ function ReverseGroupedResults({ crosscheck }: { crosscheck: LdSheetCrosscheck }
   const groups = [
     {
       category: "probable_issue",
-      description: "Pranchas encontradas sem item correspondente na lista ou declaradas na parte errada do pacote.",
-      title: "Pranchas com problema de lista",
+      description: "Pranchas encontradas sem item correspondente na lista ou declaradas em outra parte do pacote.",
+      title: "Pranchas para verificar",
     },
     {
       category: "needs_review",
@@ -368,11 +368,11 @@ function SeverityPill({
       className={`w-fit rounded-none border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${className}`}
     >
       {category === "probable_issue"
-        ? "conflito"
+        ? "verificar"
         : category === "needs_review"
           ? "revisar"
           : category === "extraction_limit"
-            ? "limite"
+            ? "não confirmado"
             : severity}
     </span>
   );
@@ -385,7 +385,7 @@ function formatReason(reason: string) {
       "prancha declarada apenas em outro documento",
     detected_sheet_declared_in_other_section:
       "prancha declarada em outra parte do mesmo pdf",
-    detected_sheet_missing_from_ld: "prancha sem declaracao na lista",
+    detected_sheet_missing_from_ld: "prancha sem declaração na lista",
     matched_code_item_and_description: "código, folha e descrição compatíveis",
     sheet_code_found_in_other_document_context:
       "código encontrado em outro documento",
@@ -395,7 +395,7 @@ function formatReason(reason: string) {
       "código não confirmado na parte esperada da lista",
     sheet_code_not_detected_outside_ld: "código não confirmado fora da lista",
     sheet_description_low_confidence: "descrição da prancha lida com baixa confiança",
-    sheet_item_mismatch: "folha divergente",
+  sheet_item_mismatch: "folha diferente para conferir",
   };
 
   return labels[reason] || reason;

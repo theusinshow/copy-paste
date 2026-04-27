@@ -29,7 +29,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   } catch (error) {
     loadError = extractApiErrorMessage(
       error,
-      "Nao foi possivel carregar as analises agora.",
+    "Não foi possível carregar as análises agora.",
     );
   }
 

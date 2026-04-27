@@ -5,10 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navigationLinks = [
-  { href: "/", label: "Analises" },
+  { href: "/", label: "Análises" },
   { href: "/packages", label: "Pacotes" },
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/analysis/new", label: "Nova analise" },
+  { href: "/analysis/new", label: "Nova análise" },
 ];
 
 export function SiteHeader() {

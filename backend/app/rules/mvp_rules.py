@@ -116,7 +116,7 @@ def _build_divergence_issues(
                 type=f"{field_name}_divergente",
                 severity=SEVERITY_RELEVANTE,
                 description=(
-                    f"Campo {field_name} possui valores divergentes entre documentos: "
+                    f"Conferir campo {field_name}; foram encontrados valores diferentes entre documentos: "
                     f"{' | '.join(distinct_values)}."
                 ),
                 evidences=_build_evidences(matching_fields),
@@ -160,7 +160,7 @@ def _build_missing_field_issues(
                 type=MISSING_FIELD_ISSUE_TYPE,
                 severity=severity,
                 description=(
-                    f"Campo obrigatório {field_name} ausente em "
+                    f"Conferir campo {field_name}; ele não foi encontrado em "
                     f"{missing_count} de {len(document_ids)} documentos."
                 ),
                 evidences=_build_evidences(present_fields),
@@ -201,7 +201,7 @@ def _build_sheet_sequence_issues(
                     type="folha_total_inconsistente",
                     severity=SEVERITY_RELEVANTE,
                     description=(
-                        "Documentos declaram totais de folhas diferentes: "
+                        "Conferir totais de folhas declarados nos documentos: "
                         f"{' | '.join(str(t) for t in sorted(totals))}."
                     ),
                     evidences=_build_evidences(representative_fields),
@@ -225,7 +225,7 @@ def _build_sheet_sequence_issues(
                     type="folha_ausente_na_sequencia",
                     severity=SEVERITY_RELEVANTE,
                     description=(
-                        f"Lacuna na sequência de folhas (total declarado: {dominant_total}). "
+                        f"Conferir sequência de folhas (total declarado: {dominant_total}). "
                         f"Folhas ausentes: {', '.join(str(n).zfill(2) for n in sorted(missing_numbers))}."
                     ),
                     evidences=_build_evidences(representative_fields),
@@ -260,7 +260,7 @@ def _build_date_issues(
             RuleIssueCandidate(
                 type="data_emissao_futura",
                 severity=SEVERITY_RELEVANTE,
-                description="Documento com data de emissão no futuro.",
+                description="Conferir data de emissão: há documento com data no futuro.",
                 evidences=_build_evidences(future_fields),
             )
         )
@@ -272,7 +272,7 @@ def _build_date_issues(
             RuleIssueCandidate(
                 type="data_emissao_desatualizada",
                 severity=SEVERITY_ATENCAO,
-                description=f"Documento com data de emissão superior a {DATE_OUTDATED_YEARS} anos.",
+                description=f"Conferir data de emissão: há documento com data superior a {DATE_OUTDATED_YEARS} anos.",
                 evidences=_build_evidences(old_fields),
             )
         )
@@ -286,7 +286,7 @@ def _build_date_issues(
                 RuleIssueCandidate(
                     type="data_emissao_divergente",
                     severity=SEVERITY_RELEVANTE,
-                    description=f"Datas de emissão divergentes entre documentos: {date_labels}.",
+                    description=f"Conferir datas de emissão entre documentos: {date_labels}.",
                     evidences=_build_evidences(fields_with_page),
                 )
             )

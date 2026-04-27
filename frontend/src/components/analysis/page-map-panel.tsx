@@ -37,14 +37,14 @@ export function PageMapPanel({ loadError, map }: PageMapPanelProps) {
             Tipos de pagina
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Leitura pagina por pagina para entender o papel de cada folha.
+          Leitura página por página para entender o papel de cada folha.
           </h2>
         </div>
 
         {map ? (
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <Metric label="Docs" value={map.stats.document_count} />
-            <Metric label="Paginas" value={map.stats.page_count} />
+            <Metric label="Páginas" value={map.stats.page_count} />
             <Metric label="Baixa conf." value={map.stats.low_confidence_count} />
             <Metric label="Tipos" value={Object.keys(map.stats.page_type_counts).length} />
           </div>

@@ -17,12 +17,12 @@ type ProcessingMonitorProps = {
 
 const STEPS = [
   {
-    description: "Analise criada e arquivos recebidos pelo backend.",
+    description: "Análise criada e arquivos recebidos pelo backend.",
     key: "created",
-    title: "Preparacao",
+    title: "Preparação",
   },
   {
-    description: "Leitura das paginas, extracao de texto e normalizacao.",
+    description: "Leitura das páginas, extração de texto e normalização.",
     key: "processing",
     title: "Processamento",
   },
@@ -113,7 +113,7 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
         setErrorMessage(
           extractApiErrorMessage(
             error,
-            "Nao foi possivel consultar o status atual do processamento.",
+            "Não foi possível consultar o status atual do processamento.",
           ),
         );
       }
@@ -136,7 +136,7 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
             setErrorMessage(
               extractApiErrorMessage(
                 error,
-                "Nao foi possivel iniciar o processamento desta analise.",
+                "Não foi possível iniciar o processamento desta análise.",
               ),
             );
           }
@@ -175,7 +175,7 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
       setErrorMessage(
         extractApiErrorMessage(
           error,
-          "Nao foi possivel solicitar o cancelamento agora.",
+          "Não foi possível solicitar o cancelamento agora.",
         ),
       );
     } finally {
@@ -198,14 +198,14 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
               <AnalysisModeBadge mode={analysis.analysis_mode} />
             </div>
             <p className="mt-5 text-xs uppercase tracking-[0.22em] text-[var(--cp-accent)]">
-              Analise #{analysis.id.toString().padStart(4, "0")}
+              Análise #{analysis.id.toString().padStart(4, "0")}
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--cp-text)] sm:text-4xl">
               Acompanhamento do processamento.
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--cp-muted)] sm:text-base">
-              Esta tela acompanha a criacao, leitura dos PDFs, aplicacao das
-              regras e liberacao do resultado tecnico.
+              Esta tela acompanha a criação, leitura dos PDFs, aplicação das
+              regras e liberação do resultado técnico.
             </p>
           </div>
           <AnalysisStatusBadge status={currentStatus} />
@@ -240,8 +240,8 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
 
       {analysis.status === "cancelled" ? (
         <div className="rounded-lg border border-[var(--cp-warning)]/40 bg-[var(--cp-warning)]/10 p-4 text-sm leading-6 text-[var(--cp-text)]">
-          Processamento cancelado. Nenhum resultado tecnico foi liberado para
-          esta analise.
+          Processamento cancelado. Nenhum resultado técnico foi liberado para
+          esta análise.
         </div>
       ) : null}
 
@@ -275,14 +275,14 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
             href="/"
             className="rounded-lg border border-[var(--cp-border)] px-4 py-3 text-sm font-medium text-[var(--cp-text)]"
           >
-            Voltar para analises
+            Voltar para análises
           </Link>
         ) : null}
         {!isFinished ? (
           <p className="text-sm text-[var(--cp-muted)]">
             {updateMode === "realtime"
-              ? "O status e atualizado em tempo real via conexao direta."
-              : "O status e atualizado por consulta periodica."}
+              ? "O status é atualizado em tempo real via conexão direta."
+              : "O status é atualizado por consulta periódica."}
           </p>
         ) : null}
       </div>

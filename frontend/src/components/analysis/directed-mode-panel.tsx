@@ -20,14 +20,14 @@ export function DirectedModePanel({
     >
       <div className="border-b border-[var(--cp-border)] pb-5">
         <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-          Busca ou conferencia
+          Busca ou conferência
         </p>
         <h2 className="mt-2 text-2xl font-semibold text-[var(--cp-text)]">
-          Resultado da busca ou da conferencia escolhida.
+          Resultado da busca ou da conferência escolhida.
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--cp-muted)]">
-          Esta secao mostra a busca textual, a sugestao de troca de texto ou a
-          conferencia pontual sem alterar o PDF original.
+          Esta seção mostra a busca textual, a sugestão de troca de texto ou a
+          conferência pontual sem alterar o PDF original.
         </p>
       </div>
 
@@ -53,10 +53,10 @@ export function DirectedModePanel({
           </div>
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <StatCard label="Ocorrencias" value={output.stats.occurrence_count} />
-            <StatCard label="Paginas" value={output.stats.page_count} />
+            <StatCard label="Ocorrências" value={output.stats.occurrence_count} />
+            <StatCard label="Páginas" value={output.stats.page_count} />
             <StatCard label="Conferem" value={output.stats.matching_count} />
-            <StatCard label="Divergem" value={output.stats.divergent_count} />
+            <StatCard label="Para conferir" value={output.stats.divergent_count} />
           </div>
 
           <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
@@ -81,7 +81,7 @@ export function DirectedModePanel({
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="space-y-2">
                         <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-                          {entry.filename} · pagina {entry.page ?? "-"}
+                          {entry.filename} · página {entry.page ?? "-"}
                         </p>
                         <p className="text-sm font-medium leading-7 text-[var(--cp-text)]">
                           {entry.value}
@@ -98,7 +98,7 @@ export function DirectedModePanel({
 
                     {entry.replacement_preview !== null ? (
                       <p className="mt-3 text-sm leading-6 text-[var(--cp-muted)]">
-                        Sugestao de substituicao: {entry.replacement_preview}
+                        Sugestão de substituição: {entry.replacement_preview}
                       </p>
                     ) : null}
 
@@ -111,7 +111,7 @@ export function DirectedModePanel({
             </div>
           ) : (
             <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-5 text-sm leading-6 text-[var(--cp-muted)]">
-              Nenhuma evidencia adicional foi registrada para este modo.
+              Nenhuma evidência adicional foi registrada para este modo.
             </div>
           )}
         </div>

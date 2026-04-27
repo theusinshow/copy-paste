@@ -28,7 +28,7 @@ function PackageCard({ pkg }: { pkg: PackageGroup }) {
         <div className="text-right">
           <p className="text-xs text-[var(--cp-muted)]">
             {pkg.analysis_count}{" "}
-            {pkg.analysis_count === 1 ? "analise" : "analises"}
+          {pkg.analysis_count === 1 ? "análise" : "análises"}
           </p>
           <p className="mt-0.5 text-xs text-[var(--cp-muted)]">
             Ultima: {formatDate(pkg.latest_at)}
@@ -68,7 +68,7 @@ export function PackageList({ packages }: { packages: PackageGroup[] }) {
     return (
       <div className="rounded-none border border-[var(--cp-border)] bg-[var(--cp-surface)] px-6 py-12 text-center">
         <p className="text-sm text-[var(--cp-muted)]">
-          Nenhum pacote encontrado. Conclua ao menos uma analise para ver o historico aqui.
+        Nenhum pacote encontrado. Conclua ao menos uma análise para ver o histórico aqui.
         </p>
       </div>
     );

@@ -257,7 +257,7 @@ def _build_owner_municipality_findings(
                 "category": "probable_issue",
                 "field": "owner",
                 "message": (
-                    "Proprietário/cliente aponta município diferente do memorial. "
+                    "Conferir proprietário/cliente e município do memorial. "
                     f"Esperado: {expected_city}. Encontrado: {occurrence['value']}."
                 ),
                 "occurrences": [occurrence],
@@ -294,7 +294,7 @@ def _build_expected_value_findings(
             "category": "probable_issue",
             "field": field,
             "message": (
-                f"{label} divergente no memorial. Esperado: {expected_value}. "
+                f"Conferir {label.lower()} no memorial. Esperado: {expected_value}. "
                 f"Encontrado: {occurrence['value']}."
             ),
             "occurrences": [occurrence],

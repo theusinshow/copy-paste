@@ -9,7 +9,7 @@ import type { AnalysisRun } from "@/lib/types/analysis";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Processamento da analise",
+  title: "Processamento da análise",
 };
 
 type ProcessingPageProps = {

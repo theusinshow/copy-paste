@@ -38,7 +38,7 @@ export function MemorialAuditPanel({
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <Metric label="Arquivos" value={audit.stats.document_count} />
             <Metric label="Valores" value={uniqueOccurrenceCount(audit.occurrences)} />
-            <Metric label="Conflitos" value={audit.stats.probable_issue_count} />
+            <Metric label="Verificar" value={audit.stats.probable_issue_count} />
             <Metric label="Revisar" value={audit.stats.needs_review_count} />
           </div>
         ) : null}
@@ -80,7 +80,7 @@ function IdentityGrid({ audit }: { audit: MemorialAudit }) {
             {label}
           </p>
           <p className="mt-2 text-sm font-medium leading-6 text-[var(--cp-text)]">
-            {value || "Nao detectado"}
+            {value || "Não detectado"}
           </p>
         </div>
       ))}
@@ -92,7 +92,7 @@ function FindingList({ findings }: { findings: MemorialAuditFinding[] }) {
   if (findings.length === 0) {
     return (
       <div className="rounded-lg border border-[var(--cp-success)]/30 bg-[var(--cp-success)]/10 p-4 text-sm text-[var(--cp-text)]">
-        Nenhuma divergência objetiva foi detectada nos memoriais lidos.
+        Nenhum ponto objetivo para verificar foi detectado nos memoriais lidos.
       </div>
     );
   }
@@ -240,10 +240,10 @@ function CategoryPill({ category }: { category: string }) {
       className={`w-fit rounded-none border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${className}`}
     >
       {category === "probable_issue"
-        ? "conflito"
+        ? "verificar"
         : category === "needs_review"
           ? "revisar"
-          : "limite"}
+          : "não confirmado"}
     </span>
   );
 }
@@ -252,7 +252,7 @@ function groupFindings(findings: MemorialAuditFinding[]): FindingGroup[] {
   const labels: Record<string, string> = {
     extraction_limit: "Limites de extração",
     needs_review: "Pontos para revisar",
-    probable_issue: "Conflitos provaveis",
+    probable_issue: "Pontos para verificar",
   };
   const order = ["probable_issue", "needs_review", "extraction_limit"];
 
@@ -330,7 +330,7 @@ function formatFindingTitle(finding: MemorialAuditFinding) {
 
   const field = occurrence.field_label.toLowerCase();
   if (finding.category === "probable_issue") {
-    return `${occurrence.field_label} com divergência: ${occurrence.value}`;
+    return `Conferir ${occurrence.field_label.toLowerCase()}: ${occurrence.value}`;
   }
   return `Revisar ${field}: ${occurrence.value}`;
 }

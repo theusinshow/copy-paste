@@ -67,22 +67,22 @@ export function DashboardCharts({ stats }: Props) {
     <div className="grid gap-5">
       {/* Metric cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <MetricCard label="Analises" value={totals.analyses} />
+      <MetricCard label="Análises" value={totals.analyses} />
         <MetricCard label="Documentos" value={totals.documents} />
         <MetricCard label="Pontos" value={totals.issues} />
-        <MetricCard label="Revisao pendente" value={`${resolutionRate}% ok`} accent />
+      <MetricCard label="Revisão pendente" value={`${resolutionRate}% ok`} accent />
       </div>
 
       {/* Trend line */}
       {trend.length > 1 ? (
-        <ChartPanel title="Analises ao longo do tempo">
+      <ChartPanel title="Análises ao longo do tempo">
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={trend} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis dataKey="date" tick={{ fontSize: 10, fill: MUTED }} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: MUTED }} tickLine={false} allowDecimals={false} />
               <Tooltip contentStyle={tooltipStyle} />
-              <Line type="monotone" dataKey="count" stroke={ACCENT} strokeWidth={2} dot={false} name="Analises" />
+          <Line type="monotone" dataKey="count" stroke={ACCENT} strokeWidth={2} dot={false} name="Análises" />
             </LineChart>
           </ResponsiveContainer>
         </ChartPanel>
@@ -91,14 +91,14 @@ export function DashboardCharts({ stats }: Props) {
       <div className="grid gap-5 lg:grid-cols-2">
         {/* Status bar */}
         {statusData.length > 0 ? (
-          <ChartPanel title="Analises por status">
+      <ChartPanel title="Análises por status">
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={statusData} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: MUTED }} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: MUTED }} tickLine={false} allowDecimals={false} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="value" name="Analises" radius={[2, 2, 0, 0]}>
+            <Bar dataKey="value" name="Análises" radius={[2, 2, 0, 0]}>
                   {statusData.map((entry) => (
                     <Cell key={entry.name} fill={STATUS_COLORS[entry.name] ?? MUTED} />
                   ))}
@@ -159,14 +159,14 @@ export function DashboardCharts({ stats }: Props) {
         <div className="grid gap-5">
           {/* Mode distribution */}
           {modeData.length > 0 ? (
-            <ChartPanel title="Modos de analise">
+      <ChartPanel title="Modos de análise">
               <ResponsiveContainer width="100%" height={140}>
                 <BarChart data={modeData} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
                   <XAxis dataKey="name" tick={{ fontSize: 9, fill: MUTED }} tickLine={false} />
                   <YAxis tick={{ fontSize: 10, fill: MUTED }} tickLine={false} allowDecimals={false} />
                   <Tooltip contentStyle={tooltipStyle} />
-                  <Bar dataKey="value" fill={INFO} name="Analises" radius={[2, 2, 0, 0]} />
+          <Bar dataKey="value" fill={INFO} name="Análises" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartPanel>
@@ -174,7 +174,7 @@ export function DashboardCharts({ stats }: Props) {
 
           {/* Review decisions */}
           {reviewData.length > 0 ? (
-            <ChartPanel title="Decisoes de revisao humana">
+      <ChartPanel title="Decisões de revisão humana">
               <ResponsiveContainer width="100%" height={120}>
                 <BarChart data={reviewData} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />

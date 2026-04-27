@@ -30,7 +30,7 @@ export function AnalysisModeConfigPanel(props: {
       {definition.configFields.length === 0 ? (
         <div className="mt-5 rounded-lg border border-dashed border-[var(--cp-border)] bg-white/3 p-4 text-sm leading-6 text-[var(--cp-muted)]">
           Este modo nao exige nenhum preenchimento extra. Basta enviar os
-          arquivos e iniciar a analise.
+        arquivos e iniciar a análise.
         </div>
       ) : (
         <div className="mt-5 grid gap-4">

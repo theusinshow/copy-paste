@@ -42,7 +42,7 @@ export function DetectedSheetsPanel({
         <div className="mt-6 grid gap-5">
           {detectedSheets.documents.length === 0 ? (
             <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
-              Nenhuma prancha foi detectada fora das paginas de lista.
+        Nenhuma prancha foi detectada fora das páginas de lista.
             </div>
           ) : (
             detectedSheets.documents.map((document) => (

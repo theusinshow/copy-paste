@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: "%s | Copy&Paste",
   },
   description:
-    "Base frontend para auditoria documental com lista de analises e upload inicial.",
+    "Base frontend para auditoria documental com lista de análises e upload inicial.",
   icons: {
     icon: "/logo-symbol.svg",
   },

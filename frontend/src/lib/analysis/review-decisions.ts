@@ -6,7 +6,7 @@ export const REVIEW_DECISION_OPTIONS = [
   },
   {
     description: "Remove este ponto do fechamento porque a leitura automática se enganou.",
-    label: "Falso positivo",
+    label: "Não procede",
     value: "falso_positivo",
   },
   {
@@ -39,7 +39,7 @@ export type IssueReviewStatus =
 const reviewDecisionLabelMap: Record<ReviewDecisionCode, string> = {
   confirmada: "Confirmada",
   corrigido: "Corrigido",
-  falso_positivo: "Falso positivo",
+  falso_positivo: "Não procede",
   nao_aplicavel: "Não aplicável",
   sem_evidencia: "Sem evidência",
 };

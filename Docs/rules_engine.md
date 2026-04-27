@@ -12,9 +12,11 @@
 - atencao
 - relevante
 
+As severidades permanecem internas ao motor. Na interface cotidiana, os pontos devem ser apresentados como triagem: `conferir`, `verificar` ou `não confirmado`, evitando declarar erro antes da revisão humana.
+
 ## Revisão humana dos pontos
 - `confirmada`: mantém o ponto ativo no fechamento
-- `falso_positivo`: remove o ponto do fechamento e registra descarte
+- `falso_positivo`: remove o ponto do fechamento e registra descarte; na interface cotidiana aparece como "Não procede"
 - `corrigido`: remove o ponto do fechamento e registra resolução
 - `nao_aplicavel`: remove o ponto do fechamento e registra descarte por contexto
 - `sem_evidencia`: tira o ponto da fila ativa, mas marca o fechamento como inconclusivo quando ele é o único bloqueio restante

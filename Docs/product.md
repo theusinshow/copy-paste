@@ -14,10 +14,11 @@ Sistema que:
 - extrai campos
 - compara documentos
 - aplica regras
-- gera incongruências com evidência
+- gera pontos verificáveis com evidência
 - prepara contextos para leitura assistida por IA, sem delegar a decisão
 - permite modos configuráveis de análise com `full_check` como padrão
 - oferece checklist pós-análise para a decisão humana sobre cada ponto encontrado
+- apresenta achados como triagem técnica (`verificar`, `conferir`, `não confirmado`), sem declarar erro automático para o usuário cotidiano
 
 ## Modos de análise
 - A interface principal expõe dois fluxos cotidianos:
@@ -50,3 +51,4 @@ Sistema que:
 - IA como decisora
 - interpretação subjetiva
 - divergência automática de órgão/cliente quando houver apenas variação de padrão textual
+- linguagem de erro ou culpa para pontos que ainda dependem de conferência humana

@@ -44,7 +44,7 @@ export function DrawingListPanel({
           <AlertList drawingLists={drawingLists} />
           {drawingLists.lists.length === 0 ? (
             <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
-              Nenhum item de lista foi detectado nesta analise.
+        Nenhum item de lista foi detectado nesta análise.
             </div>
           ) : (
             drawingLists.lists.map((list) => (

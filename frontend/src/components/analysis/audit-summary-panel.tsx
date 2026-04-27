@@ -40,7 +40,7 @@ export function AuditSummaryPanel({
               rel="noreferrer"
               className="inline-flex items-center justify-center rounded-lg border border-[var(--cp-border)] bg-black/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)]"
             >
-              Baixar texto
+              Baixar relatório
             </a>
             <a
               href={buildApiUrl(`/api/v1/analysis/${analysisId}/export?format=html`)}
@@ -48,7 +48,7 @@ export function AuditSummaryPanel({
               rel="noreferrer"
               className="inline-flex items-center justify-center rounded-lg border border-[var(--cp-border)] bg-black/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)]"
             >
-              Versao para impressao
+              Versão para impressão
             </a>
           </div>
 
@@ -57,7 +57,7 @@ export function AuditSummaryPanel({
               className={`rounded-2xl border px-4 py-3 ${getToneClassName(summary.status.tone)}`}
             >
               <p className="text-[10px] uppercase tracking-[0.22em]">
-                Situacao geral
+                Situação geral
               </p>
               <p className="mt-2 text-lg font-semibold">{summary.status.label}</p>
             </div>
@@ -75,7 +75,7 @@ export function AuditSummaryPanel({
         <div className="mt-6 grid gap-6">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <SummaryMetric
-              label="Conflitos"
+              label="Verificar"
               tone={summary.metrics.relevant_count > 0 ? "danger" : "success"}
               value={summary.metrics.relevant_count.toString().padStart(2, "0")}
             />
@@ -90,7 +90,7 @@ export function AuditSummaryPanel({
               value={summary.metrics.pending_review_count.toString().padStart(2, "0")}
             />
             <SummaryMetric
-              label="Concluidos"
+              label="Concluídos"
               tone={
                 summary.metrics.resolved_issue_count +
                   summary.metrics.dismissed_issue_count >
@@ -109,7 +109,7 @@ export function AuditSummaryPanel({
 
           <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-              Leitura rapida
+              Leitura rápida
             </p>
             <p className="mt-3 text-sm leading-7 text-[var(--cp-text)]">
               {summary.status.summary}
@@ -143,8 +143,8 @@ export function AuditSummaryPanel({
                     </p>
                   </div>
                   <span className="rounded-none border border-[var(--cp-border)] px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-                    {source.relevant_count} conflito / {source.attention_count} revisar /{" "}
-                    {source.incomplete_count} limite
+                    {source.relevant_count} verificar / {source.attention_count} revisar /{" "}
+                    {source.incomplete_count} não confirmado
                   </span>
                 </div>
                 <p className="mt-4 text-sm leading-6 text-[var(--cp-muted)]">

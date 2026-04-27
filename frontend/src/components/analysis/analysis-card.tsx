@@ -18,7 +18,7 @@ export function AnalysisCard({ analysis }: { analysis: AnalysisRun }) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-muted)]">
-            Analise
+        Análise
           </p>
           <h3 className="font-mono text-2xl font-semibold text-[var(--cp-text)]">
             #{analysis.id.toString().padStart(4, "0")}
@@ -93,11 +93,11 @@ function getAnalysisStepLabel(status: string) {
 function getAnalysisFootnote(status: string) {
   const statusMap: Record<string, string> = {
     completed: "Resultado tecnico disponivel sem viewer PDF e sem highlight visual.",
-    created: "Analise criada e pronta para iniciar ou concluir o processamento.",
+    created: "Análise criada e pronta para iniciar ou concluir o processamento.",
     failed: "Processamento finalizado com falha. O resultado nao foi liberado.",
-    cancelled: "Analise cancelada antes da liberacao do resultado.",
+    cancelled: "Análise cancelada antes da liberação do resultado.",
     processing: "Processamento em andamento. O resultado sera liberado ao concluir.",
   };
 
-  return statusMap[status] ?? "Acompanhe o status tecnico desta analise pela lista.";
+  return statusMap[status] ?? "Acompanhe o status técnico desta análise pela lista.";
 }

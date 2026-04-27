@@ -88,12 +88,12 @@ export function AnalysisList({
                 : "text-2xl font-semibold text-[var(--cp-text)]"
             }
           >
-            Analises feitas
+        Análises feitas
           </h2>
           {isCompact ? null : (
             <p className="max-w-2xl text-sm leading-6 text-[var(--cp-muted)]">
               Esta lista usa o endpoint atual do backend para abrir a Central de
-              Analise e consultar o resultado tecnico de cada execucao.
+        Análise e consulta do resultado técnico de cada execução.
             </p>
           )}
         </div>
@@ -181,7 +181,7 @@ export function AnalysisList({
             ← Anterior
           </button>
           <span className="text-xs text-[var(--cp-muted)]">
-            Pagina {page} de {totalPages}
+            Página {page} de {totalPages}
           </span>
           <button
             type="button"

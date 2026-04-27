@@ -15,7 +15,7 @@ export function IssueEvidenceList({ evidences, onOpenPdf }: IssueEvidenceListPro
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-              <span>Pagina {evidence.page}</span>
+          <span>Página {evidence.page}</span>
               <span className="h-1 w-1 rounded-none bg-[var(--cp-accent)]" />
               <span>Field #{evidence.field_id}</span>
             </div>

@@ -14,12 +14,12 @@ export function AiReviewPanel({ review, loadError }: AiReviewPanelProps) {
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
-            {review?.provider_status === "ok" ? "Analise assistida por IA" : "Apoio de leitura"}
+            {review?.provider_status === "ok" ? "Análise assistida por IA" : "Apoio de leitura"}
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
             {review?.provider_status === "ok"
-              ? "Revisao gerada pelo modelo de linguagem."
-              : "Trechos separados para ajudar a revisao."}
+              ? "Revisão gerada pelo modelo de linguagem."
+              : "Trechos separados para ajudar a revisão."}
           </h2>
           {review ? (
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--cp-muted)]">
@@ -31,8 +31,8 @@ export function AiReviewPanel({ review, loadError }: AiReviewPanelProps) {
         {review ? (
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <Metric label="Contextos" value={review.stats.context_count} />
-            <Metric label="Sugestoes" value={review.stats.suggestion_count} />
-            <Metric label="Conflitos" value={review.stats.probable_issue_count} />
+            <Metric label="Sugestões" value={review.stats.suggestion_count} />
+            <Metric label="Verificar" value={review.stats.probable_issue_count} />
             <Metric label="Revisar" value={review.stats.needs_review_count} />
           </div>
         ) : null}
@@ -64,7 +64,7 @@ function ProviderStatus({ review }: { review: AiReview }) {
       <div className="flex items-center gap-3 rounded-lg border border-[var(--cp-accent)]/30 bg-[var(--cp-accent)]/5 px-4 py-3">
         <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--cp-accent)]" />
         <p className="text-xs text-[var(--cp-muted)]">
-          Analise gerada por{" "}
+          Análise gerada por{" "}
           <span className="font-semibold text-[var(--cp-text)]">{ai_model}</span>{" "}
           via Groq
         </p>
@@ -77,7 +77,7 @@ function ProviderStatus({ review }: { review: AiReview }) {
       <div className="flex items-center gap-3 rounded-lg border border-[var(--cp-error)]/30 bg-[var(--cp-error)]/5 px-4 py-3">
         <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--cp-error)]" />
         <p className="text-xs text-[var(--cp-muted)]">
-          O modelo de linguagem nao respondeu. Exibindo analise estrutural.
+          O modelo de linguagem não respondeu. Exibindo análise estrutural.
         </p>
       </div>
     );
@@ -93,7 +93,7 @@ function ProviderStatus({ review }: { review: AiReview }) {
         <code className="rounded bg-black/20 px-1 py-0.5 font-mono text-xs">
           GROQ_API_KEY
         </code>{" "}
-        no backend para ativar a analise assistida.
+        no backend para ativar a análise assistida.
       </p>
     </div>
   );
@@ -108,7 +108,7 @@ function AiNarrative({ review }: { review: AiReview }) {
     <div className="rounded-lg border border-[var(--cp-accent)]/20 bg-black/10">
       <div className="flex items-center gap-3 border-b border-[var(--cp-border)] px-4 py-3">
         <p className="text-xs uppercase tracking-[0.2em] text-[var(--cp-accent)]">
-          Analise do modelo
+          Análise do modelo
         </p>
       </div>
       <div className="space-y-3 px-4 py-4">
@@ -126,7 +126,7 @@ function SuggestionList({ review }: { review: AiReview }) {
   if (review.suggestions.length === 0) {
     return (
       <div className="rounded-lg border border-[var(--cp-success)]/30 bg-[var(--cp-success)]/10 p-4 text-sm text-[var(--cp-text)]">
-        Nenhuma sugestao estrutural foi gerada nesta etapa.
+        Nenhuma sugestão estrutural foi gerada nesta etapa.
       </div>
     );
   }

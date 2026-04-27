@@ -61,7 +61,7 @@ class AuditClosureTests(unittest.TestCase):
         self.assertEqual(normalize_audit_status("clean"), "clean")
         self.assertEqual(
             get_audit_status_label("needs_review"),
-            "Com pontos de atencao",
+            "Com pontos para revisar",
         )
 
     def test_markdown_export_includes_signoff_section(self) -> None:

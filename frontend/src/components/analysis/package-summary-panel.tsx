@@ -27,7 +27,7 @@ export function PackageSummaryPanel({
         {summary ? (
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <SummaryMetric label="PDFs" value={summary.stats.document_count} />
-            <SummaryMetric label="Paginas" value={summary.stats.page_count} />
+      <SummaryMetric label="Páginas" value={summary.stats.page_count} />
             <SummaryMetric label="Volumes" value={summary.stats.volume_count} />
             <SummaryMetric label="Listas" value={summary.stats.ld_count} />
           </div>
@@ -107,7 +107,7 @@ function DocumentTable({ summary }: { summary: PackageSummary }) {
       <div className="hidden grid-cols-[minmax(0,1fr)_90px_90px_90px] gap-3 bg-black/20 px-4 py-3 text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)] md:grid">
         <span>Arquivo</span>
         <span>Volume</span>
-        <span>Paginas</span>
+            <span>Páginas</span>
         <span>Lista</span>
       </div>
       <div className="divide-y divide-[var(--cp-border)]">
@@ -128,7 +128,7 @@ function DocumentTable({ summary }: { summary: PackageSummary }) {
             <span className="text-[var(--cp-muted)] before:mr-2 before:text-xs before:uppercase before:tracking-[0.18em] before:content-['Volume'] md:before:content-none">
               {document.volume || "-"}
             </span>
-            <span className="text-[var(--cp-muted)] before:mr-2 before:text-xs before:uppercase before:tracking-[0.18em] before:content-['Paginas'] md:before:content-none">
+                  <span className="text-[var(--cp-muted)] before:mr-2 before:text-xs before:uppercase before:tracking-[0.18em] before:content-['Páginas'] md:before:content-none">
               {document.page_count}
             </span>
             <span className="text-[var(--cp-muted)] before:mr-2 before:text-xs before:uppercase before:tracking-[0.18em] before:content-['Lista'] md:before:content-none">

@@ -122,7 +122,7 @@ def _build_rules_source(issues: list[dict[str, Any]]) -> dict[str, Any]:
         "incomplete_count": incomplete_count,
         "inconclusive_count": inconclusive_count,
         "item_count": len(issues),
-        "label": "Rules engine",
+        "label": "Pontos da revisão",
         "pending_review_count": pending_review_count,
         "relevant_count": relevant_count,
         "resolved_count": resolved_count,
@@ -136,7 +136,7 @@ def _build_rules_source(issues: list[dict[str, Any]]) -> dict[str, Any]:
             pending_review_count=pending_review_count,
             relevant_count=relevant_count,
             resolved_count=resolved_count,
-            fallback="Nenhuma issue rastreavel foi gerada pelo rules engine.",
+            fallback="Nenhum ponto rastreável foi gerado pela revisão automática.",
         ),
     }
 
@@ -207,7 +207,7 @@ def _build_ld_crosscheck_source(ld_sheet_crosscheck: dict[str, Any]) -> dict[str
             relevant_count=relevant_count,
             attention_count=attention_count,
             incomplete_count=incomplete_count,
-            fallback="Sem conflitos adicionais no cruzamento entre LDs e pranchas.",
+            fallback="Sem pontos adicionais para verificar no cruzamento entre LDs e pranchas.",
         ),
         "undeclared_sheet_count": undeclared_sheet_count,
     }
@@ -246,7 +246,7 @@ def _build_findings_source(
             relevant_count=relevant_count,
             attention_count=attention_count,
             incomplete_count=incomplete_count,
-            fallback=f"Sem achados adicionais na camada de {label.lower()}.",
+            fallback=f"Sem pontos adicionais para verificar na camada de {label.lower()}.",
         ),
     }
 
@@ -263,11 +263,11 @@ def _build_source_summary(
 
     parts = [f"{item_count} item(ns) analisado(s)"]
     if relevant_count:
-        parts.append(f"{relevant_count} relevante(s)")
+        parts.append(f"{relevant_count} verificar")
     if attention_count:
-        parts.append(f"{attention_count} atencao")
+        parts.append(f"{attention_count} conferir")
     if incomplete_count:
-        parts.append(f"{incomplete_count} limite(s)")
+        parts.append(f"{incomplete_count} não confirmado(s)")
     return " · ".join(parts)
 
 
@@ -284,11 +284,11 @@ def _build_rules_source_summary(
     if item_count == 0:
         return fallback
 
-    parts = [f"{item_count} issue(s) gerada(s)"]
+    parts = [f"{item_count} ponto(s) gerado(s)"]
     if active_count:
         parts.append(f"{active_count} ativa(s)")
     if relevant_count:
-        parts.append(f"{relevant_count} relevante(s) confirmada(s)")
+        parts.append(f"{relevant_count} confirmado(s) para verificar")
     if pending_review_count:
         parts.append(f"{pending_review_count} pendente(s)")
     if resolved_count:
@@ -296,7 +296,7 @@ def _build_rules_source_summary(
     if dismissed_count:
         parts.append(f"{dismissed_count} descartada(s)")
     if incomplete_count:
-        parts.append(f"{incomplete_count} sem evidencia")
+        parts.append(f"{incomplete_count} sem evidência")
     return " · ".join(parts)
 
 
@@ -304,9 +304,9 @@ def _build_status(metrics: dict[str, int], evidence_points: int) -> dict[str, st
     if metrics["relevant_count"] > 0:
         return {
             "code": "relevant_issue",
-            "label": "Com incongruencia relevante",
+            "label": "Com pontos para verificar",
             "summary": (
-                f"{metrics['relevant_count']} conflito(s) ativo(s) relevante(s) "
+                f"{metrics['relevant_count']} ponto(s) confirmado(s) para verificar "
                 "seguem impactando o fechamento do pacote."
             ),
             "tone": "danger",
@@ -316,16 +316,16 @@ def _build_status(metrics: dict[str, int], evidence_points: int) -> dict[str, st
         attention_parts: list[str] = []
         if metrics["attention_count"] > 0:
             attention_parts.append(
-                f"{metrics['attention_count']} ponto(s) de atencao ativo(s)"
+                f"{metrics['attention_count']} ponto(s) para conferir"
             )
         if metrics["pending_review_count"] > 0:
             attention_parts.append(
-                f"{metrics['pending_review_count']} issue(s) pendente(s) de revisao"
+                f"{metrics['pending_review_count']} ponto(s) pendente(s) de revisão"
             )
 
         return {
             "code": "needs_review",
-            "label": "Com pontos de atencao",
+            "label": "Com pontos para revisar",
             "summary": (
                 "O pacote ainda possui "
                 + " e ".join(attention_parts)
@@ -337,9 +337,9 @@ def _build_status(metrics: dict[str, int], evidence_points: int) -> dict[str, st
     if metrics["incomplete_count"] > 0 or evidence_points == 0:
         return {
             "code": "incomplete",
-            "label": "Analise incompleta por falta de evidencia",
+            "label": "Análise incompleta por falta de evidência",
             "summary": (
-                "O pacote nao reuniu evidencia suficiente para encerrar a "
+                "O pacote não reuniu evidência suficiente para encerrar a "
                 "auditoria sem ressalvas."
             ),
             "tone": "muted",
@@ -347,8 +347,8 @@ def _build_status(metrics: dict[str, int], evidence_points: int) -> dict[str, st
 
     return {
         "code": "clean",
-        "label": "Sem incongruencia relevante",
-        "summary": "A auditoria consolidada nao encontrou conflito relevante ativo.",
+        "label": "Sem pontos relevantes para verificar",
+        "summary": "A revisão consolidada não encontrou ponto relevante ativo.",
         "tone": "success",
     }
 
@@ -363,8 +363,8 @@ def _build_highlights(
         highlights.append(
             {
                 "message": (
-                    f"{metrics['relevant_count']} conflito(s) ativo(s) "
-                    "impactam o fechamento do pacote."
+                    f"{metrics['relevant_count']} ponto(s) confirmado(s) "
+                    "precisam ser verificados antes do fechamento."
                 ),
                 "tone": "danger",
             }
@@ -375,7 +375,7 @@ def _build_highlights(
             {
                 "message": (
                     f"{metrics['attention_count']} ponto(s) seguem ativos com "
-                    "severidade de atencao ou exigem conferencias adicionais."
+                    "classificação de atenção ou exigem conferências adicionais."
                 ),
                 "tone": "warning",
             }
@@ -386,7 +386,7 @@ def _build_highlights(
             {
                 "message": (
                     f"{metrics['undeclared_sheet_count']} prancha(s) foram "
-                    "detectadas sem LD correspondente."
+                    "detectadas sem LD correspondente. Conferir se isso se aplica ao pacote."
                 ),
                 "tone": "danger",
             }
@@ -396,8 +396,8 @@ def _build_highlights(
         highlights.append(
             {
                 "message": (
-                    f"{metrics['pending_review_count']} issue(s) do rules engine "
-                    "ainda estao sem decisao registrada."
+                    f"{metrics['pending_review_count']} ponto(s) da revisão automática "
+                    "ainda estão sem decisão registrada."
                 ),
                 "tone": "muted",
             }
@@ -407,8 +407,8 @@ def _build_highlights(
         highlights.append(
             {
                 "message": (
-                    f"{metrics['incomplete_count']} caso(s) ficaram sem evidencia "
-                    "suficiente e reduzem a confianca do fechamento."
+                    f"{metrics['incomplete_count']} caso(s) ficaram sem evidência "
+                    "suficiente e reduzem a confiança do fechamento."
                 ),
                 "tone": "muted",
             }

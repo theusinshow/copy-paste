@@ -246,9 +246,9 @@ def _compare_ld_row_with_sheets(
                     "category": "probable_issue",
                     "matched_sheet": matched_sheet,
                     "message": (
-                        f"{ld_row['document_code']} esta declarado na LD da secao "
-                        f"{ld_scope_id}, mas foi encontrado em outra secao do mesmo PDF "
-                        f"(pagina {out_of_scope_sheet['page']})."
+                        f"Conferir {ld_row['document_code']}: está declarado na LD da seção "
+                        f"{ld_scope_id} e foi encontrado em outra seção do mesmo PDF "
+                        f"(página {out_of_scope_sheet['page']})."
                     ),
                     "reason": "sheet_code_found_outside_ld_section",
                     "severity": "relevante",
@@ -260,8 +260,8 @@ def _compare_ld_row_with_sheets(
                 "category": "needs_review",
                 "matched_sheet": matched_sheet,
                 "message": (
-                    f"{ld_row['document_code']} nao foi confirmado na secao da LD, "
-                    "mas apareceu em outro documento do pacote."
+                    f"Conferir {ld_row['document_code']}: não foi confirmado na seção da LD "
+                    "e apareceu em outro documento do pacote."
                 ),
                 "reason": "sheet_code_found_in_other_document_context",
                 "severity": "atencao",
@@ -272,8 +272,8 @@ def _compare_ld_row_with_sheets(
             **base_result,
             "category": "extraction_limit",
             "message": (
-                f"{ld_row['document_code']} esta declarado na LD, mas nao foi "
-                "confirmado em nenhuma prancha dentro da mesma secao do mapa do pacote."
+                f"Conferir {ld_row['document_code']}: está declarado na LD e não foi "
+                "confirmado em nenhuma prancha dentro da mesma seção do mapa do pacote."
             ),
             "reason": "sheet_code_not_detected_in_ld_section",
             "severity": "atencao",
@@ -288,10 +288,10 @@ def _compare_ld_row_with_sheets(
             **base_result,
             "category": "probable_issue",
             "matched_sheet": matched_sheet,
-            "message": (
-                f"{ld_row['document_code']} foi encontrado, mas a folha da LD "
-                f"({ld_row['item']}) diverge da prancha ({best_sheet['item']})."
-            ),
+        "message": (
+            f"Conferir folha de {ld_row['document_code']}: a LD indica "
+            f"{ld_row['item']} e a prancha indica {best_sheet['item']}."
+        ),
             "reason": "sheet_item_mismatch",
             "severity": "relevante",
             "type": "ld_sheet_item_mismatch",
@@ -306,10 +306,10 @@ def _compare_ld_row_with_sheets(
             **base_result,
             "category": "needs_review",
             "matched_sheet": matched_sheet,
-            "message": (
-                f"{ld_row['document_code']} foi encontrado, mas a descricao da LD "
-                "parece diferente da descricao proxima na prancha."
-            ),
+        "message": (
+            f"Conferir descrição de {ld_row['document_code']}: a descrição da LD "
+            "parece diferente da descrição próxima na prancha."
+        ),
             "reason": "description_mismatch",
             "severity": "atencao",
             "type": "ld_sheet_description_attention",
@@ -320,10 +320,10 @@ def _compare_ld_row_with_sheets(
             **base_result,
             "category": "extraction_limit",
             "matched_sheet": matched_sheet,
-            "message": (
-                f"{ld_row['document_code']} foi encontrado, mas a descricao da "
-                "prancha nao foi detectada com confianca."
-            ),
+        "message": (
+            f"Conferir descrição de {ld_row['document_code']}: a descrição da "
+            "prancha não foi detectada com confiança."
+        ),
             "reason": "sheet_description_low_confidence",
             "severity": "atencao",
             "type": "ld_sheet_description_unknown",
@@ -452,8 +452,8 @@ def _compare_sheet_with_ld_rows(
                 "category": "probable_issue",
                 "matched_ld_row": matched_ld_row,
                 "message": (
-                    f"{sheet['sheet_code']} foi detectada na secao {sheet_scope_id}, "
-                    "mas esta declarada na LD de outra secao do mesmo PDF."
+                    f"Conferir {sheet['sheet_code']}: foi detectada na seção {sheet_scope_id} "
+                    "e está declarada na LD de outra seção do mesmo PDF."
                 ),
                 "reason": "detected_sheet_declared_in_other_section",
                 "severity": "relevante",
@@ -465,7 +465,7 @@ def _compare_sheet_with_ld_rows(
             "category": "needs_review",
             "matched_ld_row": matched_ld_row,
             "message": (
-                f"{sheet['sheet_code']} foi detectada neste PDF, mas a LD "
+                f"Conferir {sheet['sheet_code']}: foi detectada neste PDF, mas a LD "
                 "correspondente apareceu em outro documento do pacote."
             ),
             "reason": "detected_sheet_declared_in_other_document",
@@ -477,7 +477,7 @@ def _compare_sheet_with_ld_rows(
         **base_result,
         "category": "probable_issue",
         "message": (
-            f"{sheet['sheet_code']} foi detectada fora das LDs, mas nao apareceu "
+            f"Conferir {sheet['sheet_code']}: foi detectada fora das LDs e não apareceu "
             "em nenhuma Lista de Documentos do pacote."
         ),
         "reason": "detected_sheet_missing_from_ld",

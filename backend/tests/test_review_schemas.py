@@ -30,7 +30,7 @@ class ReviewDecisionSchemaTests(unittest.TestCase):
         self.assertEqual(get_review_decision_label("confirmada"), "Confirmada")
         self.assertEqual(
             get_review_decision_label("sem_evidencia"),
-            "Sem evidencia",
+            "Sem evidência",
         )
 
 

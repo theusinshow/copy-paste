@@ -32,7 +32,7 @@ export function HomeIntakeFlow({ initialMode, initialConfig }: HomeIntakeFlowPro
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--cp-muted)]">
           Envie os PDFs, escolha entre volume de projeto ou memorial e receba
-          uma lista objetiva do que precisa ser revisado, sempre com evidencias.
+        uma lista objetiva do que precisa ser revisado, sempre com evidências.
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
@@ -72,7 +72,7 @@ export function HomeIntakeFlow({ initialMode, initialConfig }: HomeIntakeFlowPro
             <span className="font-semibold text-[var(--cp-text)]">
               Comecar agora
             </span>{" "}
-            para abrir o envio dos arquivos e iniciar a revisao.
+        para abrir o envio dos arquivos e iniciar a revisão.
           </section>
         )}
       </div>

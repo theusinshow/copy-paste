@@ -40,7 +40,7 @@ export async function runNewAnalysisFlow({
     const createdState: NewAnalysisActionState = {
       analysis,
       documents,
-      message: `${modeLabel}: analise #${analysis.id} criada e upload concluido. Abrindo acompanhamento do processamento.`,
+      message: `${modeLabel}: análise #${analysis.id} criada e upload concluído. Abrindo acompanhamento do processamento.`,
       status: "created",
       tone: "default",
     };
@@ -49,7 +49,7 @@ export async function runNewAnalysisFlow({
   } catch (error) {
     const fallbackMessage = extractApiErrorMessage(
       error,
-      "Nao foi possivel concluir o processamento da analise agora.",
+      "Não foi possível concluir o processamento da análise agora.",
     );
 
     if (!analysis) {
@@ -75,7 +75,7 @@ export async function runNewAnalysisFlow({
       documents,
       message:
       nextStatus === "failed"
-          ? `${modeLabel}: analise #${analysis.id} falhou durante o start: ${fallbackMessage}`
+      ? `${modeLabel}: análise #${analysis.id} falhou durante o start: ${fallbackMessage}`
           : fallbackMessage,
       status: nextStatus,
       tone: "error",

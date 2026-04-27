@@ -57,9 +57,9 @@ GET /analysis/{id}
 - retorna `id`, `status`, `analysis_mode`, `config`, `created_at`
 
 GET /analysis/{id}/issues
-→ lista issues
-- retorna `Issue` com `evidences`
-- retorna `review` quando a issue ja possui decisao humana registrada
+→ lista pontos técnicos
+- retorna `Issue` com `evidences` (nome técnico do contrato)
+- retorna `review` quando o ponto já possui decisão humana registrada
 - retorna `review_status` e `review_status_label` para classificar a fila em `pending_review`, `active`, `resolved`, `dismissed` ou `inconclusive`
 - `evidences` mantem `issue_id`, `field_id`, `page`, `bbox`
 - `evidences.text` e derivado de `ExtractedField.raw_value` apenas para leitura
@@ -73,7 +73,7 @@ GET /analysis/{id}/audit-summary
 → consolida o fechamento executivo da analise
 - retorna status final da auditoria: `sem incongruencia relevante`, `com pontos de atencao`, `com incongruencia relevante` ou `analise incompleta por falta de evidencia`
 - agrega contadores de conflitos ativos, revisoes pendentes, resolvidas, descartadas, sem evidencia, pranchas sem LD e limites de extracao
-- aplica as decisoes humanas das issues antes de fechar o rules engine no consolidado
+- aplica as decisões humanas dos pontos antes de fechar o rules engine no consolidado
 - resume as camadas `rules_engine`, `drawing_lists`, `ld_sheet_crosscheck`, `memorial_audit` e `footer_audit`
 
 GET /analysis/{id}/signoff
@@ -127,7 +127,7 @@ GET /analysis/{id}/ai-review
 - retorna contextos textuais por abertura de documento e seção interna
 - retorna sugestões estruturais rastreáveis para revisão humana
 - retorna `provider_status` para indicar se há IA externa configurada
-- nesta fase não substitui regras determinísticas nem decide incongruências
+- nesta fase não substitui regras determinísticas nem decide pontos automaticamente
 
 GET /analysis/{id}/drawing-lists
 → lista as linhas detectadas nas Listas de Documentos
@@ -157,7 +157,7 @@ GET /analysis/{id}/ld-sheet-crosscheck
 GET /analysis/{id}/memorial-audit
 → audita campos de identidade encontrados em memoriais
 - retorna ocorrencias de endereco, bairro, municipio, proprietario/cliente, obra e numero de projeto com pagina e trecho de evidencia
-- retorna achados por `category`, separando divergencia provavel, revisao necessaria e limite de extracao
+- retorna achados por `category`, separando ponto para verificar, revisão necessária e limite de extração
 - ausência de campo no memorial não é tratada como erro
 
 GET /analysis/{id}/mode-output
@@ -170,20 +170,20 @@ GET /analysis/{id}/mode-output
 
 GET /issues/{id}
 → detalhe
-- retorna a issue com `evidences`, `review` atual e status derivado da fila de revisao
+- retorna o ponto técnico com `evidences`, `review` atual e status derivado da fila de revisão
 
 POST /issues/{id}/review
 → revisão
 - body: `{ "decision": "confirmada|falso_positivo|corrigido|nao_aplicavel|sem_evidencia", "comment": "texto opcional" }`
-- cria ou atualiza a `ReviewDecision` associada a issue
-- retorna a issue atualizada com a revisao registrada
+- cria ou atualiza a `ReviewDecision` associada ao ponto
+- retorna o ponto atualizado com a revisão registrada
 
 POST /analysis/{id}/issues/review-batch
 → revisão em lote
 - body: `{ "issue_ids": [1, 2, 3], "decision": "confirmada|falso_positivo|corrigido|nao_aplicavel|sem_evidencia", "comment": "texto opcional" }`
-- valida que todos os `issue_ids` existem e pertencem a analise informada
-- cria ou atualiza a `ReviewDecision` de todas as issues selecionadas
-- retorna contagem atualizada e label humana da decisao aplicada
+- valida que todos os `issue_ids` existem e pertencem à análise informada
+- cria ou atualiza a `ReviewDecision` de todos os pontos selecionados
+- retorna contagem atualizada e label humana da decisão aplicada
 
 GET /analysis/{id}/export
 → relatório
@@ -192,4 +192,4 @@ GET /analysis/{id}/export
 - formatos aceitos:
   - `md`
   - `html`
-- inclui fechamento executivo, sign-off humano quando existir, grupos de issues por status, pranchas sem LD correspondente e saida de modo dirigido quando aplicavel
+- inclui fechamento executivo, sign-off humano quando existir, grupos de pontos por status, pranchas sem LD correspondente e saída de modo dirigido quando aplicável

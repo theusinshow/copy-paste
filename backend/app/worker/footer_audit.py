@@ -64,7 +64,7 @@ def _extract_footer_occurrences(
             {
                 "document_id": document.id,
                 "field": "project_code",
-                "field_label": "Numero do projeto",
+                "field_label": "Número do projeto",
                 "filename": document.original_filename,
                 "normalized_value": _normalize_comparable(value),
                 "page": page_number,
@@ -89,7 +89,7 @@ def _build_findings(
                         "category": "probable_issue",
                         "field": "project_code",
                         "message": (
-                            "Rodape com numero de projeto divergente. "
+                            "Conferir número de projeto no rodapé. "
                             f"Esperado: {expected_project_code}. "
                             f"Encontrado: {occurrence['value']}."
                         ),
@@ -113,8 +113,8 @@ def _build_findings(
                         "category": "needs_review",
                         "field": "project_code",
                         "message": (
-                            "Mais de um numero de projeto foi encontrado em rodapes. "
-                            f"Revisar ocorrencia: {occurrence['value']}."
+                            "Mais de um número de projeto foi encontrado em rodapés. "
+                            f"Conferir ocorrência: {occurrence['value']}."
                         ),
                         "occurrences": [occurrence],
                         "reason": "multiple_footer_project_codes_detected",

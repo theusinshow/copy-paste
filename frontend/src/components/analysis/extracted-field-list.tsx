@@ -19,7 +19,7 @@ export function ExtractedFieldList({
           Trechos separados
         </p>
         <h2 className="mt-3 text-2xl font-semibold text-[var(--cp-text)]">
-          Dados que ajudaram a montar a revisao.
+        Dados que ajudaram a montar a revisão.
         </h2>
       </div>
 
@@ -32,7 +32,7 @@ export function ExtractedFieldList({
       {!loadError && fields.length === 0 ? (
         <div className="mt-5 rounded-lg border border-[var(--cp-border)] bg-black/10 p-5 text-sm leading-6 text-[var(--cp-muted)]">
           Nenhum dado conhecido foi separado automaticamente. Quando isso
-          acontece, a analise evita criar alerta sem evidencia suficiente.
+          acontece, a análise evita criar alerta sem evidência suficiente.
         </div>
       ) : null}
 
@@ -53,7 +53,7 @@ export function ExtractedFieldList({
                   </p>
                 </div>
                 <span className="shrink-0 rounded-lg border border-[var(--cp-border)] px-3 py-1 text-xs text-[var(--cp-muted)]">
-                  pagina {field.page ?? "-"}
+              página {field.page ?? "-"}
                 </span>
               </div>
               <p className="mt-3 truncate text-xs text-[var(--cp-muted)]">

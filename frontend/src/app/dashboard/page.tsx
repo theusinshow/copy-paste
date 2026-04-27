@@ -20,7 +20,7 @@ export default async function DashboardPage() {
           Dashboard
         </h1>
         <p className="mt-1 text-sm text-[var(--cp-muted)]">
-          Metricas agregadas de todas as analises.
+        Métricas agregadas de todas as análises.
         </p>
       </div>
 

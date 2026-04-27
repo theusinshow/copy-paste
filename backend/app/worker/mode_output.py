@@ -14,9 +14,9 @@ LINE_TOP_TOLERANCE = 3.0
 WHITESPACE_PATTERN = re.compile(r"\s+")
 
 FIELD_LABELS = {
-    "endereco": "Endereco",
+    "endereco": "Endereço",
     "nome_obra": "Nome da obra",
-    "numero_projeto": "Numero do projeto",
+    "numero_projeto": "Número do projeto",
 }
 
 
@@ -56,10 +56,10 @@ def _build_find_text_output(
     ]
 
     summary = (
-        f"{len(matching_lines)} ocorrencia(s) de '{query}' detectada(s) em "
-        f"{len({entry['page_key'] for entry in matching_lines})} pagina(s)."
+        f"{len(matching_lines)} ocorrência(s) de '{query}' detectada(s) em "
+        f"{len({entry['page_key'] for entry in matching_lines})} página(s)."
         if matching_lines
-        else f"Nenhuma ocorrencia de '{query}' foi localizada na carga analisada."
+        else f"Nenhuma ocorrência de '{query}' foi localizada na carga analisada."
     )
 
     return {
@@ -111,10 +111,10 @@ def _build_find_replace_output(
     ]
 
     summary = (
-        f"{len(matching_lines)} ocorrencia(s) de '{find_value}' foram listada(s) "
-        "para substituicao sugerida, sem alterar o PDF original."
+        f"{len(matching_lines)} ocorrência(s) de '{find_value}' foram listada(s) "
+        "para substituição sugerida, sem alterar o PDF original."
         if matching_lines
-        else f"Nenhuma ocorrencia de '{find_value}' foi localizada para substituicao."
+        else f"Nenhuma ocorrência de '{find_value}' foi localizada para substituição."
     )
 
     return {
@@ -147,7 +147,7 @@ def _build_find_replace_output(
             "page_count": len({entry["page_key"] for entry in matching_lines}),
         },
         "summary": summary,
-        "title": "Busca e substituicao",
+        "title": "Busca e substituição",
     }
 
 
@@ -196,18 +196,18 @@ def _build_expected_value_output(
 
     if not matching_fields:
         summary = (
-            f"Nenhuma evidencia do campo {FIELD_LABELS[field_name].lower()} foi extraida "
-            "nesta analise. A ausencia nao gera incongruencia automaticamente."
+            f"Nenhuma evidência do campo {FIELD_LABELS[field_name].lower()} foi extraída "
+            "nesta análise. A ausência não gera ponto automaticamente."
         )
     elif divergent_count == 0:
         summary = (
-            f"Todas as {matching_count} evidencia(s) extraidas de "
+            f"Todas as {matching_count} evidência(s) extraídas de "
             f"{FIELD_LABELS[field_name].lower()} conferem com o valor esperado."
         )
     else:
         summary = (
-            f"{divergent_count} evidencia(s) de {FIELD_LABELS[field_name].lower()} "
-            f"divergem do valor esperado '{expected}'."
+            f"{divergent_count} evidência(s) de {FIELD_LABELS[field_name].lower()} "
+            f"precisam ser conferidas em relação ao valor esperado '{expected}'."
         )
 
     return {
@@ -232,7 +232,7 @@ def _build_expected_value_output(
             ),
         },
         "summary": summary,
-        "title": f"Verificacao dirigida de {FIELD_LABELS[field_name].lower()}",
+        "title": f"Verificação dirigida de {FIELD_LABELS[field_name].lower()}",
     }
 
 

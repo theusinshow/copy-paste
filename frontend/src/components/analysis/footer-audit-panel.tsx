@@ -14,18 +14,18 @@ export function FooterAuditPanel({ audit, loadError }: FooterAuditPanelProps) {
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-[var(--cp-accent)]">
-            Conferencia do rodape
+            Conferência do rodapé
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Comparacao dos numeros de projeto lidos no rodape.
+            Comparação dos números de projeto lidos no rodapé.
           </h2>
         </div>
 
         {audit ? (
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-            <Metric label="Paginas" value={audit.stats.footer_page_count} />
+            <Metric label="Páginas" value={audit.stats.footer_page_count} />
             <Metric label="Campos" value={audit.stats.occurrence_count} />
-            <Metric label="Conflitos" value={audit.stats.probable_issue_count} />
+            <Metric label="Verificar" value={audit.stats.probable_issue_count} />
             <Metric label="Revisar" value={audit.stats.needs_review_count} />
           </div>
         ) : null}
@@ -41,7 +41,7 @@ export function FooterAuditPanel({ audit, loadError }: FooterAuditPanelProps) {
         <div className="mt-5 grid gap-4">
           {audit.findings.length === 0 ? (
             <div className="rounded-lg border border-[var(--cp-success)]/30 bg-[var(--cp-success)]/10 p-4 text-sm text-[var(--cp-text)]">
-              Nenhum conflito objetivo foi detectado nos rodapes lidos.
+              Nenhum ponto objetivo para verificar foi detectado nos rodapés lidos.
             </div>
           ) : (
             <div className="grid gap-3">
@@ -78,7 +78,7 @@ function OccurrenceSummary({ audit }: { audit: FooterAudit }) {
   if (audit.occurrences.length === 0) {
     return (
       <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
-        Nenhum numero de projeto foi detectado nos rodapes com posicao legivel.
+        Nenhum número de projeto foi detectado nos rodapés com posição legível.
       </div>
     );
   }
@@ -91,7 +91,7 @@ function OccurrenceSummary({ audit }: { audit: FooterAudit }) {
   return (
       <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
       <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-        Numeros encontrados
+        Números encontrados
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         {[...counts.entries()].map(([value, count]) => (

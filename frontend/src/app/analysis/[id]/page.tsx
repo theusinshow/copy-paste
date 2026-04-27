@@ -41,7 +41,7 @@ import type { AnalysisRun } from "@/lib/types/analysis";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Resultado da analise",
+  title: "Resultado da análise",
 };
 
 type AnalysisResultPageProps = {
@@ -396,7 +396,7 @@ function ResultNavigation({
   const links = [
     ["#resumo-final", "Resumo"],
     ["#pontos", "Pontos encontrados"],
-    ["#busca", "Busca / conferencia"],
+  ["#busca", "Busca / conferência"],
     ["#conferencia-volume", "LD x Pranchas"],
     ["#conferencia-memorial", "Memorial"],
     ["#encerramento", "Conclusão"],

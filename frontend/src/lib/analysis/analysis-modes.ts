@@ -61,7 +61,7 @@ export const ANALYSIS_MODE_DEFINITIONS: AnalysisModeDefinition[] = [
     description: "Foca a leitura apenas em pranchas e plantas.",
     group: "Recorte por documento",
     helper: "Use quando o material principal do pacote estiver nas pranchas.",
-    label: "Analise de pranchas",
+    label: "Análise de pranchas",
     lockedTipo: "prancha",
     value: "sheets_only",
   },
@@ -200,7 +200,7 @@ export function buildAnalysisModeConfig(
     if (!query) {
       return {
         config: {},
-        error: "Informe o texto que deve ser buscado nesta analise.",
+    error: "Informe o texto que deve ser buscado nesta análise.",
       };
     }
     return { config: { query } };
@@ -261,10 +261,10 @@ function getGroupDescription(group: string) {
   const descriptions: Record<string, string> = {
     "Auditoria completa": "Fluxo geral para revisar o pacote como um todo.",
     "Busca textual": "Opcoes para localizar texto ou revisar uma troca de texto.",
-    "Fluxo principal": "Fluxos visiveis para a revisao cotidiana do pacote.",
+    "Fluxo principal": "Fluxos visíveis para a revisão cotidiana do pacote.",
     "Recorte por documento": "Opcoes para focar a leitura em um tipo especifico de arquivo.",
     "Verificacao pontual": "Opcoes para comparar um valor esperado com o que for encontrado.",
   };
 
-  return descriptions[group] ?? "Grupo tecnico de configuracao da analise.";
+  return descriptions[group] ?? "Grupo técnico de configuração da análise.";
 }

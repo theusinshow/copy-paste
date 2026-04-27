@@ -20,7 +20,7 @@ export default async function PackagesPage() {
           Pacotes
         </h1>
         <p className="mt-1 text-sm text-[var(--cp-muted)]">
-          Analises agrupadas por codigo de projeto detectado.
+        Análises agrupadas por código de projeto detectado.
         </p>
       </div>
 

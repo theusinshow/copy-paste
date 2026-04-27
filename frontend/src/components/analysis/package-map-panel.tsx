@@ -41,7 +41,7 @@ export function PackageMapPanel({ loadError, map }: PackageMapPanelProps) {
         <div className="mt-5 grid gap-4">
           {map.documents.length === 0 ? (
             <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4 text-sm text-[var(--cp-muted)]">
-              Nenhum arquivo foi organizado automaticamente nesta analise.
+        Nenhum arquivo foi organizado automaticamente nesta análise.
             </div>
           ) : (
             map.documents.map((document) => (
@@ -62,7 +62,7 @@ export function PackageMapPanel({ loadError, map }: PackageMapPanelProps) {
                     </p>
                   </div>
                   <p className="text-xs uppercase tracking-[0.16em] text-[var(--cp-muted)]">
-                    {document.page_count} paginas · {document.sections.length} parte(s)
+                  {document.page_count} páginas · {document.sections.length} parte(s)
                   </p>
                 </div>
 
@@ -78,7 +78,7 @@ export function PackageMapPanel({ loadError, map }: PackageMapPanelProps) {
                         </p>
                         <p className="mt-1 text-xs text-[var(--cp-muted)]">
                           {section.section_label} ·{" "}
-                          paginas {section.start_page}-{section.end_page}
+                    páginas {section.start_page}-{section.end_page}
                           {section.ld_page ? ` · lista p${section.ld_page}` : " · sem lista"}
                         </p>
                         <CodeList codes={section.ld_codes} emptyLabel="Sem codigos listados" />

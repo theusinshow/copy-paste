@@ -131,7 +131,7 @@ export function NewAnalysisForm({ initialMode, initialConfig }: NewAnalysisFormP
           </div>
 
           <AnalysisModeSelector
-            title="Tipo de analise"
+      title="Tipo de análise"
             description="Volume de projeto confere capa, separatrizes, LDs e pranchas. Memorial foca a revisão textual do memorial."
             modes={primaryModes}
             selectedMode={selectedMode}

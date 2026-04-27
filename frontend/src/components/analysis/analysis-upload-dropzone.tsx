@@ -69,7 +69,7 @@ export function AnalysisUploadDropzone({
             Arraste os PDFs aqui ou clique para selecionar.
           </h3>
           <p className="max-w-2xl text-sm leading-6 text-[var(--cp-muted)]">
-            Envie um ou mais arquivos para iniciar a revisao. Voce pode montar
+        Envie um ou mais arquivos para iniciar a revisão. Você pode montar
             um pacote completo ou mandar apenas o material que quer conferir.
           </p>
         </div>

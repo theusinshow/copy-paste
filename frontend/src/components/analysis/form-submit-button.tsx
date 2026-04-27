@@ -12,8 +12,8 @@ export function FormSubmitButton({
       className="inline-flex items-center justify-center rounded-lg bg-[var(--cp-accent)] px-5 py-3 text-sm font-semibold text-[var(--cp-accent-ink)] transition-transform duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {pending
-        ? "Enviando arquivos e iniciando a analise..."
-        : "Iniciar analise"}
+      ? "Enviando arquivos e iniciando a análise..."
+      : "Iniciar análise"}
     </button>
   );
 }

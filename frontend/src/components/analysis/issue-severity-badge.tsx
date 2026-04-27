@@ -4,7 +4,7 @@ const severityMap: Record<
 > = {
   atencao: {
     cardClassName: "border-[var(--cp-warning)]/35",
-    label: "Atencao",
+    label: "Conferir",
     pillClassName:
       "border-[var(--cp-warning)]/40 bg-[var(--cp-warning)]/12 text-[var(--cp-warning)]",
   },
@@ -16,7 +16,7 @@ const severityMap: Record<
   },
   relevante: {
     cardClassName: "border-[var(--cp-error)]/35",
-    label: "Relevante",
+    label: "Verificar",
     pillClassName:
       "border-[var(--cp-error)]/40 bg-[var(--cp-error)]/12 text-[var(--cp-error)]",
   },

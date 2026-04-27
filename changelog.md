@@ -14,6 +14,7 @@
 - **Link ativo no nav**: pagina corrente e destacada no menu de navegacao com borda dourada e fundo sutil, via `usePathname`.
 
 ### Changed
+- Linguagem da análise ajustada para tom de triagem técnica: achados passam a aparecer como pontos para verificar, conferir ou não confirmados, e a decisão de falso positivo passa a ser exibida como "Não procede".
 - Interface de resultado revisada para trocar termos internos como "issue" por "ponto", melhorar acentuação e explicar melhor a revisão humana.
 - Auditoria deixou de gerar divergência automática para `orgao_cliente`, preservando variações reais de nome de escritório, cliente ou empresa no pacote.
 - Cruzamento LD × Pranchas agora só verifica pranchas sem declaração quando existe uma LD detectada no pacote.

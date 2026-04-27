@@ -27,7 +27,7 @@ export function AnalysisStartStatus({
           </p>
           {state.analysis ? (
             <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
-              <span>Analise criada: #{state.analysis.id}</span>
+          <span>Análise criada: #{state.analysis.id}</span>
               <AnalysisModeBadge mode={state.analysis.analysis_mode} />
             </div>
           ) : null}
@@ -69,7 +69,7 @@ export function AnalysisStartStatus({
             href="/"
             className="inline-flex items-center justify-center rounded-none border border-[var(--cp-border)] px-5 py-3 font-medium text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)]"
           >
-            Voltar para analises
+          Voltar para análises
           </Link>
         </div>
       ) : null}
