@@ -213,3 +213,17 @@ export async function listAnalysisDocuments(analysisId: number) {
 export function getDocumentFileUrl(analysisId: number, documentId: number) {
   return buildApiUrl(`/api/v1/analysis/${analysisId}/documents/${documentId}/file`);
 }
+
+export type DashboardStats = {
+  totals: { analyses: number; documents: number; issues: number; reviews_pending: number };
+  analyses_by_status: Record<string, number>;
+  analyses_by_mode: Record<string, number>;
+  issues_by_severity: Record<string, number>;
+  reviews_by_decision: Record<string, number>;
+  top_issue_types: { type: string; count: number }[];
+  trend: { date: string; count: number }[];
+};
+
+export async function getDashboardStats() {
+  return apiFetch<DashboardStats>("/api/v1/dashboard", { cache: "no-store" });
+}

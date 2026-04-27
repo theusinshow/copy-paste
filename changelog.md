@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- **Dashboard de metricas** em `/dashboard`: cards de totais (analises, documentos, pontos, taxa de revisao), grafico de linha com evolucao de analises ao longo do tempo, barras de status e modo, pizza de severidade dos pontos, barras horizontais com os 10 tipos de ponto mais frequentes e grafico de decisoes de revisao humana. Dados agregados via novo endpoint `GET /api/v1/dashboard`. Link adicionado ao header de navegacao.
 - **Visualizador de PDF embutido** na tela de resultado: painel fixo na base da tela (60 vh) com abas por documento, navegacao de paginas e renderizacao via PDF.js (`react-pdf`). Ativado pelo botao "Ver p.X" em cada evidencia de issue, que abre o viewer diretamente na pagina correta. Suporta multiplos documentos por analise com troca de aba.
 - Endpoint `GET /api/v1/analysis/{id}/documents` para listar documentos de uma analise.
 - Endpoint `GET /api/v1/analysis/{id}/documents/{document_id}/file` para servir o PDF com `FileResponse` e cache de 1h.

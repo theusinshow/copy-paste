@@ -3,6 +3,7 @@ import Link from "next/link";
 
 const navigationLinks = [
   { href: "/", label: "Analises" },
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/analysis/new", label: "Nova analise" },
 ];
 
