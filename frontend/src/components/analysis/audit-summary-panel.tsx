@@ -27,7 +27,7 @@ export function AuditSummaryPanel({
           </h2>
           <p className="max-w-3xl text-sm leading-6 text-[var(--cp-muted)]">
             Esse quadro junta o que foi encontrado nos arquivos, na lista de
-            documentos, nas pranchas, nos memoriais, nos rodapes e no que ja
+            documentos, nas pranchas, nos memoriais, nos rodapés e no que já
             foi revisado por uma pessoa.
           </p>
         </div>
@@ -80,12 +80,12 @@ export function AuditSummaryPanel({
               value={summary.metrics.relevant_count.toString().padStart(2, "0")}
             />
             <SummaryMetric
-              label="Atencao"
+              label="Atenção"
               tone={summary.metrics.attention_count > 0 ? "warning" : "success"}
               value={summary.metrics.attention_count.toString().padStart(2, "0")}
             />
             <SummaryMetric
-              label="Aguardando revisao"
+              label="Aguardando revisão"
               tone={summary.metrics.pending_review_count > 0 ? "muted" : "success"}
               value={summary.metrics.pending_review_count.toString().padStart(2, "0")}
             />
@@ -169,7 +169,7 @@ export function AuditSummaryPanel({
                       {source.dismissed_count} descartada(s)
                     </span>
                     <span className="rounded-none border border-[var(--cp-border)] px-3 py-1">
-                      {source.inconclusive_count} sem evidencia
+                      {source.inconclusive_count} sem evidência
                     </span>
                   </div>
                 ) : null}

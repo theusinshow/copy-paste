@@ -141,11 +141,11 @@ export function IssueList({
         const pending = issues.find((i) => i.review_status === "pending_review");
         if (pending) setFocusedIssueId(pending.id);
       } else if (event.key === "r") {
-        void handleQuickReview("resolved");
+        void handleQuickReview("corrigido");
       } else if (event.key === "d") {
-        void handleQuickReview("dismissed");
+        void handleQuickReview("falso_positivo");
       } else if (event.key === "a") {
-        void handleQuickReview("active");
+        void handleQuickReview("confirmada");
       }
     }
 
@@ -212,11 +212,11 @@ export function IssueList({
           Pontos encontrados
         </p>
         <h2 className="mt-2 text-2xl font-semibold text-[var(--cp-text)]">
-          Itens que merecem atencao na revisao.
+          Pontos que merecem atenção na revisão.
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--cp-muted)]">
-          Cada card mostra o que foi encontrado, a evidencia principal e a
-          decisao humana registrada ate agora.
+          Primeiro confira os pontos em aberto. Depois use o checklist para
+          confirmar, descartar, marcar como corrigido ou deixar inconclusivo.
         </p>
       </div>
 
@@ -250,8 +250,8 @@ export function IssueList({
           </div>
 
           <p className="text-sm text-[var(--cp-muted)]">
-            Exibindo {visibleIssues.length} de {issues.length} item(ns)
-            encontrados na revisao automatica.
+            Exibindo {visibleIssues.length} de {issues.length} ponto(s)
+            encontrados na revisão automática.
           </p>
 
           <div className="flex flex-wrap items-center gap-2 rounded-none border border-[var(--cp-border)] bg-black/10 p-3">
@@ -275,7 +275,7 @@ export function IssueList({
               }
               className="rounded-none border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Proxima
+              Próxima
             </button>
             <button
               type="button"
@@ -283,7 +283,7 @@ export function IssueList({
               disabled={!visibleIssues.some((issue) => issue.review_status === "pending_review")}
               className="rounded-none border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Primeira pendente
+              Primeiro pendente
             </button>
             <span className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
               Foco:{" "}
@@ -292,7 +292,7 @@ export function IssueList({
                 : "nenhum"}
             </span>
             <span className="ml-auto hidden text-xs text-[var(--cp-muted)] sm:block">
-              j/k navegar · f pendente · r/d/a decidir
+              j/k navegar · f pendente
             </span>
           </div>
 
@@ -307,7 +307,7 @@ export function IssueList({
           />
 
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-            {visibleSelectedCount} selecionada(s) na fila visivel atual.
+            {visibleSelectedCount} selecionado(s) na fila visível atual.
           </p>
         </div>
       ) : null}
@@ -316,11 +316,11 @@ export function IssueList({
         <div className="mt-6 rounded-none border border-[var(--cp-border)] bg-black/15 p-6">
           <p className="text-sm font-medium text-[var(--cp-text)]">
             {status === "completed"
-              ? "Nenhum ponto de atencao foi apontado nesta analise."
-              : "Os pontos encontrados aparecerao aqui quando a analise terminar o processamento."}
+              ? "Nenhum ponto de atenção foi apontado nesta análise."
+              : "Os pontos encontrados aparecerão aqui quando a análise terminar o processamento."}
           </p>
           <p className="mt-2 text-sm leading-6 text-[var(--cp-muted)]">
-            Enquanto isso, voce ainda pode acompanhar o andamento e os demais
+            Enquanto isso, você ainda pode acompanhar o andamento e os demais
             blocos do resultado.
           </p>
         </div>
@@ -333,7 +333,7 @@ export function IssueList({
           </p>
           <p className="mt-2 text-sm leading-6 text-[var(--cp-muted)]">
             Troque o filtro para revisar outra fila ou continue registrando
-            decisoes humanas nos cards visiveis.
+            decisões humanas nos cards visíveis.
           </p>
         </div>
       ) : null}

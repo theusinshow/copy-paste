@@ -170,7 +170,7 @@ class OwnerCityDiffersTests(unittest.TestCase):
     """owner_city_differs_from_memorial_municipality:
     Cidade do proprietario/cliente difere do municipio do memorial."""
 
-    def test_cidade_do_proprietario_difere_do_municipio(self) -> None:
+    def test_cidade_do_proprietario_nao_gera_finding_automatico(self) -> None:
         prancha = make_prancha(1)
         memorial = make_memorial(2)
         texts = {
@@ -187,11 +187,9 @@ class OwnerCityDiffersTests(unittest.TestCase):
 
         result = build_memorial_audit([prancha, memorial], texts)
 
-        self.assertTrue(
+        self.assertFalse(
             has_finding(result["findings"], "owner_city_differs_from_memorial_municipality")
         )
-        finding = get_finding(result["findings"], "owner_city_differs_from_memorial_municipality")
-        self.assertEqual(finding["severity"], "relevante")
 
 
 class MultipleAddressTests(unittest.TestCase):

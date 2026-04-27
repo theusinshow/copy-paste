@@ -52,6 +52,13 @@ def build_ld_sheet_crosscheck(
     page_texts_by_document_id: dict[int, dict[int, str]],
 ) -> dict[str, Any]:
     drawing_lists = build_drawing_lists(documents, page_texts_by_document_id)
+    if not any(drawing_list["rows"] for drawing_list in drawing_lists["lists"]):
+        return {
+            "results": [],
+            "reverse_results": [],
+            "stats": _empty_stats(),
+        }
+
     detected_sheets = build_detected_sheets(documents, page_texts_by_document_id)
     sheets_by_code = _index_sheets_by_code(detected_sheets)
     rows_by_code = _index_ld_rows_by_code(drawing_lists)
@@ -150,6 +157,29 @@ def build_ld_sheet_crosscheck(
                 if result["reason"] == "detected_sheet_missing_from_ld"
             ),
         },
+    }
+
+
+def _empty_stats() -> dict[str, int]:
+    return {
+        "attention_count": 0,
+        "compatible_count": 0,
+        "combined_extraction_limit_count": 0,
+        "combined_needs_review_count": 0,
+        "combined_probable_issue_count": 0,
+        "extraction_limit_count": 0,
+        "needs_review_count": 0,
+        "ok_count": 0,
+        "probable_issue_count": 0,
+        "relevant_count": 0,
+        "reverse_extraction_limit_count": 0,
+        "reverse_needs_review_count": 0,
+        "reverse_other_document_count": 0,
+        "reverse_other_section_count": 0,
+        "reverse_probable_issue_count": 0,
+        "reverse_total_count": 0,
+        "total_count": 0,
+        "undeclared_sheet_count": 0,
     }
 
 

@@ -1,11 +1,11 @@
 export const REVIEW_DECISION_OPTIONS = [
   {
-    description: "Mantem a issue aberta como achado valido do pacote.",
+    description: "Mantém este ponto aberto porque ele realmente precisa aparecer no fechamento.",
     label: "Confirmada",
     value: "confirmada",
   },
   {
-    description: "Fecha a issue porque a regra apontou um conflito inexistente.",
+    description: "Remove este ponto do fechamento porque a leitura automática se enganou.",
     label: "Falso positivo",
     value: "falso_positivo",
   },
@@ -15,13 +15,13 @@ export const REVIEW_DECISION_OPTIONS = [
     value: "corrigido",
   },
   {
-    description: "Fecha a issue porque ela nao se aplica ao pacote revisado.",
-    label: "Nao aplicavel",
+    description: "Remove este ponto porque ele não se aplica a este projeto ou memorial.",
+    label: "Não aplicável",
     value: "nao_aplicavel",
   },
   {
-    description: "Marca que a evidencia disponivel nao permite concluir o caso.",
-    label: "Sem evidencia",
+    description: "Marca que o trecho mostrado não é suficiente para concluir com segurança.",
+    label: "Sem evidência",
     value: "sem_evidencia",
   },
 ] as const;
@@ -40,8 +40,8 @@ const reviewDecisionLabelMap: Record<ReviewDecisionCode, string> = {
   confirmada: "Confirmada",
   corrigido: "Corrigido",
   falso_positivo: "Falso positivo",
-  nao_aplicavel: "Nao aplicavel",
-  sem_evidencia: "Sem evidencia",
+  nao_aplicavel: "Não aplicável",
+  sem_evidencia: "Sem evidência",
 };
 
 const reviewStatusAppearanceMap: Record<
@@ -59,7 +59,7 @@ const reviewStatusAppearanceMap: Record<
       "border-[var(--cp-info)]/40 bg-[var(--cp-info)]/12 text-[var(--cp-info)]",
   },
   inconclusive: {
-    label: "Sem evidencia",
+    label: "Sem evidência",
     pillClassName:
       "border-[var(--cp-border)] bg-black/10 text-[var(--cp-muted)]",
   },

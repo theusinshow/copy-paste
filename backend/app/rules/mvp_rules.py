@@ -20,8 +20,13 @@ from app.rules.types import (
 SEVERITY_ATENCAO = "atencao"
 SEVERITY_RELEVANTE = "relevante"
 MISSING_FIELD_ISSUE_TYPE = "campo_obrigatorio_ausente"
-DIVERGENCE_FIELDS = ("nome_obra", "numero_projeto", "bairro", "municipio", "orgao_cliente")
-REQUIRED_FIELD_NAMES = tuple(definition.field_name for definition in FIELD_DEFINITIONS)
+DIVERGENCE_FIELDS = ("nome_obra", "numero_projeto", "bairro", "municipio")
+NON_BLOCKING_FIELD_NAMES = {"orgao_cliente"}
+REQUIRED_FIELD_NAMES = tuple(
+    definition.field_name
+    for definition in FIELD_DEFINITIONS
+    if definition.field_name not in NON_BLOCKING_FIELD_NAMES
+)
 TARGETED_CHECK_FIELDS = {
     ANALYSIS_MODE_CHECK_ADDRESS: "endereco",
     ANALYSIS_MODE_CHECK_PROJECT_NUMBER: "numero_projeto",
@@ -36,6 +41,8 @@ DATE_DMY_PATTERN = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{4})$")
 DATE_MY_PATTERN = re.compile(r"^(\d{1,2})/(\d{4})$")
 DATE_Y_PATTERN = re.compile(r"^(\d{4})$")
 DATE_OUTDATED_YEARS = 2
+PROJECT_CODE_VALUE_PATTERN = re.compile(r"\b\d{2,4}\s*[-_]\s*\d{2,4}\b")
+SINGLE_VALUE_STOPWORDS = {"A", "AS", "COM", "DA", "DAS", "DE", "DO", "DOS", "E", "EM", "O", "OS"}
 
 
 def evaluate_mvp_rules(
@@ -74,12 +81,12 @@ def evaluate_targeted_check_rules(
         return []
 
     return [
-        RuleIssueCandidate(
-            type=f"{field_name}_diferente_do_esperado",
-            severity=SEVERITY_RELEVANTE,
-            description=(
-                f"Campo {field_name} diferente do valor esperado: {expected}."
-            ),
+            RuleIssueCandidate(
+                type=f"{field_name}_diferente_do_esperado",
+                severity=SEVERITY_RELEVANTE,
+                description=(
+                    f"Campo {field_name} diferente do valor esperado: {expected}."
+                ),
             evidences=_build_evidences(divergent_fields),
         )
     ]
@@ -153,7 +160,7 @@ def _build_missing_field_issues(
                 type=MISSING_FIELD_ISSUE_TYPE,
                 severity=severity,
                 description=(
-                    f"Campo obrigatorio {field_name} ausente em "
+                    f"Campo obrigatório {field_name} ausente em "
                     f"{missing_count} de {len(document_ids)} documentos."
                 ),
                 evidences=_build_evidences(present_fields),
@@ -218,7 +225,7 @@ def _build_sheet_sequence_issues(
                     type="folha_ausente_na_sequencia",
                     severity=SEVERITY_RELEVANTE,
                     description=(
-                        f"Lacuna na sequencia de folhas (total declarado: {dominant_total}). "
+                        f"Lacuna na sequência de folhas (total declarado: {dominant_total}). "
                         f"Folhas ausentes: {', '.join(str(n).zfill(2) for n in sorted(missing_numbers))}."
                     ),
                     evidences=_build_evidences(representative_fields),
@@ -253,7 +260,7 @@ def _build_date_issues(
             RuleIssueCandidate(
                 type="data_emissao_futura",
                 severity=SEVERITY_RELEVANTE,
-                description="Documento com data de emissao no futuro.",
+                description="Documento com data de emissão no futuro.",
                 evidences=_build_evidences(future_fields),
             )
         )
@@ -265,7 +272,7 @@ def _build_date_issues(
             RuleIssueCandidate(
                 type="data_emissao_desatualizada",
                 severity=SEVERITY_ATENCAO,
-                description=f"Documento com data de emissao superior a {DATE_OUTDATED_YEARS} anos.",
+                description=f"Documento com data de emissão superior a {DATE_OUTDATED_YEARS} anos.",
                 evidences=_build_evidences(old_fields),
             )
         )
@@ -279,7 +286,7 @@ def _build_date_issues(
                 RuleIssueCandidate(
                     type="data_emissao_divergente",
                     severity=SEVERITY_RELEVANTE,
-                    description=f"Datas de emissao divergentes entre documentos: {date_labels}.",
+                    description=f"Datas de emissão divergentes entre documentos: {date_labels}.",
                     evidences=_build_evidences(fields_with_page),
                 )
             )
@@ -318,6 +325,8 @@ def _list_fields_by_name(
         if field.field_name != field_name:
             continue
         if field.input_document_id is None or not field.normalized_value:
+            continue
+        if not _is_usable_field_value(field.field_name, field.normalized_value or field.raw_value):
             continue
         grouped_fields[field.input_document_id].append(field)
 
@@ -359,3 +368,20 @@ def _normalize_rule_value_for_field(field_name: str, value: str) -> str:
         value = TRAILING_CODE_PATTERN.sub(" ", value)
 
     return _normalize_rule_value(value)
+
+
+def _is_usable_field_value(field_name: str, value: str) -> bool:
+    normalized_value = _normalize_rule_value_for_field(field_name, value)
+    if not normalized_value:
+        return False
+
+    if field_name == "numero_projeto":
+        return PROJECT_CODE_VALUE_PATTERN.search(value) is not None
+
+    if field_name in {"bairro", "municipio"}:
+        if normalized_value in SINGLE_VALUE_STOPWORDS or len(normalized_value) <= 2:
+            return False
+        if len(normalized_value.split()) > 5:
+            return False
+
+    return True

@@ -13,7 +13,9 @@ BASE_SHEET_CODE_PATTERN = re.compile(
     r"\b(?P<base_code>\d{2,4}[_-]\d{2}_[A-Z0-9]{2,}_[A-Z])\b",
     re.IGNORECASE,
 )
-CONTENT_LABEL_PATTERN = re.compile(r"\bCONTEUDO:\s+PRANCHA:\s+")
+CONTENT_LABEL_PATTERN = re.compile(
+    r"\bCONTE[UÚ]DO\s*(?:DA\s+)?PRANCHA\s*:?\s+|\bCONTE[UÚ]DO\s*:?\s+PRANCHA\s*:?\s+"
+)
 FULL_SHEET_ITEM_PATTERN = re.compile(r"\b\d{2}/\d{2}\b")
 PARTIAL_SHEET_ITEM_PATTERN = re.compile(r"\b(?P<number>\d{2})/\s*")
 SHEET_TOTAL_PATTERN = re.compile(r"\bARQUIVO:\s*(?P<total>\d{2})\b")
@@ -159,8 +161,8 @@ def _extract_sheets_from_page(page_number: int, page_text: str) -> list[dict[str
 
 
 def _extract_evidence(text: str, start: int, end: int) -> str:
-    left = max(0, start - 220)
-    right = min(len(text), end + 180)
+    left = max(0, start - 320)
+    right = min(len(text), end + 220)
     return text[left:right].strip(" |")
 
 

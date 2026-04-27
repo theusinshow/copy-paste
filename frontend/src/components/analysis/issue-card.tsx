@@ -8,16 +8,26 @@ import {
 import type { AnalysisIssue } from "@/lib/types/issue";
 
 const ISSUE_TYPE_LABELS: Record<string, string> = {
+  bairro_divergente: "Divergência no bairro",
   campo_ausente: "Campo não encontrado",
+  campo_obrigatorio_ausente: "Campo importante não encontrado",
   check_address: "Verificação de endereço",
   check_project_number: "Verificação de número de projeto",
   check_work_name: "Verificação de nome da obra",
+  data_emissao_desatualizada: "Data de emissão antiga",
+  data_emissao_divergente: "Datas de emissão divergentes",
+  data_emissao_futura: "Data de emissão no futuro",
   divergencia_bairro: "Divergência no bairro",
   divergencia_endereco: "Divergência no endereço",
   divergencia_nome_obra: "Divergência no nome da obra",
   divergencia_projeto_numero: "Divergência no número do projeto",
+  folha_ausente_na_sequencia: "Folha ausente na sequência",
+  folha_total_inconsistente: "Total de folhas divergente",
   find_replace: "Substituição sugerida",
   find_text: "Ocorrência encontrada",
+  municipio_divergente: "Divergência no município",
+  nome_obra_divergente: "Divergência no nome da obra",
+  numero_projeto_divergente: "Divergência no número do projeto",
 };
 
 function humanizeIssueType(type: string): string {
@@ -65,7 +75,6 @@ export function IssueCard({
           <h3 className="text-base font-semibold text-[var(--cp-text)]">
             {humanizeIssueType(issue.type)}
           </h3>
-          <p className="font-mono text-xs text-[var(--cp-muted)]">{issue.type}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <IssueReviewBadge
@@ -83,7 +92,7 @@ export function IssueCard({
       {issue.evidences.length > 0 ? (
         <div className="mt-5 border-t border-[var(--cp-border)] pt-4">
           <p className="text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
-            Evidencias
+            Evidências
           </p>
           <div className="mt-4">
             <IssueEvidenceList evidences={issue.evidences} onOpenPdf={onOpenPdf} />
@@ -93,7 +102,11 @@ export function IssueCard({
 
       <div className="mt-5 border-t border-[var(--cp-border)] pt-4">
         <p className="text-xs uppercase tracking-[0.22em] text-[var(--cp-muted)]">
-          Revisao humana
+          Checklist pós-análise
+        </p>
+        <p className="mt-2 text-sm leading-6 text-[var(--cp-muted)]">
+          Marque como este ponto deve entrar no fechamento final. A decisão é
+          sempre de quem está revisando os arquivos.
         </p>
         <div className="mt-4">
           <IssueReviewForm

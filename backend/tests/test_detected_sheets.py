@@ -33,6 +33,22 @@ class DetectedSheetsTests(unittest.TestCase):
             "PLANTA DE COBERTURA",
         )
 
+    def test_detected_sheet_uses_content_label_without_colons(self) -> None:
+        documents = [make_document(1, "pranchas.pdf")]
+        page_texts_by_document_id = {
+            1: {
+                1: "CONTEUDO PRANCHA PLANTA DE SITUACAO ARQ 01/07 117_25_ARQ_001_A",
+            }
+        }
+
+        result = build_detected_sheets(documents, page_texts_by_document_id)
+
+        self.assertEqual(result["stats"]["sheet_count"], 1)
+        self.assertEqual(
+            result["documents"][0]["sheets"][0]["description"],
+            "PLANTA DE SITUACAO",
+        )
+
     def test_detected_sheet_trims_metadata_suffix_from_stamp_text(self) -> None:
         documents = [make_document(1, "pranchas.pdf")]
         page_texts_by_document_id = {

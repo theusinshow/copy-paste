@@ -120,7 +120,7 @@ export default async function AnalysisResultPage({
             className="rounded-lg border border-[var(--cp-border)] bg-black/12 p-4"
           >
             <summary className="cursor-pointer text-sm font-semibold uppercase tracking-[0.18em] text-[var(--cp-muted)] transition-colors hover:text-[var(--cp-text)]">
-              Detalhes tecnicos
+              Detalhes técnicos
             </summary>
             <div className="mt-5 grid gap-5">
               <Suspense fallback={<PanelSkeleton rows={8} />}>
@@ -140,7 +140,7 @@ async function SummarySection({ analysisId }: { analysisId: number }) {
   const auditSummary = readSettledValue(auditSummaryResult[0], null);
   const auditSummaryLoadError = readSettledError(
     auditSummaryResult[0],
-    "Nao foi possivel carregar o fechamento desta analise agora.",
+    "Não foi possível carregar o fechamento desta análise agora.",
   );
 
   return (
@@ -170,7 +170,7 @@ async function SignoffSection({
   const signoff = readSettledValue(signoffResult, null);
   const signoffLoadError = readSettledError(
     signoffResult,
-    "Nao foi possivel carregar a conclusao final desta analise agora.",
+    "Não foi possível carregar a conclusão final desta análise agora.",
   );
 
   return (
@@ -203,7 +203,7 @@ async function IssuesSection({
   const issues = readSettledValue(issuesResult[0], []);
   const issuesLoadError = readSettledError(
     issuesResult[0],
-    "Nao foi possivel carregar as issues desta analise agora.",
+    "Não foi possível carregar os pontos encontrados desta análise agora.",
   );
 
   return (
@@ -223,7 +223,7 @@ async function DirectedSection({ analysisId }: { analysisId: number }) {
   const modeOutput = readSettledValue(modeOutputResult[0], null);
   const modeOutputLoadError = readSettledError(
     modeOutputResult[0],
-    "Nao foi possivel carregar o resultado da busca ou conferencia desta analise agora.",
+    "Não foi possível carregar o resultado da busca ou conferência desta análise agora.",
   );
 
   return (
@@ -242,7 +242,7 @@ async function ProjectVolumeSection({ analysisId }: { analysisId: number }) {
         crosscheck={readSettledValue(result[0], null)}
         loadError={readSettledError(
           result[0],
-          "Nao foi possivel carregar a comparacao entre lista e pranchas desta analise agora.",
+          "Não foi possível carregar a comparação entre lista e pranchas desta análise agora.",
         )}
       />
     </section>
@@ -258,7 +258,7 @@ async function MemorialReviewSection({ analysisId }: { analysisId: number }) {
         audit={readSettledValue(result[0], null)}
         loadError={readSettledError(
           result[0],
-          "Nao foi possivel carregar a auditoria de memoriais desta analise agora.",
+          "Não foi possível carregar a auditoria de memoriais desta análise agora.",
         )}
       />
     </section>
@@ -297,7 +297,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           summary={readSettledValue(packageSummaryResult, null)}
           loadError={readSettledError(
             packageSummaryResult,
-            "Nao foi possivel carregar o resumo do pacote desta analise agora.",
+            "Não foi possível carregar o resumo do pacote desta análise agora.",
           )}
         />
       </section>
@@ -306,7 +306,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           crosscheck={readSettledValue(ldSheetCrosscheckResult, null)}
           loadError={readSettledError(
             ldSheetCrosscheckResult,
-            "Nao foi possivel carregar a comparacao entre lista e pranchas desta analise agora.",
+            "Não foi possível carregar a comparação entre lista e pranchas desta análise agora.",
           )}
         />
       </section>
@@ -315,7 +315,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           audit={readSettledValue(memorialAuditResult, null)}
           loadError={readSettledError(
             memorialAuditResult,
-            "Nao foi possivel carregar a auditoria de memoriais desta analise agora.",
+            "Não foi possível carregar a auditoria de memoriais desta análise agora.",
           )}
         />
       </section>
@@ -324,7 +324,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           audit={readSettledValue(footerAuditResult, null)}
           loadError={readSettledError(
             footerAuditResult,
-            "Nao foi possivel carregar a auditoria de rodapes desta analise agora.",
+            "Não foi possível carregar a auditoria de rodapés desta análise agora.",
           )}
         />
       </section>
@@ -333,14 +333,14 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           drawingLists={readSettledValue(drawingListsResult, null)}
           loadError={readSettledError(
             drawingListsResult,
-            "Nao foi possivel carregar a lista de documentos desta analise agora.",
+            "Não foi possível carregar a lista de documentos desta análise agora.",
           )}
         />
         <DetectedSheetsPanel
           detectedSheets={readSettledValue(detectedSheetsResult, null)}
           loadError={readSettledError(
             detectedSheetsResult,
-            "Nao foi possivel carregar as pranchas detectadas desta analise agora.",
+            "Não foi possível carregar as pranchas detectadas desta análise agora.",
           )}
         />
       </section>
@@ -349,7 +349,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           map={readSettledValue(packageMapResult, null)}
           loadError={readSettledError(
             packageMapResult,
-            "Nao foi possivel carregar o mapa do pacote desta analise agora.",
+            "Não foi possível carregar o mapa do pacote desta análise agora.",
           )}
         />
       </section>
@@ -358,7 +358,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           map={readSettledValue(pageMapResult, null)}
           loadError={readSettledError(
             pageMapResult,
-            "Nao foi possivel carregar o mapa de paginas desta analise agora.",
+            "Não foi possível carregar o mapa de páginas desta análise agora.",
           )}
         />
       </section>
@@ -367,7 +367,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           review={readSettledValue(aiReviewResult, null)}
           loadError={readSettledError(
             aiReviewResult,
-            "Nao foi possivel carregar o apoio de leitura desta analise agora.",
+            "Não foi possível carregar o apoio de leitura desta análise agora.",
           )}
         />
       </section>
@@ -376,7 +376,7 @@ async function DiagnosticSection({ analysisId }: { analysisId: number }) {
           fields={readSettledValue(fieldsResult, [])}
           loadError={readSettledError(
             fieldsResult,
-            "Nao foi possivel carregar os campos extraidos desta analise agora.",
+            "Não foi possível carregar os campos extraídos desta análise agora.",
           )}
         />
       </section>
@@ -399,8 +399,8 @@ function ResultNavigation({
     ["#busca", "Busca / conferencia"],
     ["#conferencia-volume", "LD x Pranchas"],
     ["#conferencia-memorial", "Memorial"],
-    ["#encerramento", "Conclusao"],
-    ["#detalhes", "Detalhes tecnicos"],
+    ["#encerramento", "Conclusão"],
+    ["#detalhes", "Detalhes técnicos"],
   ];
 
   return (

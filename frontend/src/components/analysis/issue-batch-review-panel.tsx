@@ -53,7 +53,7 @@ export function IssueBatchReviewPanel({
         issue_ids: selectedIssueIds,
       });
       setFeedback(
-        `${result.updated_count} issue(s) atualizada(s) como ${result.decision_label}.`,
+        `${result.updated_count} ponto(s) atualizado(s) como ${result.decision_label}.`,
       );
       setComment("");
       setDecision("");
@@ -65,7 +65,7 @@ export function IssueBatchReviewPanel({
       setError(
         extractApiErrorMessage(
           submissionError,
-          "Nao foi possivel salvar a revisao em lote agora.",
+          "Não foi possível salvar a revisão em lote agora.",
         ),
       );
     } finally {
@@ -81,15 +81,15 @@ export function IssueBatchReviewPanel({
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.22em] text-[var(--cp-accent)]">
-            Central de Revisao
+            Checklist pós-análise
           </p>
           <p className="text-sm leading-6 text-[var(--cp-text)]">
-            {selectedCount} issue(s) selecionada(s) entre {visibleCount} visivel(is)
+            {selectedCount} ponto(s) selecionado(s) entre {visibleCount} visível(is)
             na fila <span className="font-semibold">{activeFilterLabel}</span>.
           </p>
           <p className="text-sm leading-6 text-[var(--cp-muted)]">
-            Use esta area para decidir varias issues de uma vez antes de abrir os
-            cards individualmente.
+            Use esta área para registrar o mesmo resultado em vários pontos de
+            uma vez. Depois, ajuste individualmente apenas o que precisar.
           </p>
         </div>
 
@@ -100,7 +100,7 @@ export function IssueBatchReviewPanel({
             disabled={visibleCount === 0 || isSaving || isPending}
             className="rounded-none border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Selecionar visiveis
+            Selecionar visíveis
           </button>
           <button
             type="button"
@@ -108,20 +108,20 @@ export function IssueBatchReviewPanel({
             disabled={selectedCount === 0 || isSaving || isPending}
             className="rounded-none border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-muted)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-text)] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Limpar selecao
+            Limpar seleção
           </button>
         </div>
       </div>
 
       <div className="grid gap-3 xl:grid-cols-[260px_minmax(0,1fr)_auto]">
         <label className="grid gap-2 text-sm text-[var(--cp-muted)]">
-          <span className="text-xs uppercase tracking-[0.18em]">Decisao em lote</span>
+          <span className="text-xs uppercase tracking-[0.18em]">Resultado em lote</span>
           <select
             value={decision}
             onChange={(event) => setDecision(event.target.value)}
             className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel)]/70 px-3 py-2 text-sm text-[var(--cp-text)] outline-none transition-colors focus:border-[var(--cp-accent)]"
           >
-            <option value="">Selecionar decisao</option>
+            <option value="">Selecionar resultado</option>
             {REVIEW_DECISION_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -132,12 +132,12 @@ export function IssueBatchReviewPanel({
 
         <label className="grid gap-2 text-sm text-[var(--cp-muted)]">
           <span className="text-xs uppercase tracking-[0.18em]">
-            Comentario comum
+            Observação comum
           </span>
           <textarea
             value={comment}
             onChange={(event) => setComment(event.target.value)}
-            placeholder="Registrar contexto compartilhado para todas as issues selecionadas."
+            placeholder="Registrar contexto compartilhado para todos os pontos selecionados."
             rows={3}
             className="rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel)]/70 px-3 py-2 text-sm text-[var(--cp-text)] outline-none transition-colors focus:border-[var(--cp-accent)]"
           />

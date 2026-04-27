@@ -31,11 +31,11 @@ WHITESPACE_PATTERN = re.compile(r"\s+")
 SINGLE_VALUE_STOPWORDS = {"A", "AS", "COM", "DA", "DAS", "DE", "DO", "DOS", "E", "EM", "O", "OS"}
 
 FIELD_LABELS = {
-    "address": "Endereco",
+    "address": "Endereço",
     "bairro": "Bairro",
-    "municipality": "Municipio",
-    "owner": "Proprietario",
-    "project_code": "Numero do projeto",
+    "municipality": "Município",
+    "owner": "Proprietário",
+    "project_code": "Número do projeto",
     "work_name": "Obra",
 }
 
@@ -216,20 +216,6 @@ def _build_findings(
             field="project_code",
         )
     )
-    owner_municipality_findings = _build_owner_municipality_findings(
-        occurrences_by_field.get("owner", []),
-        occurrences_by_field.get("municipality", []),
-        identity_municipality,
-    )
-    findings.extend(owner_municipality_findings)
-    if not owner_municipality_findings:
-        findings.extend(
-            _build_multiple_value_findings(
-                occurrences_by_field.get("owner", []),
-                field="owner",
-            )
-        )
-
     if not occurrences:
         findings.append(
             {
@@ -271,7 +257,7 @@ def _build_owner_municipality_findings(
                 "category": "probable_issue",
                 "field": "owner",
                 "message": (
-                    "Proprietario/cliente aponta municipio diferente do memorial. "
+                    "Proprietário/cliente aponta município diferente do memorial. "
                     f"Esperado: {expected_city}. Encontrado: {occurrence['value']}."
                 ),
                 "occurrences": [occurrence],
@@ -341,7 +327,7 @@ def _build_multiple_value_findings(
             "field": field,
             "message": (
                 f"Mais de um valor para {FIELD_LABELS[field].lower()} foi encontrado nos memoriais. "
-                f"Revisar ocorrencia: {occurrence['value']}."
+                f"Revisar ocorrência: {occurrence['value']}."
             ),
             "occurrences": [occurrence],
             "reason": f"multiple_memorial_{field}_values_detected",

@@ -58,13 +58,13 @@ export function IssueReviewForm({ issueId, review }: IssueReviewFormProps) {
     <form className="grid gap-3" onSubmit={handleSubmit}>
       <div className="grid gap-3 md:grid-cols-[220px_minmax(0,1fr)]">
         <label className="grid gap-2 text-sm text-[var(--cp-muted)]">
-          <span className="text-xs uppercase tracking-[0.18em]">Decisao</span>
+          <span className="text-xs uppercase tracking-[0.18em]">Resultado da revisão</span>
           <select
             value={decision}
             onChange={(event) => setDecision(event.target.value)}
             className="rounded-lg border border-[var(--cp-border)] bg-black/10 px-3 py-2 text-sm text-[var(--cp-text)] outline-none transition-colors focus:border-[var(--cp-accent)]"
           >
-            <option value="">Selecionar decisao</option>
+            <option value="">Selecionar resultado</option>
             {REVIEW_DECISION_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -74,11 +74,11 @@ export function IssueReviewForm({ issueId, review }: IssueReviewFormProps) {
         </label>
 
         <label className="grid gap-2 text-sm text-[var(--cp-muted)]">
-          <span className="text-xs uppercase tracking-[0.18em]">Comentario</span>
+          <span className="text-xs uppercase tracking-[0.18em]">Observação</span>
           <textarea
             value={comment}
             onChange={(event) => setComment(event.target.value)}
-            placeholder="Registrar o contexto da revisao humana."
+            placeholder="Explique rapidamente o que foi conferido ou corrigido."
             rows={3}
             className="rounded-lg border border-[var(--cp-border)] bg-black/10 px-3 py-2 text-sm text-[var(--cp-text)] outline-none transition-colors focus:border-[var(--cp-accent)]"
           />
@@ -91,25 +91,25 @@ export function IssueReviewForm({ issueId, review }: IssueReviewFormProps) {
           disabled={!decision.trim() || isSaving || isPending}
           className="rounded-lg border border-[var(--cp-accent)] bg-[var(--cp-accent)]/10 px-4 py-2 text-sm font-medium text-[var(--cp-accent)] transition-colors hover:bg-[var(--cp-accent)]/15 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSaving || isPending ? "Salvando..." : "Salvar revisao"}
+          {isSaving || isPending ? "Salvando..." : "Salvar revisão"}
         </button>
 
         {review ? (
           <div className="grid gap-1 text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-            <span>Revisao atual: {review.status_label}</span>
-            <span>Decisao: {review.decision_label || review.decision}</span>
+            <span>Revisão atual: {review.status_label}</span>
+            <span>Resultado: {review.decision_label || review.decision}</span>
           </div>
         ) : (
           <span className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-            Sem revisao registrada
+            Sem revisão registrada
           </span>
         )}
       </div>
 
       {review && !decision ? (
         <div className="rounded-lg border border-[var(--cp-warning)]/35 bg-[var(--cp-warning)]/10 px-3 py-2 text-sm text-[var(--cp-text)]">
-          A decisao salva anteriormente nao esta no conjunto padrao atual.
-          Selecione uma opcao padronizada para normalizar o fechamento.
+          A decisão salva anteriormente não está no conjunto padrão atual.
+          Selecione uma opção padronizada para normalizar o fechamento.
         </div>
       ) : null}
 

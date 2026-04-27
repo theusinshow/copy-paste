@@ -221,6 +221,20 @@ class DetectedSheetMissingFromLdTests(unittest.TestCase):
         self.assertEqual(len(missing), 2)
         self.assertEqual(result["stats"]["undeclared_sheet_count"], 2)
 
+    def test_sem_ld_nao_marca_pranchas_como_sem_declaracao(self) -> None:
+        docs = [make_document(1, "pranchas-sem-ld.pdf")]
+        texts = {
+            1: {
+                1: f"01/01 {CODE_ARQ_001} PLANTA BAIXA",
+                2: f"02/02 {CODE_ARQ_002} PLANTA DE COBERTURA",
+            }
+        }
+        result = build_ld_sheet_crosscheck(docs, texts)
+        self.assertEqual(result["results"], [])
+        self.assertEqual(result["reverse_results"], [])
+        self.assertEqual(result["stats"]["undeclared_sheet_count"], 0)
+        self.assertEqual(result["stats"]["combined_probable_issue_count"], 0)
+
 
 class DetectedSheetDeclaredInOtherSectionTests(unittest.TestCase):
     """detected_sheet_declared_in_other_section: prancha pertence a uma secao mas LD e de outra."""

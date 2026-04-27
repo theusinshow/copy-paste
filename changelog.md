@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- **Checklist pós-análise** nos pontos encontrados: a revisão individual e em lote passa a orientar confirmação, falso positivo, correção, não aplicável ou falta de evidência em linguagem de usuário.
 - **Notificacoes por e-mail** ao terminar analise: envia e-mail HTML via Resend SDK ao concluir (`completed`) ou falhar (`failed`) uma analise. Envio assíncrono em daemon thread para nao bloquear a resposta. Configuravel por `RESEND_API_KEY`, `NOTIFICATION_EMAIL` e `FRONTEND_URL`.
 - **Historico de pacotes** em `/packages`: agrupa analises pelo codigo de projeto dominante detectado (`numero_projeto`), usando Counter/defaultdict. Endpoint `GET /api/v1/packages` e pagina frontend com cards por pacote, cada um listando todas as analises do projeto com status, modo e data.
 - Link **Pacotes** adicionado ao menu de navegacao.
@@ -13,6 +14,9 @@
 - **Link ativo no nav**: pagina corrente e destacada no menu de navegacao com borda dourada e fundo sutil, via `usePathname`.
 
 ### Changed
+- Interface de resultado revisada para trocar termos internos como "issue" por "ponto", melhorar acentuação e explicar melhor a revisão humana.
+- Auditoria deixou de gerar divergência automática para `orgao_cliente`, preservando variações reais de nome de escritório, cliente ou empresa no pacote.
+- Cruzamento LD × Pranchas agora só verifica pranchas sem declaração quando existe uma LD detectada no pacote.
 - Fluxo principal de nova analise simplificado para duas escolhas de usuario: **Volume de projeto** (`full_check`) e **Memorial** (`memorial_only`), mantendo modos dirigidos apenas como capacidade tecnica.
 - Tela de resultado reorganizada para priorizar resumo, pontos encontrados, conferencia principal e conclusao final, movendo paineis tecnicos para uma secao recolhida de detalhes.
 - Regras de divergencia estendidas para cobrir `municipio` e `orgao_cliente` (antes apenas `nome_obra`, `numero_projeto` e `bairro` eram cruzados).
@@ -179,6 +183,8 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Falsos positivos reduzidos para número de projeto e bairro quando a extração captura frases comuns ou valores de uma única letra.
+- Leitura do selo de prancha ampliada para reconhecer variações de `CONTEUDO PRANCHA` sem dois-pontos e com janela de evidência maior.
 - Extracao de texto de PDFs agora pode isolar cada pagina em subprocesso com timeout, evitando que uma pagina pesada derrube o backend inteiro durante o processamento.
 - Progresso do processamento agora avanca durante a leitura das paginas de cada PDF, evitando que analises longas parecam travadas em 5% enquanto o extrator ainda esta trabalhando.
 - Tela de acompanhamento agora usa a mesma resolucao de URL da API para SSE e polling, evitando consulta relativa ao Next local quando `NEXT_PUBLIC_API_URL` nao esta definida.

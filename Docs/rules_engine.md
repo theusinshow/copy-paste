@@ -12,14 +12,14 @@
 - atencao
 - relevante
 
-## Revisao humana das issues
-- `confirmada`: mantem a issue ativa no fechamento
-- `falso_positivo`: remove a issue do fechamento e registra descarte
-- `corrigido`: remove a issue do fechamento e registra resolucao
-- `nao_aplicavel`: remove a issue do fechamento e registra descarte por contexto
-- `sem_evidencia`: tira a issue da fila ativa, mas marca o fechamento como inconclusivo quando ela e o unico bloqueio restante
-- issue sem decisao registrada permanece em `pending_review` e impede fechamento limpo
-- a aplicacao em lote dessas decisoes deve apenas repetir a mesma justificativa para varias issues; nao muda a regra nem a severidade base automaticamente
+## Revisão humana dos pontos
+- `confirmada`: mantém o ponto ativo no fechamento
+- `falso_positivo`: remove o ponto do fechamento e registra descarte
+- `corrigido`: remove o ponto do fechamento e registra resolução
+- `nao_aplicavel`: remove o ponto do fechamento e registra descarte por contexto
+- `sem_evidencia`: tira o ponto da fila ativa, mas marca o fechamento como inconclusivo quando ele é o único bloqueio restante
+- ponto sem decisão registrada permanece em `pending_review` e impede fechamento limpo
+- a aplicação em lote dessas decisões deve apenas repetir a mesma justificativa para vários pontos; não muda a regra nem a severidade base automaticamente
 
 ## Encerramento formal da analise
 - o `AuditSummary` continua sendo o fechamento calculado pelo sistema
@@ -117,6 +117,7 @@
 - condição: uma prancha é detectada fora das páginas de LD, mas seu código não aparece em nenhuma Lista de Documentos do pacote
 - severidade: relevante
 - observação: usada para indicar folha que entrou no pacote sem declaração documental explícita
+- observação: se nenhuma LD for detectada no pacote, o cruzamento LD × Pranchas não gera problema automaticamente
 
 ### Prancha detectada com LD em outra seção
 - condição: a prancha é detectada em uma seção interna, mas a linha correspondente da LD aparece em outra seção do mesmo PDF
@@ -158,4 +159,9 @@
 ### Memorial com proprietário/cliente de outro município
 - condição: proprietário ou cliente textual aponta município diferente do município dominante no memorial
 - severidade: relevante
-- observação: usado para indicar possível reaproveitamento de memorial ou trecho de outro projeto
+- observação: regra desativada no fluxo cotidiano porque nomes de escritório e cliente podem variar entre padrões reais do pacote
+
+### Órgão/cliente
+- campo: orgao_cliente
+- condição: não gera divergência automática
+- observação: variações como razão social, escritório, sigla ou unidade do cliente são tratadas como contexto de leitura, não como problema do pacote

@@ -68,7 +68,7 @@ export function AnalysisSignoffPanel({
       setError(
         extractApiErrorMessage(
           submissionError,
-          "Nao foi possivel salvar o encerramento formal agora.",
+          "Não foi possível salvar o encerramento formal agora.",
         ),
       );
     } finally {
@@ -83,21 +83,21 @@ export function AnalysisSignoffPanel({
     >
       <div className="border-b border-[var(--cp-border)] pb-5">
         <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-          Conclusao final
+          Conclusão final
         </p>
         <h2 className="mt-2 text-2xl font-semibold text-[var(--cp-text)]">
-          Conclusao registrada da analise.
+          Conclusão registrada da análise.
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--cp-muted)]">
-          Depois de ler o resumo automatico, voce pode registrar aqui a decisao
-          final da revisao com responsavel e comentario.
+          Depois de ler o resumo automático, você pode registrar aqui a decisão
+          final da revisão com responsável e comentário.
         </p>
       </div>
 
       <div className="mt-5 grid gap-3 lg:grid-cols-2">
         <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-            Resumo automatico
+            Resumo automático
           </p>
           <p className="mt-2 text-lg font-semibold text-[var(--cp-text)]">
             {computedStatusLabel || "Sem consolidado"}
@@ -106,10 +106,10 @@ export function AnalysisSignoffPanel({
 
         <div className="rounded-lg border border-[var(--cp-border)] bg-black/10 p-4">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
-            Conclusao salva
+            Conclusão salva
           </p>
           <p className="mt-2 text-lg font-semibold text-[var(--cp-text)]">
-            {signoff?.final_status_label || "Nenhuma conclusao registrada"}
+            {signoff?.final_status_label || "Nenhuma conclusão registrada"}
           </p>
           {signoff ? (
             <p className="mt-2 text-sm leading-6 text-[var(--cp-muted)]">
@@ -122,7 +122,7 @@ export function AnalysisSignoffPanel({
       <form className="mt-5 grid gap-4" onSubmit={handleSubmit}>
         <div className="grid gap-4 xl:grid-cols-[280px_240px_minmax(0,1fr)]">
           <label className="grid gap-2 text-sm text-[var(--cp-muted)]">
-            <span className="text-xs uppercase tracking-[0.18em]">Conclusao final</span>
+            <span className="text-xs uppercase tracking-[0.18em]">Conclusão final</span>
             <select
               value={finalStatusCode}
               onChange={(event) => setFinalStatusCode(event.target.value)}
@@ -138,7 +138,7 @@ export function AnalysisSignoffPanel({
           </label>
 
           <label className="grid gap-2 text-sm text-[var(--cp-muted)]">
-            <span className="text-xs uppercase tracking-[0.18em]">Responsavel</span>
+            <span className="text-xs uppercase tracking-[0.18em]">Responsável</span>
             <input
               value={reviewerName}
               onChange={(event) => setReviewerName(event.target.value)}
@@ -149,12 +149,12 @@ export function AnalysisSignoffPanel({
           </label>
 
           <label className="grid gap-2 text-sm text-[var(--cp-muted)]">
-            <span className="text-xs uppercase tracking-[0.18em]">Comentario final</span>
+            <span className="text-xs uppercase tracking-[0.18em]">Comentário final</span>
             <textarea
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               disabled={analysisStatus !== "completed"}
-              placeholder="Explique o motivo da conclusao final."
+              placeholder="Explique o motivo da conclusão final."
               rows={3}
               className="rounded-lg border border-[var(--cp-border)] bg-black/10 px-3 py-2 text-sm text-[var(--cp-text)] outline-none transition-colors focus:border-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
             />
@@ -174,7 +174,7 @@ export function AnalysisSignoffPanel({
 
         {analysisStatus !== "completed" ? (
           <div className="rounded-lg border border-[var(--cp-warning)]/40 bg-[var(--cp-warning)]/10 px-3 py-2 text-sm text-[var(--cp-text)]">
-            A conclusao final so pode ser salva quando a analise terminar o
+            A conclusão final só pode ser salva quando a análise terminar o
             processamento.
           </div>
         ) : null}
@@ -185,7 +185,7 @@ export function AnalysisSignoffPanel({
             disabled={!canSubmit || isSaving || isPending}
             className="rounded-lg border border-[var(--cp-accent)] bg-[var(--cp-accent)]/10 px-4 py-2 text-sm font-medium text-[var(--cp-accent)] transition-colors hover:bg-[var(--cp-accent)]/15 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSaving || isPending ? "Salvando..." : "Salvar conclusao final"}
+            {isSaving || isPending ? "Salvando..." : "Salvar conclusão final"}
           </button>
 
           <span className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">

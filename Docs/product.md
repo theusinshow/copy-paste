@@ -17,6 +17,7 @@ Sistema que:
 - gera incongruências com evidência
 - prepara contextos para leitura assistida por IA, sem delegar a decisão
 - permite modos configuráveis de análise com `full_check` como padrão
+- oferece checklist pós-análise para a decisão humana sobre cada ponto encontrado
 
 ## Modos de análise
 - A interface principal expõe dois fluxos cotidianos:
@@ -48,3 +49,4 @@ Sistema que:
 ## Fora de escopo
 - IA como decisora
 - interpretação subjetiva
+- divergência automática de órgão/cliente quando houver apenas variação de padrão textual

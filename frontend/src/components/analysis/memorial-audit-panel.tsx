@@ -27,10 +27,10 @@ export function MemorialAuditPanel({
       <div className="flex flex-col gap-4 border-b border-[var(--cp-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--cp-accent)]">
-            Revisao dos memoriais
+            Revisão dos memoriais
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--cp-text)]">
-            Comparacao dos dados principais escritos nos memoriais.
+            Comparação dos dados principais escritos nos memoriais.
           </h2>
         </div>
 
@@ -92,7 +92,7 @@ function FindingList({ findings }: { findings: MemorialAuditFinding[] }) {
   if (findings.length === 0) {
     return (
       <div className="rounded-lg border border-[var(--cp-success)]/30 bg-[var(--cp-success)]/10 p-4 text-sm text-[var(--cp-text)]">
-        Nenhuma divergencia objetiva foi detectada nos memoriais lidos.
+        Nenhuma divergência objetiva foi detectada nos memoriais lidos.
       </div>
     );
   }
@@ -250,7 +250,7 @@ function CategoryPill({ category }: { category: string }) {
 
 function groupFindings(findings: MemorialAuditFinding[]): FindingGroup[] {
   const labels: Record<string, string> = {
-    extraction_limit: "Limites de extracao",
+    extraction_limit: "Limites de extração",
     needs_review: "Pontos para revisar",
     probable_issue: "Conflitos provaveis",
   };
@@ -266,7 +266,7 @@ function groupFindings(findings: MemorialAuditFinding[]): FindingGroup[] {
 }
 
 function groupOccurrences(occurrences: MemorialAuditOccurrence[]) {
-  const fieldOrder = ["work_name", "project_code", "bairro", "municipality", "owner", "address"];
+  const fieldOrder = ["work_name", "project_code", "bairro", "municipality", "address"];
   const groups = new Map<
     string,
     {
@@ -277,6 +277,10 @@ function groupOccurrences(occurrences: MemorialAuditOccurrence[]) {
   >();
 
   for (const occurrence of occurrences) {
+    if (occurrence.field === "owner") {
+      continue;
+    }
+
     if (!groups.has(occurrence.field)) {
       groups.set(occurrence.field, {
         field: occurrence.field,
@@ -304,7 +308,7 @@ function groupOccurrences(occurrences: MemorialAuditOccurrence[]) {
         .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value))
         .map((item) => ({
           count: item.count,
-          pages: `Paginas: ${[...item.pages].sort((a, b) => a - b).join(", ")}`,
+          pages: `Páginas: ${[...item.pages].sort((a, b) => a - b).join(", ")}`,
           value: item.value,
         })),
     }));
@@ -326,7 +330,7 @@ function formatFindingTitle(finding: MemorialAuditFinding) {
 
   const field = occurrence.field_label.toLowerCase();
   if (finding.category === "probable_issue") {
-    return `${occurrence.field_label} com divergencia: ${occurrence.value}`;
+    return `${occurrence.field_label} com divergência: ${occurrence.value}`;
   }
   return `Revisar ${field}: ${occurrence.value}`;
 }
@@ -334,18 +338,18 @@ function formatFindingTitle(finding: MemorialAuditFinding) {
 function formatReason(reason: string) {
   const labels: Record<string, string> = {
     bairro_differs_from_package_identity: "bairro diferente da identidade principal",
-    multiple_memorial_address_values_detected: "mais de um endereco distinto foi encontrado",
+    multiple_memorial_address_values_detected: "mais de um endereço distinto foi encontrado",
     multiple_memorial_municipality_values_detected:
-      "mais de um municipio foi encontrado",
+      "mais de um município foi encontrado",
     multiple_memorial_project_code_values_detected:
-      "mais de um numero de projeto foi encontrado",
+      "mais de um número de projeto foi encontrado",
     multiple_memorial_owner_values_detected:
-      "mais de um proprietario/cliente foi encontrado",
-    no_memorial_identity_fields_detected: "campos nao detectados",
+      "mais de um proprietário/cliente foi encontrado",
+    no_memorial_identity_fields_detected: "campos não detectados",
     owner_city_differs_from_memorial_municipality:
-      "proprietario/cliente aponta outro municipio",
+      "proprietário/cliente aponta outro município",
     project_code_differs_from_package_identity:
-      "numero do projeto diferente da identidade principal",
+      "número do projeto diferente da identidade principal",
     work_name_differs_from_package_identity:
       "obra diferente da identidade principal",
   };

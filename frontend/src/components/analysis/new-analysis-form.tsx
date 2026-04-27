@@ -121,7 +121,7 @@ export function NewAnalysisForm({ initialMode, initialConfig }: NewAnalysisFormP
                 Etapa 2
               </p>
               <h2 className="mt-2 text-lg font-semibold text-[var(--cp-text)]">
-                Escolha o tipo de revisao.
+                Escolha o tipo de revisão.
               </h2>
             </div>
             <p className="max-w-sm text-sm leading-6 text-[var(--cp-muted)]">
@@ -132,7 +132,7 @@ export function NewAnalysisForm({ initialMode, initialConfig }: NewAnalysisFormP
 
           <AnalysisModeSelector
             title="Tipo de analise"
-            description="Volume de projeto confere capa, separatrizes, LDs e pranchas. Memorial foca a revisao textual do memorial."
+            description="Volume de projeto confere capa, separatrizes, LDs e pranchas. Memorial foca a revisão textual do memorial."
             modes={primaryModes}
             selectedMode={selectedMode}
             onSelect={handleModeSelect}
@@ -144,13 +144,13 @@ export function NewAnalysisForm({ initialMode, initialConfig }: NewAnalysisFormP
           <span className="font-semibold text-[var(--cp-text)]">
             {formatTipoLabel(lockedTipo ?? "pacote")}
           </span>
-          . As verificacoes avancadas continuam disponiveis no motor tecnico,
-          mas nao aparecem neste fluxo principal.
+          . As verificações avançadas continuam disponíveis no motor técnico,
+          mas não aparecem neste fluxo principal.
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--cp-border)] pt-5">
           <p className="text-xs leading-6 text-[var(--cp-muted)]">
-            Os arquivos sao usados para a leitura da analise e nao ficam
+            Os arquivos são usados para a leitura da análise e não ficam
             guardados permanentemente.
           </p>
           <FormSubmitButton pending={isSubmitting} />
@@ -171,5 +171,5 @@ function formatTipoLabel(value: string) {
     prancha: "pranchas",
   };
 
-  return (labelMap[normalizedValue] ?? value) || "nao definido";
+  return (labelMap[normalizedValue] ?? value) || "não definido";
 }

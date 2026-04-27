@@ -90,7 +90,7 @@ class CampoObrigatorioAusenteTests(unittest.TestCase):
         ]
         issues = evaluate_rules([DOC_A, DOC_B], fields)
         types = [i.type for i in issues]
-        self.assertIn("campo_obrigatorio_ausente", types)
+        self.assertNotIn("campo_obrigatorio_ausente", types)
 
     def test_sem_issue_quando_campo_presente_em_todos(self) -> None:
         fields = [
@@ -180,6 +180,15 @@ class NumeroProjeto_DivergenteTests(unittest.TestCase):
         types = [i.type for i in issues]
         self.assertIn("numero_projeto_divergente", types)
 
+    def test_frase_comum_extraida_como_numero_nao_gera_divergencia(self) -> None:
+        fields = [
+            make_field(1, DOC_A.id, "numero_projeto", "117-25"),
+            make_field(2, DOC_B.id, "numero_projeto", "TIPOS DIFERENTES DE CUBA"),
+        ]
+        issues = evaluate_rules([DOC_A, DOC_B], fields)
+        types = [i.type for i in issues]
+        self.assertNotIn("numero_projeto_divergente", types)
+
 
 class BairroDivergenteTests(unittest.TestCase):
     """bairro_divergente: bairros distintos apos normalizacao."""
@@ -202,6 +211,28 @@ class BairroDivergenteTests(unittest.TestCase):
         issues = evaluate_rules([DOC_A, DOC_B], fields)
         types = [i.type for i in issues]
         self.assertNotIn("bairro_divergente", types)
+
+    def test_bairro_com_um_caractere_nao_gera_divergencia(self) -> None:
+        fields = [
+            make_field(1, DOC_A.id, "bairro", "CENTRO"),
+            make_field(2, DOC_B.id, "bairro", "E"),
+        ]
+        issues = evaluate_rules([DOC_A, DOC_B], fields)
+        types = [i.type for i in issues]
+        self.assertNotIn("bairro_divergente", types)
+
+
+class OrgaoClienteTests(unittest.TestCase):
+    """orgao_cliente: variações de escritório/cliente não geram confirmação automática."""
+
+    def test_orgao_cliente_divergente_nao_gera_issue(self) -> None:
+        fields = [
+            make_field(1, DOC_A.id, "orgao_cliente", "PROSUL PROJETOS"),
+            make_field(2, DOC_B.id, "orgao_cliente", "PROSUL ENGENHARIA"),
+        ]
+        issues = evaluate_rules([DOC_A, DOC_B], fields)
+        types = [i.type for i in issues]
+        self.assertNotIn("orgao_cliente_divergente", types)
 
 
 class VerificacaoPontualTests(unittest.TestCase):
