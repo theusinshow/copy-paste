@@ -5,12 +5,9 @@
 ▲ Next.js 16.2.4 (Turbopack)
 - Local:         http://127.0.0.1:3000
 - Network:       http://127.0.0.1:3000
-✓ Ready in 926ms
+✓ Ready in 300ms
 
-○ Compiling /analysis/new ...
-✓ Finished writing to filesystem cache in 42s
-✓ Finished writing to filesystem cache in 74s
-✓ Finished writing to filesystem cache in 35.9s
-✓ Finished writing to filesystem cache in 19.6s
-✓ Finished writing to filesystem cache in 3.3min
-✓ Finished writing to filesystem cache in 13.7s
+ GET / 200 in 1961ms (next.js: 1674ms, application-code: 287ms)
+ GET / 200 in 10.1s (next.js: 4ms, application-code: 10.1s)
+ GET / 200 in 87ms (next.js: 4ms, application-code: 84ms)
+ GET / 200 in 38ms (next.js: 1940µs, application-code: 36ms)

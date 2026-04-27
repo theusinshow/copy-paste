@@ -177,6 +177,9 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Backend agora inicia mesmo quando o SDK da Resend nao esta instalado no ambiente local, mantendo notificacoes por e-mail desativadas quando o provedor nao estiver disponivel.
+- Backend agora inicia mesmo quando o SDK da Groq nao esta instalado no ambiente local, mantendo a leitura assistida em fallback estrutural quando IA externa nao estiver disponivel.
+- Raiz do Next/Turbopack agora aponta para a raiz real do repositorio junto com `outputFileTracingRoot`, evitando inferencia para `C:\Dev`, cache lento e estouro de memoria no ambiente local sem conflitar com a Vercel.
 - Tela de acompanhamento agora trata a queda da conexao SSE como troca silenciosa para consulta periodica, exibindo erro apenas quando a consulta de status tambem falha.
 - CSS utilitario do frontend agora declara explicitamente as fontes do App Router para o Tailwind, evitando deploy da Vercel com HTML renderizado sem estilos.
 - Deploy do frontend na Vercel corrigido removendo `turbopack.root` do `next.config.ts`, que conflitava com o `outputFileTracingRoot` aplicado pela plataforma.

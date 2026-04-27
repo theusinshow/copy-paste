@@ -1,4 +1,7 @@
-import resend
+try:
+    import resend
+except ModuleNotFoundError:
+    resend = None
 
 from app.core.config import get_settings
 
@@ -9,7 +12,7 @@ def send_analysis_notification(
     mode: str,
 ) -> None:
     settings = get_settings()
-    if not settings.RESEND_API_KEY or not settings.NOTIFICATION_EMAIL:
+    if resend is None or not settings.RESEND_API_KEY or not settings.NOTIFICATION_EMAIL:
         return
 
     resend.api_key = settings.RESEND_API_KEY
