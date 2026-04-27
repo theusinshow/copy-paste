@@ -1,4 +1,5 @@
 import threading
+import logging
 
 from sqlalchemy.orm import Session
 
@@ -29,6 +30,9 @@ class AnalysisProcessingError(RuntimeError):
     pass
 
 
+logger = logging.getLogger(__name__)
+
+
 def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
     analysis_run = get_analysis_run_by_id(session, analysis_id)
     if analysis_run is None:
@@ -51,10 +55,40 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
         for i, input_document in enumerate(input_documents):
             if _is_cancelled(session, analysis_run):
                 return analysis_run
-            extracted_pages_by_document.append(
-                (input_document.id, read_pdf_pages(input_document.file_path))
+            logger.info(
+                "Analysis %s reading document %s/%s: %s",
+                analysis_id,
+                i + 1,
+                doc_count,
+                input_document.original_filename,
             )
-            emit_analysis_progress(analysis_id, 5 + round((i + 1) / doc_count * 55))
+            document_start = 5 + round(i / doc_count * 55)
+            document_end = 5 + round((i + 1) / doc_count * 55)
+
+            def emit_page_progress(page_number: int, page_count: int) -> None:
+                if page_count <= 0:
+                    return
+                progress = document_start + round(
+                    page_number / page_count * (document_end - document_start)
+                )
+                emit_analysis_progress(analysis_id, progress)
+
+            extracted_pages_by_document.append(
+                (
+                    input_document.id,
+                    read_pdf_pages(
+                        input_document.file_path,
+                        on_page_extracted=emit_page_progress,
+                    ),
+                )
+            )
+            logger.info(
+                "Analysis %s finished document %s/%s: %s",
+                analysis_id,
+                i + 1,
+                doc_count,
+                input_document.original_filename,
+            )
 
         if _is_cancelled(session, analysis_run):
             return analysis_run

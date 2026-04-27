@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 import pdfplumber
 
@@ -18,7 +19,13 @@ class ExtractedPdfPage:
     text_spans: list[ExtractedTextSpan]
 
 
-def read_pdf_pages(file_path: str) -> list[ExtractedPdfPage]:
+PageProgressCallback = Callable[[int, int], None]
+
+
+def read_pdf_pages(
+    file_path: str,
+    on_page_extracted: PageProgressCallback | None = None,
+) -> list[ExtractedPdfPage]:
     path = Path(file_path)
     if not path.is_file():
         raise FileNotFoundError("Input document file not found")
@@ -32,13 +39,19 @@ def read_pdf_pages(file_path: str) -> list[ExtractedPdfPage]:
             if not pdf.pages:
                 raise ValueError("Input document has no pages")
 
-            return [
-                ExtractedPdfPage(
-                    page_number=page_number,
-                    text_spans=_extract_text_spans(page),
+            page_count = len(pdf.pages)
+            extracted_pages: list[ExtractedPdfPage] = []
+            for page_number, page in enumerate(pdf.pages, start=1):
+                extracted_pages.append(
+                    ExtractedPdfPage(
+                        page_number=page_number,
+                        text_spans=_extract_text_spans(page),
+                    )
                 )
-                for page_number, page in enumerate(pdf.pages, start=1)
-            ]
+                if on_page_extracted is not None:
+                    on_page_extracted(page_number, page_count)
+
+            return extracted_pages
     except ValueError:
         raise
     except Exception as exc:

@@ -177,6 +177,7 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Progresso do processamento agora avanca durante a leitura das paginas de cada PDF, evitando que analises longas parecam travadas em 5% enquanto o extrator ainda esta trabalhando.
 - Tela de acompanhamento agora usa a mesma resolucao de URL da API para SSE e polling, evitando consulta relativa ao Next local quando `NEXT_PUBLIC_API_URL` nao esta definida.
 - Backend agora inicia mesmo quando o SDK da Resend nao esta instalado no ambiente local, mantendo notificacoes por e-mail desativadas quando o provedor nao estiver disponivel.
 - Backend agora inicia mesmo quando o SDK da Groq nao esta instalado no ambiente local, mantendo a leitura assistida em fallback estrutural quando IA externa nao estiver disponivel.
