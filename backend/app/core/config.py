@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     CORS_ALLOWED_ORIGINS: str = ""
     CORS_ALLOWED_ORIGIN_REGEX: str = r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
     GROQ_API_KEY: str = ""
+    RESEND_API_KEY: str = ""
+    NOTIFICATION_EMAIL: str = ""
+    FRONTEND_URL: str = "http://localhost:3000"
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

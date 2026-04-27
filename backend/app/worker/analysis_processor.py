@@ -1,3 +1,5 @@
+import threading
+
 from sqlalchemy.orm import Session
 
 from app.db.analysis_runs import (
@@ -13,6 +15,7 @@ from app.db.extracted_fields import replace_extracted_fields
 from app.db.input_documents import list_input_documents_by_analysis_id
 from app.db.issues import replace_analysis_issues
 from app.db.text_spans import replace_text_spans
+from app.worker.email_notify import send_analysis_notification
 from app.models.analysis_run import AnalysisRun
 from app.rules import evaluate_rules
 from app.rules.types import RuleExtractedField, RuleInputDocument
@@ -153,17 +156,38 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
     except ValueError:
         session.rollback()
         set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_FAILED)
+        threading.Thread(
+            target=send_analysis_notification,
+            args=(analysis_id, ANALYSIS_STATUS_FAILED, analysis_run.analysis_mode),
+            daemon=True,
+        ).start()
         raise
     except FileNotFoundError as exc:
         session.rollback()
         set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_FAILED)
+        threading.Thread(
+            target=send_analysis_notification,
+            args=(analysis_id, ANALYSIS_STATUS_FAILED, analysis_run.analysis_mode),
+            daemon=True,
+        ).start()
         raise AnalysisProcessingError(str(exc)) from exc
     except Exception as exc:
         session.rollback()
         set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_FAILED)
+        threading.Thread(
+            target=send_analysis_notification,
+            args=(analysis_id, ANALYSIS_STATUS_FAILED, analysis_run.analysis_mode),
+            daemon=True,
+        ).start()
         raise AnalysisProcessingError("Analysis processing failed") from exc
 
-    return set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_COMPLETED)
+    completed = set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_COMPLETED)
+    threading.Thread(
+        target=send_analysis_notification,
+        args=(analysis_id, ANALYSIS_STATUS_COMPLETED, analysis_run.analysis_mode),
+        daemon=True,
+    ).start()
+    return completed
 
 
 def _is_cancelled(session: Session, analysis_run: AnalysisRun) -> bool:

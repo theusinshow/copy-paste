@@ -227,3 +227,21 @@ export type DashboardStats = {
 export async function getDashboardStats() {
   return apiFetch<DashboardStats>("/api/v1/dashboard", { cache: "no-store" });
 }
+
+export type PackageAnalysis = {
+  id: number;
+  status: string;
+  analysis_mode: string;
+  created_at: string | null;
+};
+
+export type PackageGroup = {
+  project_code: string;
+  analysis_count: number;
+  latest_at: string | null;
+  analyses: PackageAnalysis[];
+};
+
+export async function getPackageHistory() {
+  return apiFetch<PackageGroup[]>("/api/v1/packages", { cache: "no-store" });
+}
