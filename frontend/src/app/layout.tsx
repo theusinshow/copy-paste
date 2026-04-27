@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   },
   description:
     "Base frontend para auditoria documental com lista de analises e upload inicial.",
+  icons: {
+    icon: "/logo-symbol.svg",
+  },
 };
 
 export default function RootLayout({

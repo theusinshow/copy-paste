@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const navigationLinks = [
@@ -11,9 +12,14 @@ export function SiteHeader() {
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <div>
           <Link href="/" className="inline-flex items-center gap-3">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--cp-accent)] text-sm font-black text-[var(--cp-accent-ink)]">
-              CP
-            </span>
+            <Image
+              src="/logo-symbol.svg"
+              alt="Copy&Paste"
+              width={36}
+              height={36}
+              className="rounded-lg"
+              priority
+            />
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)]">
                 Copy&amp;Paste

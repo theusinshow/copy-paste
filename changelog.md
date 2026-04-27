@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Added
+- Logo `Simbolo.svg` integrado ao header substituindo o badge "CP", com favicon SVG via Next.js app router (`icon.svg`). Lockup horizontal disponivel em `/logo-lockup.png`.
+- Animacoes Three.js: background de particulas conectadas na home, animacao do simbolo como scanner durante o processamento e transicao de camera ao navegar entre paginas.
+- Micro-animacoes de UI via Framer Motion e CSS: borda dourada animada no hover de botoes, ripple ao clicar, shimmer interno no estado de loading, lift com sombra dourada nos cards de analise, scroll reveal com borda colorida deslizante, `AnimatePresence` com fade + slide entre paginas, underline dourado deslizante na navegacao, colapso animado de issues ao mudar status, contagem progressiva dos stats ao montar a tela, crossfade no skeleton → conteudo, toggle de review com spring, toast com bounce de entrada e slide de saida.
+- Suite de testes unitarios cobrindo todos os tipos de erro geraveis pela ferramenta: `test_mvp_rules.py` (24 testes para regras MVP), `test_ld_crosscheck_all.py` (12 testes para cruzamento LD × Pranchas), `test_footer_audit_all.py` (9 testes para audit de rodapes), `test_memorial_audit_all.py` (21 testes para audit de memoriais + selecao de documento), `test_drawing_list_all.py` (9 testes para alertas da lista de documentos). Total: 68 testes cobrindo todos os caminhos de deteccao de problema.
 - Endpoint `GET /api/v1/analysis/{id}/stream` com SSE (`text/event-stream`) que emite o estado atual da analise a cada 1,5 s e fecha a conexao quando o status for terminal (`completed`, `failed` ou `cancelled`).
 - Parâmetros `status`, `mode`, `limit` e `offset` em `GET /api/v1/analysis` para filtragem e paginacao server-side.
 - Atalhos de teclado na lista de issues da tela de resultado: `j`/`k` navegam entre issues, `f` foca a primeira pendente, `r`/`d`/`a` aplicam revisao rapida na issue em foco.
