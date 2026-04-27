@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api/fetcher";
+import { buildApiUrl } from "@/lib/api/config";
 import type { AnalysisMode } from "@/lib/analysis/analysis-modes";
 import type {
   AuditSummary,
@@ -195,4 +196,20 @@ export async function uploadAnalysisFiles(
     body: formData,
     method: "POST",
   });
+}
+
+export type AnalysisDocument = {
+  id: number;
+  filename: string;
+  tipo: string;
+};
+
+export async function listAnalysisDocuments(analysisId: number) {
+  return apiFetch<AnalysisDocument[]>(`/api/v1/analysis/${analysisId}/documents`, {
+    cache: "no-store",
+  });
+}
+
+export function getDocumentFileUrl(analysisId: number, documentId: number) {
+  return buildApiUrl(`/api/v1/analysis/${analysisId}/documents/${documentId}/file`);
 }

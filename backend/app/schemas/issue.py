@@ -25,6 +25,7 @@ class IssueEvidenceSchema(BaseModel):
 
 
 class IssueEvidenceReadSchema(IssueEvidenceSchema):
+    document_id: int | None
     text: str
 
 

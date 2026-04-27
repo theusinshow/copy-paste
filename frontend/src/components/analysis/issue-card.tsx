@@ -29,6 +29,7 @@ type IssueCardProps = {
   isFocused?: boolean;
   isSelected?: boolean;
   issue: AnalysisIssue;
+  onOpenPdf?: (documentId: number | null, page: number) => void;
   onToggleSelection?: (issueId: number) => void;
 };
 
@@ -37,6 +38,7 @@ export function IssueCard({
   isFocused = false,
   isSelected = false,
   issue,
+  onOpenPdf,
   onToggleSelection,
 }: IssueCardProps) {
   const appearance = getIssueSeverityAppearance(issue.severity);
@@ -84,7 +86,7 @@ export function IssueCard({
             Evidencias
           </p>
           <div className="mt-4">
-            <IssueEvidenceList evidences={issue.evidences} />
+            <IssueEvidenceList evidences={issue.evidences} onOpenPdf={onOpenPdf} />
           </div>
         </div>
       ) : null}

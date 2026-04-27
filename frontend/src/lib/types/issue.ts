@@ -14,6 +14,7 @@ export type IssueReview = {
 
 export type IssueEvidence = {
   bbox: Record<string, number> | null;
+  document_id: number | null;
   field_id: number;
   issue_id: number;
   page: number;

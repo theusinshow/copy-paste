@@ -23,6 +23,7 @@ type IssueListProps = {
   analysisId: number;
   issues: AnalysisIssue[];
   loadError?: string | null;
+  onOpenPdf?: (documentId: number | null, page: number) => void;
   status: string;
 };
 
@@ -30,6 +31,7 @@ export function IssueList({
   analysisId,
   issues,
   loadError,
+  onOpenPdf,
   status,
 }: IssueListProps) {
   const router = useRouter();
@@ -348,6 +350,7 @@ export function IssueList({
               issue={issue}
               isFocused={focusedIssueId === issue.id}
               isSelected={selectedIssueIds.includes(issue.id)}
+              onOpenPdf={onOpenPdf}
               onToggleSelection={handleToggleSelection}
             />
           ))}

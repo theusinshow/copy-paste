@@ -1,5 +1,8 @@
 import asyncio
 import json
+from pathlib import Path
+
+from sqlalchemy import select
 
 from fastapi import (
     APIRouter,
@@ -11,7 +14,7 @@ from fastapi import (
     UploadFile,
     status,
 )
-from fastapi.responses import HTMLResponse, PlainTextResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, StreamingResponse
 
 from app.core.analysis_modes import validate_analysis_payload
 from app.core.audit_closure import normalize_audit_status
@@ -37,6 +40,7 @@ from app.db.drawing_lists import get_drawing_lists_by_analysis_id
 from app.db.extracted_fields import list_extracted_fields_by_analysis_id
 from app.db.footer_audit import get_footer_audit_by_analysis_id
 from app.db.input_documents import create_input_documents
+from app.models.input_document import InputDocument
 from app.db.issues import (
     list_issues_by_ids,
     list_issues_with_evidences_by_analysis_id,
@@ -637,4 +641,53 @@ def export_analysis(
             )
         },
         media_type="text/markdown; charset=utf-8",
+    )
+
+
+@router.get("/{analysis_id}/documents")
+def list_analysis_documents(
+    analysis_id: int,
+    session: DbSession,
+) -> list[dict]:
+    run = get_analysis_run_by_id(session, analysis_id)
+    if run is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    documents = session.scalars(
+        select(InputDocument)
+        .where(InputDocument.analysis_run_id == analysis_id)
+        .order_by(InputDocument.id.asc())
+    ).all()
+    return [
+        {"id": d.id, "filename": d.original_filename, "tipo": d.tipo}
+        for d in documents
+    ]
+
+
+@router.get("/{analysis_id}/documents/{document_id}/file")
+def get_analysis_document_file(
+    analysis_id: int,
+    document_id: int,
+    session: DbSession,
+) -> FileResponse:
+    document = session.scalars(
+        select(InputDocument).where(
+            InputDocument.analysis_run_id == analysis_id,
+            InputDocument.id == document_id,
+        )
+    ).first()
+    if document is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    file_path = Path(document.file_path)
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found on disk",
+        )
+    return FileResponse(
+        path=file_path,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'inline; filename="{document.original_filename}"',
+            "Cache-Control": "private, max-age=3600",
+        },
     )

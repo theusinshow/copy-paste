@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Added
+- **Visualizador de PDF embutido** na tela de resultado: painel fixo na base da tela (60 vh) com abas por documento, navegacao de paginas e renderizacao via PDF.js (`react-pdf`). Ativado pelo botao "Ver p.X" em cada evidencia de issue, que abre o viewer diretamente na pagina correta. Suporta multiplos documentos por analise com troca de aba.
+- Endpoint `GET /api/v1/analysis/{id}/documents` para listar documentos de uma analise.
+- Endpoint `GET /api/v1/analysis/{id}/documents/{document_id}/file` para servir o PDF com `FileResponse` e cache de 1h.
+- Campo `document_id` na resposta de evidencias de issues (join com `ExtractedField.input_document_id`).
 - Integracao com **Groq API** (LLaMA 3.3 70B) para analise assistida por IA: quando `GROQ_API_KEY` esta configurado, o endpoint `/ai-review` envia identidade do pacote, problemas detectados e trechos dos documentos ao modelo e retorna uma narrativa tecnica com resumo executivo, avaliacao dos findings e proximo passo sugerido. Fallback gracioso para modo estrutural quando a chave nao esta configurada ou a chamada falha.
 - `app/worker/groq_client.py` — cliente Groq isolado com timeout de 30s e modelo configuravel.
 - Campo `GROQ_API_KEY` em `Settings` e em `.env.example`.

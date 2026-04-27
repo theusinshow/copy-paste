@@ -134,6 +134,7 @@ def _build_issue_payloads(
             IssueEvidence.page,
             IssueEvidence.bbox,
             ExtractedField.raw_value,
+            ExtractedField.input_document_id,
         )
         .join(ExtractedField, ExtractedField.id == IssueEvidence.field_id)
         .where(IssueEvidence.issue_id.in_(issue_ids))
@@ -149,6 +150,7 @@ def _build_issue_payloads(
                 "page": row.page,
                 "bbox": row.bbox,
                 "text": row.raw_value,
+                "document_id": row.input_document_id,
             }
         )
 

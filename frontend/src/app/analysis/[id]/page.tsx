@@ -11,7 +11,7 @@ import { DirectedModePanel } from "@/components/analysis/directed-mode-panel";
 import { DrawingListPanel } from "@/components/analysis/drawing-list-panel";
 import { ExtractedFieldList } from "@/components/analysis/extracted-field-list";
 import { FooterAuditPanel } from "@/components/analysis/footer-audit-panel";
-import { IssueList } from "@/components/analysis/issue-list";
+import { IssuesSectionClient } from "@/components/analysis/issues-section-client";
 import { LdSheetCrosscheckPanel } from "@/components/analysis/ld-sheet-crosscheck-panel";
 import { MemorialAuditPanel } from "@/components/analysis/memorial-audit-panel";
 import { PackageMapPanel } from "@/components/analysis/package-map-panel";
@@ -174,7 +174,7 @@ async function IssuesSection({
 
   return (
     <section id="pontos">
-      <IssueList
+      <IssuesSectionClient
         analysisId={analysisId}
         issues={issues}
         loadError={issuesLoadError}
