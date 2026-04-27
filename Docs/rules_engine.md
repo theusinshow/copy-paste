@@ -147,6 +147,7 @@ As severidades permanecem internas ao motor. Na interface cotidiana, os pontos d
 ### Memorial com identidade divergente
 - condição: campo encontrado no memorial diverge da identidade principal do pacote
 - severidade: relevante
+- observação: menções institucionais como `Prefeitura de <município>`, `Prefeitura Municipal de <município>` e `Governo do Município de <município>` contam como evidência objetiva de município no memorial
 
 ### Memorial com múltiplos endereços
 - condição: mais de um endereço distinto é encontrado nos memoriais

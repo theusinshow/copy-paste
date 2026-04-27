@@ -149,6 +149,40 @@ class MunicipalityDiffersTests(unittest.TestCase):
     """municipality_differs_from_package_identity:
     Memorial tem municipio diferente."""
 
+    def test_prefeitura_municipal_detecta_municipio_sem_label_explicito(self) -> None:
+        memorial = make_memorial(1)
+        texts = {
+            1: {1: "PREFEITURA MUNICIPAL DE CRICIUMA MEMORIAL DESCRITIVO 117-25"}
+        }
+
+        result = build_memorial_audit([memorial], texts)
+
+        municipalities = [
+            occurrence
+            for occurrence in result["occurrences"]
+            if occurrence["field"] == "municipality"
+        ]
+        self.assertEqual(municipalities[0]["normalized_value"], "CRICIUMA")
+        self.assertFalse(
+            has_finding(result["findings"], "no_memorial_identity_fields_detected")
+        )
+
+    def test_prefeitura_de_detecta_municipio_sem_label_explicito(self) -> None:
+        memorial = make_memorial(1)
+        texts = {1: {1: "PREFEITURA DE CIRICUMA MEMORIAL DESCRITIVO 117-25"}}
+
+        result = build_memorial_audit([memorial], texts)
+
+        municipalities = [
+            occurrence
+            for occurrence in result["occurrences"]
+            if occurrence["field"] == "municipality"
+        ]
+        self.assertEqual(municipalities[0]["normalized_value"], "CIRICUMA")
+        self.assertFalse(
+            has_finding(result["findings"], "no_memorial_identity_fields_detected")
+        )
+
     def test_municipio_diferente_do_pacote(self) -> None:
         prancha = make_prancha(1)
         memorial = make_memorial(2)

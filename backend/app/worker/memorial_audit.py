@@ -19,6 +19,10 @@ BAIRRO_PATTERN = re.compile(
 MUNICIPALITY_PATTERN = re.compile(
     r"\b(?:MUNICIPIO|MUNIC[ÍI]PIO|CIDADE)\s+(?:DE\s+)?(?P<value>[A-Z ]{3,40})"
 )
+INSTITUTION_MUNICIPALITY_PATTERN = re.compile(
+    r"\b(?:PREFEITURA(?:\s+MUNICIPAL)?|GOVERNO\s+DO\s+MUNICIPIO|GOVERNO\s+DO\s+MUNIC[ÍI]PIO)"
+    r"\s+DE\s+(?P<value>[A-Z ]{3,40})"
+)
 OWNER_PATTERN = re.compile(
     r"\b(?:PROPRIETARIO|PROPRIET[ÁA]RIO|CLIENTE|CONTRATANTE)[:\s]+"
     r"(?P<value>(?:PREFEITURA|MUNICIPIO|MUNIC[ÍI]PIO|GOVERNO)[A-Z ]{3,80})"
@@ -120,6 +124,14 @@ def _extract_occurrences(
     _append_occurrences(document, page_number, text, "bairro", BAIRRO_PATTERN, occurrences)
     _append_occurrences(
         document, page_number, text, "municipality", MUNICIPALITY_PATTERN, occurrences
+    )
+    _append_occurrences(
+        document,
+        page_number,
+        text,
+        "municipality",
+        INSTITUTION_MUNICIPALITY_PATTERN,
+        occurrences,
     )
     _append_occurrences(document, page_number, text, "owner", OWNER_PATTERN, occurrences)
     _append_occurrences(
@@ -458,7 +470,9 @@ def _clean_value(field: str, value: str) -> str:
         )
     if field in {"bairro", "municipality"}:
         value = re.sub(
-            r"\b(?:EM|E ARREDORES|VOLUME|PROJETO|OUTUBRO|SETEMBRO|NOVEMBRO|DEZEMBRO|MEMORIAL)\b.*$",
+            r"\b(?:BAIRRO|CLIENTE|ENDEREC[O0]|ENDERE[ÇC]O|EM|E ARREDORES|MEMORIAL|"
+            r"N[UÚ]MERO|NUMERO|OBRA|OUTUBRO|PROCESSO|PROJETO|PROPRIETARIO|"
+            r"PROPRIET[ÁA]RIO|SETEMBRO|VOLUME|NOVEMBRO|DEZEMBRO)\b.*$",
             "",
             value,
         )

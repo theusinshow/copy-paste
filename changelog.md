@@ -184,6 +184,7 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Auditoria de memoriais agora reconhece município em menções institucionais como `Prefeitura de X`, `Prefeitura Municipal de X` e `Governo do Município de X`, evitando ausência falsa quando o memorial não usa o rótulo `Município`.
 - Falsos positivos reduzidos para número de projeto e bairro quando a extração captura frases comuns ou valores de uma única letra.
 - Leitura do selo de prancha ampliada para reconhecer variações de `CONTEUDO PRANCHA` sem dois-pontos e com janela de evidência maior.
 - Extracao de texto de PDFs agora pode isolar cada pagina em subprocesso com timeout, evitando que uma pagina pesada derrube o backend inteiro durante o processamento.
