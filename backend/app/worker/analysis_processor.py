@@ -21,6 +21,7 @@ from app.worker.email_notify import send_analysis_notification
 from app.models.analysis_run import AnalysisRun
 from app.rules import evaluate_rules
 from app.rules.types import RuleExtractedField, RuleInputDocument
+from app.worker.ai_issue_detector import detect_issues_with_ai
 from app.worker.analysis_mode_dispatcher import build_analysis_execution_plan
 from app.worker.field_extractor import extract_fields_from_pages
 from app.worker.pdf_reader import read_pdf_pages
@@ -155,39 +156,51 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
                 )
             ],
         )
-        emit_analysis_progress(analysis_id, 85)
+        emit_analysis_progress(analysis_id, 83)
         if _is_cancelled(session, analysis_run):
             return analysis_run
+
+        page_texts_by_document_id = {
+            document_id: {
+                extracted_page.page_number: " ".join(
+                    span.text for span in extracted_page.text_spans
+                )
+                for extracted_page in extracted_pages
+            }
+            for document_id, extracted_pages in extracted_pages_by_document
+        }
 
         if execution_plan.run_rules:
             evaluation_document_ids = {
                 input_document.id for input_document in execution_plan.evaluation_documents
             }
-            replace_analysis_issues(
-                session,
-                analysis_id,
-                evaluate_rules(
-                    [
-                        RuleInputDocument(id=input_document.id)
-                        for input_document in execution_plan.evaluation_documents
-                    ],
-                    [
-                        RuleExtractedField(
-                            id=field.id,
-                            input_document_id=field.input_document_id,
-                            field_name=field.field_name,
-                            raw_value=field.raw_value,
-                            normalized_value=field.normalized_value,
-                            page=page_numbers_by_document_page_id.get(field.document_page_id),
-                            bbox=field.bbox,
-                        )
-                        for field in extracted_fields
-                        if field.input_document_id in evaluation_document_ids
-                    ],
-                    analysis_mode=analysis_run.analysis_mode,
-                    config=analysis_run.config,
-                ),
+            rule_issues = evaluate_rules(
+                [
+                    RuleInputDocument(id=input_document.id)
+                    for input_document in execution_plan.evaluation_documents
+                ],
+                [
+                    RuleExtractedField(
+                        id=field.id,
+                        input_document_id=field.input_document_id,
+                        field_name=field.field_name,
+                        raw_value=field.raw_value,
+                        normalized_value=field.normalized_value,
+                        page=page_numbers_by_document_page_id.get(field.document_page_id),
+                        bbox=field.bbox,
+                    )
+                    for field in extracted_fields
+                    if field.input_document_id in evaluation_document_ids
+                ],
+                analysis_mode=analysis_run.analysis_mode,
+                config=analysis_run.config,
             )
+            emit_analysis_progress(analysis_id, 88)
+            ai_issues = detect_issues_with_ai(
+                [d for d in input_documents if d.id in evaluation_document_ids],
+                page_texts_by_document_id,
+            )
+            replace_analysis_issues(session, analysis_id, rule_issues + ai_issues)
         else:
             replace_analysis_issues(session, analysis_id, [])
         emit_analysis_progress(analysis_id, 95)

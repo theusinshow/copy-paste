@@ -24,9 +24,6 @@ def replace_analysis_issues(
 
     persisted_issues: list[Issue] = []
     for candidate in issues:
-        if not candidate.evidences:
-            raise ValueError("Issue must contain evidence")
-
         issue = Issue(
             analysis_run_id=analysis_id,
             type=candidate.type,
