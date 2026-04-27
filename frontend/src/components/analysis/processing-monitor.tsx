@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { AnalysisModeBadge } from "@/components/analysis/analysis-mode-badge";
 import { AnalysisStatusBadge } from "@/components/analysis/analysis-status-badge";
-import { cancelAnalysis, startAnalysis } from "@/lib/api/analysis";
+import { cancelAnalysis, getAnalysis, startAnalysis } from "@/lib/api/analysis";
 import { extractApiErrorMessage } from "@/lib/api/fetcher";
 import { formatAnalysisDate } from "@/lib/formatters";
 import type { AnalysisRun } from "@/lib/types/analysis";
@@ -42,6 +42,7 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
   useEffect(() => {
     let isMounted = true;
     let eventSource: EventSource | null = null;
+    let fallbackTimer: ReturnType<typeof setInterval> | null = null;
 
     const isAlreadyFinished =
       initialAnalysis.status === "completed" ||
@@ -64,11 +65,7 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
         try {
           const data = JSON.parse(event.data as string) as AnalysisRun;
           setAnalysis(data);
-          const isTerminal =
-            data.status === "completed" ||
-            data.status === "failed" ||
-            data.status === "cancelled";
-          if (isTerminal) {
+          if (isTerminalStatus(data.status)) {
             eventSource?.close();
             eventSource = null;
           }
@@ -80,11 +77,37 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
       eventSource.onerror = () => {
         if (!isMounted || !eventSource) return;
         setErrorMessage(
-          "Nao foi possivel acompanhar o processamento em tempo real.",
+          "A conexao em tempo real caiu. Atualizando por consulta periodica.",
         );
         eventSource.close();
         eventSource = null;
+        startFallbackPolling();
       };
+    }
+
+    function startFallbackPolling() {
+      if (fallbackTimer) return;
+      fallbackTimer = setInterval(() => {
+        void refreshAnalysis();
+      }, 2500);
+      void refreshAnalysis();
+    }
+
+    async function refreshAnalysis() {
+      try {
+        const currentAnalysis = await getAnalysis(initialAnalysis.id);
+        if (!isMounted) return;
+        setAnalysis(currentAnalysis);
+        if (isTerminalStatus(currentAnalysis.status) && fallbackTimer) {
+          clearInterval(fallbackTimer);
+          fallbackTimer = null;
+        }
+      } catch {
+        if (!isMounted) return;
+        setErrorMessage(
+          "Nao foi possivel consultar o status atual do processamento.",
+        );
+      }
     }
 
     async function start() {
@@ -120,14 +143,14 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
     return () => {
       isMounted = false;
       eventSource?.close();
+      if (fallbackTimer) {
+        clearInterval(fallbackTimer);
+      }
     };
   }, [initialAnalysis]);
 
-  const currentStatus = errorMessage ? "failed" : analysis.status;
-  const isFinished =
-    analysis.status === "completed" ||
-    analysis.status === "failed" ||
-    analysis.status === "cancelled";
+  const currentStatus = analysis.status;
+  const isFinished = isTerminalStatus(analysis.status);
 
   async function handleCancel() {
     if (isFinished || isCancelling) {
@@ -189,7 +212,7 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
                 key={step.key}
                 description={step.description}
                 index={index + 1}
-                state={getStepState(step.key, analysis.status, errorMessage)}
+                state={getStepState(step.key, analysis.status)}
                 title={step.title}
               />
             ))}
@@ -350,9 +373,8 @@ function InfoCard({ label, value }: { label: string; value: string }) {
 function getStepState(
   stepKey: string,
   status: string,
-  errorMessage: string | null,
 ): "done" | "failed" | "pending" | "running" {
-  if (errorMessage || status === "failed") {
+  if (status === "failed") {
     return stepKey === "completed" ? "failed" : "done";
   }
   if (status === "cancelled") {
@@ -365,6 +387,10 @@ function getStepState(
     return stepKey === "created" ? "done" : stepKey === "processing" ? "running" : "pending";
   }
   return stepKey === "created" ? "running" : "pending";
+}
+
+function isTerminalStatus(status: string) {
+  return status === "completed" || status === "failed" || status === "cancelled";
 }
 
 function getStepMarkerClass(state: "done" | "failed" | "pending" | "running") {

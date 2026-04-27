@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import threading
 from pathlib import Path
 
@@ -88,6 +89,7 @@ from app.worker.analysis_export import (
 from app.worker.mode_output import build_mode_output
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
+logger = logging.getLogger(__name__)
 
 
 def _not_implemented() -> None:
@@ -230,7 +232,7 @@ def start_analysis(analysis_id: int, session: DbSession) -> AnalysisRunSchema:
         try:
             process_analysis(bg_session, analysis_id)
         except Exception:
-            pass
+            logger.exception("Analysis %s failed during background processing", analysis_id)
         finally:
             bg_session.close()
 

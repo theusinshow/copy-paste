@@ -177,6 +177,8 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Tela de acompanhamento agora usa consulta periodica como fallback quando a conexao SSE cai, sem marcar a analise como `failed` apenas por falha de conexao em tempo real.
+- Worker em background do backend agora registra excecoes de processamento no log, evitando falhas silenciosas quando uma analise termina como `failed`.
 - Build do frontend corrigido ao fixar o root do Turbopack no diretorio `frontend`, evitando que o Next.js escolha um workspace externo quando existe outro lockfile em `C:\Dev`.
 - Lint do frontend corrigido ao ignorar o worker minificado do PDF.js e remover sincronizacoes de estado via `useEffect` que violavam as regras atuais do React Hooks.
 - Formularios de revisao humana e sign-off agora sao reinicializados por chave quando os dados salvos mudam, mantendo o estado local sem `setState` sincronico em efeito.
