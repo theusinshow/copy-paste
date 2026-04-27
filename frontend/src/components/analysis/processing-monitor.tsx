@@ -37,6 +37,7 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
   const [startedAt, setStartedAt] = useState<Date | null>(null);
+  const [updateMode, setUpdateMode] = useState<"polling" | "realtime">("realtime");
   const hasStarted = useRef(false);
 
   useEffect(() => {
@@ -76,9 +77,7 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
 
       eventSource.onerror = () => {
         if (!isMounted || !eventSource) return;
-        setErrorMessage(
-          "A conexao em tempo real caiu. Atualizando por consulta periodica.",
-        );
+        setUpdateMode("polling");
         eventSource.close();
         eventSource = null;
         startFallbackPolling();
@@ -98,6 +97,7 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
         const currentAnalysis = await getAnalysis(initialAnalysis.id);
         if (!isMounted) return;
         setAnalysis(currentAnalysis);
+        setErrorMessage(null);
         if (isTerminalStatus(currentAnalysis.status) && fallbackTimer) {
           clearInterval(fallbackTimer);
           fallbackTimer = null;
@@ -271,7 +271,9 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
         ) : null}
         {!isFinished ? (
           <p className="text-sm text-[var(--cp-muted)]">
-            O status e atualizado em tempo real via conexao direta.
+            {updateMode === "realtime"
+              ? "O status e atualizado em tempo real via conexao direta."
+              : "O status e atualizado por consulta periodica."}
           </p>
         ) : null}
       </div>
