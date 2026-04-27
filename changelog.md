@@ -177,6 +177,7 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Extracao de texto de PDFs agora pode isolar cada pagina em subprocesso com timeout, evitando que uma pagina pesada derrube o backend inteiro durante o processamento.
 - Progresso do processamento agora avanca durante a leitura das paginas de cada PDF, evitando que analises longas parecam travadas em 5% enquanto o extrator ainda esta trabalhando.
 - Tela de acompanhamento agora usa a mesma resolucao de URL da API para SSE e polling, evitando consulta relativa ao Next local quando `NEXT_PUBLIC_API_URL` nao esta definida.
 - Backend agora inicia mesmo quando o SDK da Resend nao esta instalado no ambiente local, mantendo notificacoes por e-mail desativadas quando o provedor nao estiver disponivel.

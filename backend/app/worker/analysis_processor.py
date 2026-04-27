@@ -78,6 +78,7 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
                     input_document.id,
                     read_pdf_pages(
                         input_document.file_path,
+                        isolate_pages=True,
                         on_page_extracted=emit_page_progress,
                     ),
                 )
