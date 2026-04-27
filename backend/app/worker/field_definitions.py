@@ -43,4 +43,8 @@ FIELD_DEFINITIONS: tuple[FieldDefinition, ...] = (
         field_name="folha",
         aliases=("FOLHA", "FLH"),
     ),
+    FieldDefinition(
+        field_name="data_emissao",
+        aliases=("DATA DE EMISSAO", "DATA EMISSAO", "EMISSAO", "DATA"),
+    ),
 )

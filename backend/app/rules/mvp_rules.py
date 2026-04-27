@@ -1,5 +1,6 @@
 from collections import defaultdict
 from collections.abc import Sequence
+from datetime import date
 import re
 import unicodedata
 
@@ -31,6 +32,10 @@ NON_ALNUM_PATTERN = re.compile(r"[^A-Z0-9]+")
 PARENTHETICAL_PATTERN = re.compile(r"\([^)]*\)")
 TRAILING_CODE_PATTERN = re.compile(r"\b\d+\s+\d+$")
 SHEET_ITEM_PATTERN = re.compile(r"^\s*(\d{1,2})\s*/\s*(\d{1,2})\s*$")
+DATE_DMY_PATTERN = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{4})$")
+DATE_MY_PATTERN = re.compile(r"^(\d{1,2})/(\d{4})$")
+DATE_Y_PATTERN = re.compile(r"^(\d{4})$")
+DATE_OUTDATED_YEARS = 2
 
 
 def evaluate_mvp_rules(
@@ -41,6 +46,7 @@ def evaluate_mvp_rules(
     issues.extend(_build_divergence_issues(extracted_fields))
     issues.extend(_build_missing_field_issues(documents, extracted_fields))
     issues.extend(_build_sheet_sequence_issues(extracted_fields))
+    issues.extend(_build_date_issues(extracted_fields))
     return issues
 
 
@@ -220,6 +226,87 @@ def _build_sheet_sequence_issues(
             )
 
     return issues
+
+
+def _build_date_issues(
+    extracted_fields: Sequence[RuleExtractedField],
+) -> list[RuleIssueCandidate]:
+    data_fields = _list_fields_by_name(extracted_fields, "data_emissao")
+    if not data_fields:
+        return []
+
+    parsed: list[tuple[date, RuleExtractedField]] = []
+    for field in data_fields:
+        parsed_date = _try_parse_date(field.raw_value or "")
+        if parsed_date is not None:
+            parsed.append((parsed_date, field))
+
+    if not parsed:
+        return []
+
+    today = date.today()
+    issues: list[RuleIssueCandidate] = []
+
+    future_fields = [f for d, f in parsed if d > today and f.page is not None]
+    if future_fields:
+        issues.append(
+            RuleIssueCandidate(
+                type="data_emissao_futura",
+                severity=SEVERITY_RELEVANTE,
+                description="Documento com data de emissao no futuro.",
+                evidences=_build_evidences(future_fields),
+            )
+        )
+
+    cutoff = date(today.year - DATE_OUTDATED_YEARS, today.month, today.day)
+    old_fields = [f for d, f in parsed if d < cutoff and f.page is not None]
+    if old_fields:
+        issues.append(
+            RuleIssueCandidate(
+                type="data_emissao_desatualizada",
+                severity=SEVERITY_ATENCAO,
+                description=f"Documento com data de emissao superior a {DATE_OUTDATED_YEARS} anos.",
+                evidences=_build_evidences(old_fields),
+            )
+        )
+
+    distinct_dates = {d for d, _ in parsed}
+    if len(distinct_dates) > 1:
+        fields_with_page = [f for _, f in parsed if f.page is not None]
+        if fields_with_page:
+            date_labels = " | ".join(sorted(str(d) for d in distinct_dates))
+            issues.append(
+                RuleIssueCandidate(
+                    type="data_emissao_divergente",
+                    severity=SEVERITY_RELEVANTE,
+                    description=f"Datas de emissao divergentes entre documentos: {date_labels}.",
+                    evidences=_build_evidences(fields_with_page),
+                )
+            )
+
+    return issues
+
+
+def _try_parse_date(raw: str) -> date | None:
+    raw = raw.strip()
+    m = DATE_DMY_PATTERN.match(raw)
+    if m:
+        try:
+            return date(int(m.group(3)), int(m.group(2)), int(m.group(1)))
+        except ValueError:
+            pass
+    m = DATE_MY_PATTERN.match(raw)
+    if m:
+        try:
+            return date(int(m.group(2)), int(m.group(1)), 1)
+        except ValueError:
+            pass
+    m = DATE_Y_PATTERN.match(raw)
+    if m:
+        year = int(m.group(1))
+        if 1990 <= year <= 2100:
+            return date(year, 1, 1)
+    return None
 
 
 def _list_fields_by_name(

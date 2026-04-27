@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 
 import { AnalysisModeBadge } from "@/components/analysis/analysis-mode-badge";
 import { AnalysisStatusBadge } from "@/components/analysis/analysis-status-badge";
 import { formatAnalysisDate } from "@/lib/formatters";
+import { buildApiUrl } from "@/lib/api/config";
 import type { AnalysisRun } from "@/lib/types/analysis";
 
 type AnalysisResultHeaderProps = {
@@ -17,6 +20,8 @@ export function AnalysisResultHeader({ analysis }: AnalysisResultHeaderProps) {
       rerunParams.set(`cfg_${key}`, value);
     }
   }
+
+  const exportBase = buildApiUrl(`/api/v1/analysis/${analysis.id}/export`);
 
   return (
     <section className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--cp-border)] bg-[var(--cp-panel)]/90 px-5 py-4">
@@ -34,6 +39,20 @@ export function AnalysisResultHeader({ analysis }: AnalysisResultHeaderProps) {
         </span>
       </div>
       <div className="flex flex-wrap items-center gap-3">
+        <a
+          href={`${exportBase}?format=html`}
+          download
+          className="rounded-none border border-[var(--cp-border)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-muted)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-text)]"
+        >
+          Exportar HTML
+        </a>
+        <a
+          href={`${exportBase}?format=md`}
+          download
+          className="rounded-none border border-[var(--cp-border)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-muted)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-text)]"
+        >
+          Exportar MD
+        </a>
         <Link
           href={`/?${rerunParams.toString()}`}
           className="rounded-none border border-[var(--cp-border)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-muted)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-text)]"
