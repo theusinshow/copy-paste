@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnalysisModeBadge } from "@/components/analysis/analysis-mode-badge";
 import { AnalysisStatusBadge } from "@/components/analysis/analysis-status-badge";
 import { cancelAnalysis, getAnalysis, startAnalysis } from "@/lib/api/analysis";
+import { buildApiUrl } from "@/lib/api/config";
 import { extractApiErrorMessage } from "@/lib/api/fetcher";
 import { formatAnalysisDate } from "@/lib/formatters";
 import type { AnalysisRun } from "@/lib/types/analysis";
@@ -44,6 +45,7 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
     let isMounted = true;
     let eventSource: EventSource | null = null;
     let fallbackTimer: ReturnType<typeof setInterval> | null = null;
+    let failedPollCount = 0;
 
     const isAlreadyFinished =
       initialAnalysis.status === "completed" ||
@@ -56,9 +58,8 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
 
     function openEventSource() {
       if (!isMounted) return;
-      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
       eventSource = new EventSource(
-        `${apiBase}/api/v1/analysis/${initialAnalysis.id}/stream`,
+        buildApiUrl(`/api/v1/analysis/${initialAnalysis.id}/stream`),
       );
 
       eventSource.onmessage = (event: MessageEvent) => {
@@ -96,16 +97,24 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
       try {
         const currentAnalysis = await getAnalysis(initialAnalysis.id);
         if (!isMounted) return;
+        failedPollCount = 0;
         setAnalysis(currentAnalysis);
         setErrorMessage(null);
         if (isTerminalStatus(currentAnalysis.status) && fallbackTimer) {
           clearInterval(fallbackTimer);
           fallbackTimer = null;
         }
-      } catch {
+      } catch (error) {
         if (!isMounted) return;
+        failedPollCount += 1;
+        if (failedPollCount < 2) {
+          return;
+        }
         setErrorMessage(
-          "Nao foi possivel consultar o status atual do processamento.",
+          extractApiErrorMessage(
+            error,
+            "Nao foi possivel consultar o status atual do processamento.",
+          ),
         );
       }
     }
