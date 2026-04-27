@@ -3,6 +3,22 @@
 ## [Unreleased]
 
 ### Added
+- **Notificacoes por e-mail** ao terminar analise: envia e-mail HTML via Resend SDK ao concluir (`completed`) ou falhar (`failed`) uma analise. Envio assíncrono em daemon thread para nao bloquear a resposta. Configuravel por `RESEND_API_KEY`, `NOTIFICATION_EMAIL` e `FRONTEND_URL`.
+- **Historico de pacotes** em `/packages`: agrupa analises pelo codigo de projeto dominante detectado (`numero_projeto`), usando Counter/defaultdict. Endpoint `GET /api/v1/packages` e pagina frontend com cards por pacote, cada um listando todas as analises do projeto com status, modo e data.
+- Link **Pacotes** adicionado ao menu de navegacao.
+- **Campo `data_emissao`** no extrator (aliases: DATA DE EMISSAO, DATA EMISSAO, EMISSAO, DATA) com tres novas regras de validacao: `data_emissao_futura` (RELEVANTE — data posterior a hoje), `data_emissao_desatualizada` (ATENCAO — data superior a 2 anos), `data_emissao_divergente` (RELEVANTE — datas distintas entre documentos do mesmo pacote). Parser suporta `DD/MM/AAAA`, `MM/AAAA` e `AAAA`.
+- **Campo `folha`** no extrator (aliases: FOLHA, FLH) com duas novas regras de sequencia: `folha_total_inconsistente` (RELEVANTE — documentos declaram totais de folhas diferentes) e `folha_ausente_na_sequencia` (RELEVANTE — lacuna detectada na sequencia 1..N de folhas declaradas).
+- **Botoes de exportar** no cabecalho da tela de resultado: "Exportar HTML" e "Exportar MD" fazem download direto do relatorio via o endpoint `/api/v1/analysis/{id}/export` ja existente.
+- **Paginacao** na lista de analises: 10 itens por pagina com controles Anterior / Proxima; pagina reinicia ao trocar filtro de status ou modo.
+- **Link ativo no nav**: pagina corrente e destacada no menu de navegacao com borda dourada e fundo sutil, via `usePathname`.
+
+### Changed
+- Regras de divergencia estendidas para cobrir `municipio` e `orgao_cliente` (antes apenas `nome_obra`, `numero_projeto` e `bairro` eram cruzados).
+- Severidade de `campo_obrigatorio_ausente` agora e dinamica: RELEVANTE quando o campo esta ausente na maioria dos documentos, ATENCAO quando ausente apenas em minoria. Descricao atualizada para indicar contagem exata (ex: "ausente em 3 de 4 documentos").
+- `AnalysisResultHeader` convertido para componente cliente para suportar os botoes de exportar com URL do backend.
+- `SiteHeader` convertido para componente cliente para usar `usePathname` no destaque do link ativo.
+
+
 - **Dashboard de metricas** em `/dashboard`: cards de totais (analises, documentos, pontos, taxa de revisao), grafico de linha com evolucao de analises ao longo do tempo, barras de status e modo, pizza de severidade dos pontos, barras horizontais com os 10 tipos de ponto mais frequentes e grafico de decisoes de revisao humana. Dados agregados via novo endpoint `GET /api/v1/dashboard`. Link adicionado ao header de navegacao.
 - **Visualizador de PDF embutido** na tela de resultado: painel fixo na base da tela (60 vh) com abas por documento, navegacao de paginas e renderizacao via PDF.js (`react-pdf`). Ativado pelo botao "Ver p.X" em cada evidencia de issue, que abre o viewer diretamente na pagina correta. Suporta multiplos documentos por analise com troca de aba.
 - Endpoint `GET /api/v1/analysis/{id}/documents` para listar documentos de uma analise.
