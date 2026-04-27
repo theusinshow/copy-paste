@@ -19,7 +19,7 @@ from app.rules.types import (
 SEVERITY_ATENCAO = "atencao"
 SEVERITY_RELEVANTE = "relevante"
 MISSING_FIELD_ISSUE_TYPE = "campo_obrigatorio_ausente"
-DIVERGENCE_FIELDS = ("nome_obra", "numero_projeto", "bairro")
+DIVERGENCE_FIELDS = ("nome_obra", "numero_projeto", "bairro", "municipio", "orgao_cliente")
 REQUIRED_FIELD_NAMES = tuple(definition.field_name for definition in FIELD_DEFINITIONS)
 TARGETED_CHECK_FIELDS = {
     ANALYSIS_MODE_CHECK_ADDRESS: "endereco",
@@ -30,6 +30,7 @@ WHITESPACE_PATTERN = re.compile(r"\s+")
 NON_ALNUM_PATTERN = re.compile(r"[^A-Z0-9]+")
 PARENTHETICAL_PATTERN = re.compile(r"\([^)]*\)")
 TRAILING_CODE_PATTERN = re.compile(r"\b\d+\s+\d+$")
+SHEET_ITEM_PATTERN = re.compile(r"^\s*(\d{1,2})\s*/\s*(\d{1,2})\s*$")
 
 
 def evaluate_mvp_rules(
@@ -39,6 +40,7 @@ def evaluate_mvp_rules(
     issues: list[RuleIssueCandidate] = []
     issues.extend(_build_divergence_issues(extracted_fields))
     issues.extend(_build_missing_field_issues(documents, extracted_fields))
+    issues.extend(_build_sheet_sequence_issues(extracted_fields))
     return issues
 
 
@@ -134,14 +136,88 @@ def _build_missing_field_issues(
         if present_document_ids == document_ids:
             continue
 
+        missing_count = len(document_ids - present_document_ids)
+        severity = (
+            SEVERITY_RELEVANTE
+            if missing_count > len(present_document_ids)
+            else SEVERITY_ATENCAO
+        )
         issues.append(
             RuleIssueCandidate(
                 type=MISSING_FIELD_ISSUE_TYPE,
-                severity=SEVERITY_ATENCAO,
-                description=f"Campo obrigatorio {field_name} ausente em um ou mais documentos.",
+                severity=severity,
+                description=(
+                    f"Campo obrigatorio {field_name} ausente em "
+                    f"{missing_count} de {len(document_ids)} documentos."
+                ),
                 evidences=_build_evidences(present_fields),
             )
         )
+
+    return issues
+
+
+def _build_sheet_sequence_issues(
+    extracted_fields: Sequence[RuleExtractedField],
+) -> list[RuleIssueCandidate]:
+    folha_fields = _list_fields_by_name(extracted_fields, "folha")
+    if not folha_fields:
+        return []
+
+    parsed: list[tuple[int, int, RuleExtractedField]] = []
+    for field in folha_fields:
+        raw = (field.raw_value or "").strip()
+        match = SHEET_ITEM_PATTERN.match(raw)
+        if not match:
+            continue
+        current, total = int(match.group(1)), int(match.group(2))
+        if 1 <= current <= total <= 99:
+            parsed.append((current, total, field))
+
+    if not parsed:
+        return []
+
+    issues: list[RuleIssueCandidate] = []
+
+    totals = {total for _, total, _ in parsed}
+    if len(totals) > 1:
+        representative_fields = [f for _, _, f in parsed if f.page is not None]
+        if representative_fields:
+            issues.append(
+                RuleIssueCandidate(
+                    type="folha_total_inconsistente",
+                    severity=SEVERITY_RELEVANTE,
+                    description=(
+                        "Documentos declaram totais de folhas diferentes: "
+                        f"{' | '.join(str(t) for t in sorted(totals))}."
+                    ),
+                    evidences=_build_evidences(representative_fields),
+                )
+            )
+
+    total_counter: dict[int, int] = defaultdict(int)
+    for _, total, _ in parsed:
+        total_counter[total] += 1
+    dominant_total = max(total_counter, key=lambda t: total_counter[t])
+    present_numbers = {current for current, total, _ in parsed if total == dominant_total}
+    missing_numbers = set(range(1, dominant_total + 1)) - present_numbers
+
+    if missing_numbers:
+        representative_fields = [
+            f for _, total, f in parsed if total == dominant_total and f.page is not None
+        ]
+        if representative_fields:
+            issues.append(
+                RuleIssueCandidate(
+                    type="folha_ausente_na_sequencia",
+                    severity=SEVERITY_RELEVANTE,
+                    description=(
+                        f"Lacuna na sequencia de folhas (total declarado: {dominant_total}). "
+                        f"Folhas ausentes: {', '.join(str(n).zfill(2) for n in sorted(missing_numbers))}."
+                    ),
+                    evidences=_build_evidences(representative_fields),
+                )
+            )
 
     return issues
 
