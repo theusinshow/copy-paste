@@ -48,6 +48,14 @@ As severidades permanecem internas ao motor. Na interface cotidiana, os pontos d
 - probable_issue: ha conflito objetivo forte
 - extraction_limit: o sistema nao conseguiu confirmar com confianca
 
+## Referência declarada pelo usuário
+- nos modos `full_check` e `memorial_only`, valores informados em `config.expected_*` são tratados como referência principal
+- campos vazios são ignorados
+- a referência declarada substitui a identidade inferida apenas para o campo informado
+- valores textualmente próximos podem ser aceitos como compatíveis por normalização determinística, sem IA
+- valores completamente diferentes geram ponto verificável com evidência extraída do PDF
+- ausência de valor extraído continua sendo limite de extração, não erro automático da referência
+
 ## Classificacao de paginas
 - capa: primeira pagina com sinais de identidade do projeto
 - lista de documentos: pagina com titulo `Lista de Documentos`

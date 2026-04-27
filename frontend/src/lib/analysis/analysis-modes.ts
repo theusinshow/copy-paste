@@ -38,9 +38,48 @@ export type AnalysisModeGroup = {
 
 export type AnalysisModeConfigValues = Record<string, string>;
 
+export const EXPECTED_IDENTITY_FIELDS: AnalysisModeConfigField[] = [
+  {
+    description: "Centro de custo ou número oficial que deve aparecer no pacote.",
+    key: "expected_project_code",
+    label: "Centro de custo",
+    placeholder: "Ex.: 117-25",
+  },
+  {
+    description: "Endereço oficial do projeto, quando essa conferência for necessária.",
+    key: "expected_address",
+    label: "Endereço",
+    placeholder: "Ex.: Rua das Flores, 120",
+  },
+  {
+    description: "Prefeitura, órgão ou cliente informado como referência correta.",
+    key: "expected_client",
+    label: "Prefeitura / órgão cliente",
+    placeholder: "Ex.: Prefeitura Municipal de Criciúma",
+  },
+  {
+    description: "Bairro oficial do projeto, se fizer parte da conferência.",
+    key: "expected_bairro",
+    label: "Bairro",
+    placeholder: "Ex.: Centro",
+  },
+  {
+    description: "Município oficial do projeto.",
+    key: "expected_municipality",
+    label: "Município",
+    placeholder: "Ex.: Criciúma",
+  },
+  {
+    description: "Nome oficial da obra, quando o pacote trouxer essa informação.",
+    key: "expected_work_name",
+    label: "Nome da obra",
+    placeholder: "Ex.: UBS Nova Esperança - Porte 1",
+  },
+];
+
 export const ANALYSIS_MODE_DEFINITIONS: AnalysisModeDefinition[] = [
   {
-    configFields: [],
+    configFields: EXPECTED_IDENTITY_FIELDS,
     description: "Confere capa, separatrizes, listas de documentos e pranchas do volume.",
     group: "Fluxo principal",
     helper: "Use para revisar o volume tecnico do projeto antes de liberar o pacote.",
@@ -48,7 +87,7 @@ export const ANALYSIS_MODE_DEFINITIONS: AnalysisModeDefinition[] = [
     value: "full_check",
   },
   {
-    configFields: [],
+    configFields: EXPECTED_IDENTITY_FIELDS,
     description: "Confere identidade, endereco, municipio, cliente e sinais textuais do memorial.",
     group: "Fluxo principal",
     helper: "Use quando o envio for apenas memorial ou documento textual equivalente.",
@@ -231,6 +270,16 @@ export function buildAnalysisModeConfig(
       };
     }
     return { config: { expected } };
+  }
+
+  if (mode === "full_check" || mode === "memorial_only") {
+    const config = Object.fromEntries(
+      EXPECTED_IDENTITY_FIELDS.map((field) => [
+        field.key,
+        (configValues[field.key] ?? "").trim(),
+      ]).filter(([, value]) => value),
+    );
+    return { config };
   }
 
   return { config: {} };

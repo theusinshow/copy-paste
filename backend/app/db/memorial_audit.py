@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.document_page import DocumentPage
+from app.models.analysis_run import AnalysisRun
 from app.models.input_document import InputDocument
 from app.models.text_span import TextSpan
 from app.worker.memorial_audit import build_memorial_audit
@@ -11,6 +12,8 @@ def get_memorial_audit_by_analysis_id(
     session: Session,
     analysis_id: int,
 ) -> dict:
+    analysis_run = session.get(AnalysisRun, analysis_id)
+    config = analysis_run.config if analysis_run else {}
     documents = list(
         session.scalars(
             select(InputDocument)
@@ -20,7 +23,7 @@ def get_memorial_audit_by_analysis_id(
     )
 
     if not documents:
-        return build_memorial_audit([], {})
+        return build_memorial_audit([], {}, config=config)
 
     document_ids = [document.id for document in documents]
     rows = session.execute(
@@ -51,4 +54,4 @@ def get_memorial_audit_by_analysis_id(
         for document_id, pages_by_number in pages_by_document_id.items()
     }
 
-    return build_memorial_audit(documents, page_texts_by_document_id)
+    return build_memorial_audit(documents, page_texts_by_document_id, config=config)

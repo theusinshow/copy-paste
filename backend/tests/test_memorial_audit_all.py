@@ -199,6 +199,21 @@ class MunicipalityDiffersTests(unittest.TestCase):
             has_finding(result["findings"], "municipality_differs_from_package_identity")
         )
 
+    def test_municipio_usa_referencia_informada_quando_configurada(self) -> None:
+        memorial = make_memorial(1)
+        texts = {1: {1: "PREFEITURA MUNICIPAL DE TUBARAO MEMORIAL 117-25"}}
+
+        result = build_memorial_audit(
+            [memorial],
+            texts,
+            config={"expected_municipality": "Criciúma"},
+        )
+
+        self.assertEqual(result["identity"]["municipality"], "Criciúma")
+        self.assertTrue(
+            has_finding(result["findings"], "municipality_differs_from_package_identity")
+        )
+
 
 class OwnerCityDiffersTests(unittest.TestCase):
     """owner_city_differs_from_memorial_municipality:

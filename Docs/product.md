@@ -17,6 +17,7 @@ Sistema que:
 - gera pontos verificáveis com evidência
 - prepara contextos para leitura assistida por IA, sem delegar a decisão
 - permite modos configuráveis de análise com `full_check` como padrão
+- permite informar a identidade esperada do projeto antes da leitura dos PDFs
 - oferece checklist pós-análise para a decisão humana sobre cada ponto encontrado
 - apresenta achados como triagem técnica (`verificar`, `conferir`, `não confirmado`), sem declarar erro automático para o usuário cotidiano
 
@@ -25,6 +26,8 @@ Sistema que:
   - `full_check` como **Volume de projeto**
   - `memorial_only` como **Memorial**
 - Os demais modos continuam como capacidades técnicas dirigidas e não precisam aparecer no fluxo principal.
+- Nos fluxos cotidianos, o usuário pode preencher centro de custo, endereço, prefeitura/órgão, bairro, município e nome da obra como referência declarada.
+- Campos de referência vazios são ignorados; ausência de campo informado não inventa regra.
 
 ## Modos técnicos disponíveis
 - `full_check`

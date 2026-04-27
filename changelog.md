@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- Campos de referência oficial antes da análise para `Volume de projeto` e `Memorial`: centro de custo, endereço, prefeitura/órgão, bairro, município e nome da obra.
 - **Checklist pós-análise** nos pontos encontrados: a revisão individual e em lote passa a orientar confirmação, falso positivo, correção, não aplicável ou falta de evidência em linguagem de usuário.
 - **Notificacoes por e-mail** ao terminar analise: envia e-mail HTML via Resend SDK ao concluir (`completed`) ou falhar (`failed`) uma analise. Envio assíncrono em daemon thread para nao bloquear a resposta. Configuravel por `RESEND_API_KEY`, `NOTIFICATION_EMAIL` e `FRONTEND_URL`.
 - **Historico de pacotes** em `/packages`: agrupa analises pelo codigo de projeto dominante detectado (`numero_projeto`), usando Counter/defaultdict. Endpoint `GET /api/v1/packages` e pagina frontend com cards por pacote, cada um listando todas as analises do projeto com status, modo e data.
@@ -14,6 +15,7 @@
 - **Link ativo no nav**: pagina corrente e destacada no menu de navegacao com borda dourada e fundo sutil, via `usePathname`.
 
 ### Changed
+- Motor de regras agora prioriza a referência declarada pelo usuário quando ela existe, aceitando variações textuais próximas e destacando valores completamente diferentes com evidência.
 - Linguagem da análise ajustada para tom de triagem técnica: achados passam a aparecer como pontos para verificar, conferir ou não confirmados, e a decisão de falso positivo passa a ser exibida como "Não procede".
 - Interface de resultado revisada para trocar termos internos como "issue" por "ponto", melhorar acentuação e explicar melhor a revisão humana.
 - Auditoria deixou de gerar divergência automática para `orgao_cliente`, preservando variações reais de nome de escritório, cliente ou empresa no pacote.

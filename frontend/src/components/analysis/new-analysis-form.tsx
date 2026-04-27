@@ -12,6 +12,7 @@ import {
   ANALYSIS_MODES,
   buildAnalysisModeConfig,
   getAnalysisModeDefinitions,
+  getAnalysisModeDefinition,
   getInitialConfigValues,
   getLockedTipoForMode,
   type AnalysisMode,
@@ -103,6 +104,15 @@ export function NewAnalysisForm({ initialMode, initialConfig }: NewAnalysisFormP
     setConfigValues(getInitialConfigValues(mode));
   }
 
+  function handleConfigChange(fieldKey: string, value: string) {
+    setConfigValues((currentValues) => ({
+      ...currentValues,
+      [fieldKey]: value,
+    }));
+  }
+
+  const selectedModeDefinition = getAnalysisModeDefinition(selectedMode);
+
   return (
     <section
       className="rounded-none border border-[var(--cp-border)] bg-[var(--cp-panel)]/92 p-4 sm:p-5"
@@ -137,6 +147,43 @@ export function NewAnalysisForm({ initialMode, initialConfig }: NewAnalysisFormP
             selectedMode={selectedMode}
             onSelect={handleModeSelect}
           />
+        </section>
+
+        <section className="grid gap-4 border-t border-[var(--cp-border)] pt-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--cp-accent)]">
+                Etapa 3
+              </p>
+              <h2 className="mt-2 text-lg font-semibold text-[var(--cp-text)]">
+                Informe os dados oficiais.
+              </h2>
+            </div>
+            <p className="max-w-sm text-sm leading-6 text-[var(--cp-muted)]">
+              Preencha apenas o que deve ser usado como referência. O motor
+              aceita variações próximas e destaca valores completamente
+              diferentes.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {selectedModeDefinition.configFields.map((field) => (
+              <label key={field.key} className="grid gap-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--cp-muted)]">
+                  {field.label}
+                </span>
+                <input
+                  value={configValues[field.key] ?? ""}
+                  onChange={(event) => handleConfigChange(field.key, event.target.value)}
+                  placeholder={field.placeholder}
+                  className="w-full rounded-none border border-[var(--cp-border)] bg-black/20 px-4 py-3 text-sm text-[var(--cp-text)] outline-none transition-colors placeholder:text-[var(--cp-muted)] focus:border-[var(--cp-accent)]"
+                />
+                <span className="text-sm leading-6 text-[var(--cp-muted)]">
+                  {field.description}
+                </span>
+              </label>
+            ))}
+          </div>
         </section>
 
         <div className="rounded-none border border-[var(--cp-border)] bg-black/10 p-4 text-sm leading-7 text-[var(--cp-muted)]">

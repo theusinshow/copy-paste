@@ -24,6 +24,8 @@ POST /analysis
   - `check_project_number`
   - `check_work_name`
 - exemplos de config:
+  - `full_check`: `{ "expected_project_code": "117-25", "expected_municipality": "Criciúma" }`
+  - `memorial_only`: `{ "expected_client": "Prefeitura Municipal de Criciúma" }`
   - `find_text`: `{ "query": "concreto" }`
   - `find_replace`: `{ "find": "Rua antiga", "replace": "Avenida nova" }`
   - `check_address`: `{ "expected": "Rua das Flores, 120" }`
@@ -38,6 +40,14 @@ POST /analysis
   }
 }
 ```
+- nos modos `full_check` e `memorial_only`, `config` aceita os campos opcionais:
+  - `expected_project_code`
+  - `expected_address`
+  - `expected_client`
+  - `expected_bairro`
+  - `expected_municipality`
+  - `expected_work_name`
+- campos vazios devem ser omitidos ou enviados como string vazia
 
 POST /analysis/{id}/files
 → upload multipart/form-data

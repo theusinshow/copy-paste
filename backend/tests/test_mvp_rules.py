@@ -334,5 +334,58 @@ class VerificacaoPontualTests(unittest.TestCase):
         self.assertNotIn("endereco_diferente_do_esperado", types)
 
 
+class ReferenciaDeclaradaTests(unittest.TestCase):
+    """Referência informada pelo usuário no fluxo principal."""
+
+    def test_centro_de_custo_diferente_da_referencia(self) -> None:
+        fields = [
+            make_field(1, DOC_A.id, "numero_projeto", "117-26"),
+        ]
+        issues = evaluate_rules(
+            [DOC_A],
+            fields,
+            analysis_mode="full_check",
+            config={"expected_project_code": "117-25"},
+        )
+        types = [i.type for i in issues]
+        self.assertIn("numero_projeto_diferente_da_referencia", types)
+
+    def test_prefeitura_parecida_com_referencia_nao_gera_issue(self) -> None:
+        fields = [
+            make_field(
+                1,
+                DOC_A.id,
+                "orgao_cliente",
+                "PREFEITURA MUNICIPAL DE CRICIUMA",
+            ),
+        ]
+        issues = evaluate_rules(
+            [DOC_A],
+            fields,
+            analysis_mode="full_check",
+            config={"expected_client": "Prefeitura de Criciúma"},
+        )
+        types = [i.type for i in issues]
+        self.assertNotIn("orgao_cliente_diferente_da_referencia", types)
+
+    def test_prefeitura_completamente_diferente_gera_issue(self) -> None:
+        fields = [
+            make_field(
+                1,
+                DOC_A.id,
+                "orgao_cliente",
+                "PREFEITURA MUNICIPAL DE TUBARAO",
+            ),
+        ]
+        issues = evaluate_rules(
+            [DOC_A],
+            fields,
+            analysis_mode="memorial_only",
+            config={"expected_client": "Prefeitura de Criciúma"},
+        )
+        types = [i.type for i in issues]
+        self.assertIn("orgao_cliente_diferente_da_referencia", types)
+
+
 if __name__ == "__main__":
     unittest.main()

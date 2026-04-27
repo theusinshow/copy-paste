@@ -3,6 +3,7 @@ import unicodedata
 from collections import Counter
 from typing import Any
 
+from app.core.expected_identity import extract_expected_identity
 from app.models.input_document import InputDocument
 from app.worker.package_summary import build_package_summary
 
@@ -47,9 +48,10 @@ FIELD_LABELS = {
 def build_memorial_audit(
     documents: list[InputDocument],
     page_texts_by_document_id: dict[int, dict[int, str]],
+    config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     package_summary = build_package_summary(documents, page_texts_by_document_id)
-    identity = package_summary["identity"]
+    identity = _apply_expected_identity(package_summary["identity"], config)
     target_documents = _select_memorial_documents(documents, page_texts_by_document_id)
     occurrences = [
         occurrence
@@ -416,6 +418,10 @@ def _group_occurrences_by_field(
 
 
 def _infer_identity_municipality(identity: dict[str, Any]) -> str | None:
+    municipality = identity.get("municipality")
+    if municipality:
+        return _clean_value("municipality", str(municipality))
+
     client = identity.get("client") or ""
     match = re.search(r"\b(?:MUNICIPIO|MUNICIPIO DE|PREFEITURA MUNICIPAL DE)\s+([A-Z ]+)", client)
     if match:
@@ -425,6 +431,29 @@ def _infer_identity_municipality(identity: dict[str, Any]) -> str | None:
     if "CRICIUMA" in _normalize_text(client):
         return "CRICIUMA"
     return None
+
+
+def _apply_expected_identity(
+    identity: dict[str, Any],
+    config: dict[str, Any] | None,
+) -> dict[str, Any]:
+    expected_identity = extract_expected_identity(config)
+    if not expected_identity:
+        return identity
+
+    merged_identity = dict(identity)
+    key_map = {
+        "bairro": "bairro",
+        "municipio": "municipality",
+        "nome_obra": "work_name",
+        "numero_projeto": "project_code",
+        "orgao_cliente": "client",
+    }
+    for field_name, value in expected_identity.items():
+        identity_key = key_map.get(field_name)
+        if identity_key:
+            merged_identity[identity_key] = value
+    return merged_identity
 
 
 def _dedupe_occurrences(

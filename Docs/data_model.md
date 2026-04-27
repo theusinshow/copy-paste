@@ -9,6 +9,13 @@
 - analysis_mode
 - config
 - config e um objeto json flexivel
+- config pode armazenar referência declarada do usuário para os fluxos principais:
+  - `expected_project_code`
+  - `expected_address`
+  - `expected_client`
+  - `expected_bairro`
+  - `expected_municipality`
+  - `expected_work_name`
 - created_at
 
 ### InputDocument

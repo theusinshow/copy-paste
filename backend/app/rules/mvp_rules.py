@@ -9,6 +9,7 @@ from app.core.analysis_modes import (
     ANALYSIS_MODE_CHECK_PROJECT_NUMBER,
     ANALYSIS_MODE_CHECK_WORK_NAME,
 )
+from app.core.expected_identity import extract_expected_identity
 from app.worker.field_definitions import FIELD_DEFINITIONS
 from app.rules.types import (
     RuleExtractedField,
@@ -43,17 +44,79 @@ DATE_Y_PATTERN = re.compile(r"^(\d{4})$")
 DATE_OUTDATED_YEARS = 2
 PROJECT_CODE_VALUE_PATTERN = re.compile(r"\b\d{2,4}\s*[-_]\s*\d{2,4}\b")
 SINGLE_VALUE_STOPWORDS = {"A", "AS", "COM", "DA", "DAS", "DE", "DO", "DOS", "E", "EM", "O", "OS"}
+REFERENCE_FIELD_LABELS = {
+    "bairro": "bairro",
+    "endereco": "endereco",
+    "municipio": "município",
+    "nome_obra": "nome da obra",
+    "numero_projeto": "número do projeto",
+    "orgao_cliente": "órgão/cliente",
+}
+FLEXIBLE_REFERENCE_FIELDS = {"endereco", "municipio", "nome_obra", "orgao_cliente"}
+REFERENCE_STOPWORDS = SINGLE_VALUE_STOPWORDS | {
+    "CLIENTE",
+    "MUNICIPAL",
+    "MUNICIPIO",
+    "MUNICÍPIO",
+    "PREFEITURA",
+}
 
 
 def evaluate_mvp_rules(
     documents: Sequence[RuleInputDocument],
     extracted_fields: Sequence[RuleExtractedField],
+    config: dict | None = None,
 ) -> list[RuleIssueCandidate]:
     issues: list[RuleIssueCandidate] = []
-    issues.extend(_build_divergence_issues(extracted_fields))
+    expected_identity = extract_expected_identity(config or {})
+    issues.extend(_build_expected_identity_issues(extracted_fields, expected_identity))
+    issues.extend(
+        _build_divergence_issues(
+            extracted_fields,
+            ignored_fields=set(expected_identity),
+        )
+    )
     issues.extend(_build_missing_field_issues(documents, extracted_fields))
     issues.extend(_build_sheet_sequence_issues(extracted_fields))
     issues.extend(_build_date_issues(extracted_fields))
+    return issues
+
+
+def _build_expected_identity_issues(
+    extracted_fields: Sequence[RuleExtractedField],
+    expected_identity: dict[str, str],
+) -> list[RuleIssueCandidate]:
+    if not expected_identity:
+        return []
+
+    issues: list[RuleIssueCandidate] = []
+    for field_name, expected_value in expected_identity.items():
+        matching_fields = _list_fields_by_name(extracted_fields, field_name)
+        divergent_fields = [
+            field
+            for field in matching_fields
+            if not _field_matches_expected(
+                field_name,
+                field.normalized_value or field.raw_value,
+                expected_value,
+            )
+        ]
+        if not divergent_fields:
+            continue
+
+        label = REFERENCE_FIELD_LABELS.get(field_name, field_name)
+        issues.append(
+            RuleIssueCandidate(
+                type=f"{field_name}_diferente_da_referencia",
+                severity=SEVERITY_RELEVANTE,
+                description=(
+                    f"Conferir {label}; foi encontrado valor diferente da referência "
+                    f"informada: {expected_value}."
+                ),
+                evidences=_build_evidences(divergent_fields),
+            )
+        )
+
     return issues
 
 
@@ -94,9 +157,13 @@ def evaluate_targeted_check_rules(
 
 def _build_divergence_issues(
     extracted_fields: Sequence[RuleExtractedField],
+    ignored_fields: set[str] | None = None,
 ) -> list[RuleIssueCandidate]:
     issues: list[RuleIssueCandidate] = []
+    ignored_fields = ignored_fields or set()
     for field_name in DIVERGENCE_FIELDS:
+        if field_name in ignored_fields:
+            continue
         matching_fields = _list_fields_by_name(extracted_fields, field_name)
         distinct_values = sorted(
             {
@@ -368,6 +435,36 @@ def _normalize_rule_value_for_field(field_name: str, value: str) -> str:
         value = TRAILING_CODE_PATTERN.sub(" ", value)
 
     return _normalize_rule_value(value)
+
+
+def _field_matches_expected(field_name: str, value: str, expected_value: str) -> bool:
+    normalized_value = _normalize_rule_value_for_field(field_name, value)
+    normalized_expected = _normalize_rule_value_for_field(field_name, expected_value)
+    if not normalized_value or not normalized_expected:
+        return True
+
+    if normalized_value == normalized_expected:
+        return True
+
+    if field_name not in FLEXIBLE_REFERENCE_FIELDS:
+        return False
+
+    if normalized_value in normalized_expected or normalized_expected in normalized_value:
+        return True
+
+    value_tokens = _reference_tokens(normalized_value)
+    expected_tokens = _reference_tokens(normalized_expected)
+    if not value_tokens or not expected_tokens:
+        return False
+    return expected_tokens.issubset(value_tokens) or value_tokens.issubset(expected_tokens)
+
+
+def _reference_tokens(value: str) -> set[str]:
+    return {
+        token
+        for token in value.split()
+        if token not in REFERENCE_STOPWORDS and len(token) > 1
+    }
 
 
 def _is_usable_field_value(field_name: str, value: str) -> bool:

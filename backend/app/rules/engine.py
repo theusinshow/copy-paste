@@ -11,12 +11,13 @@ def evaluate_rules(
     analysis_mode: str | None = None,
     config: dict[str, Any] | None = None,
 ) -> list[RuleIssueCandidate]:
-    issues = evaluate_mvp_rules(documents, extracted_fields)
+    normalized_config = config or {}
+    issues = evaluate_mvp_rules(documents, extracted_fields, config=normalized_config)
     issues.extend(
         evaluate_targeted_check_rules(
             extracted_fields,
             analysis_mode=analysis_mode,
-            config=config or {},
+            config=normalized_config,
         )
     )
     return issues

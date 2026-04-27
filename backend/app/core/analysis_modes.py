@@ -1,5 +1,7 @@
 from typing import Any, Literal, cast
 
+from app.core.expected_identity import EXPECTED_IDENTITY_CONFIG_KEYS
+
 ANALYSIS_MODE_FULL_CHECK = "full_check"
 ANALYSIS_MODE_MEMORIAL_ONLY = "memorial_only"
 ANALYSIS_MODE_SHEETS_ONLY = "sheets_only"
@@ -90,6 +92,11 @@ def _validate_mode_config(
         ANALYSIS_MODE_SHEETS_ONLY,
         ANALYSIS_MODE_LD_ONLY,
     }:
+        if analysis_mode in {ANALYSIS_MODE_FULL_CHECK, ANALYSIS_MODE_MEMORIAL_ONLY}:
+            _ensure_allowed_keys(config, set(EXPECTED_IDENTITY_CONFIG_KEYS))
+            _ensure_string_values(config)
+            return
+
         if config:
             raise ValueError("config must be empty for the selected analysis_mode")
         return
@@ -133,3 +140,10 @@ def _ensure_allowed_keys(config: dict[str, Any], allowed_keys: set[str]) -> None
     if unexpected_keys:
         joined_keys = ", ".join(unexpected_keys)
         raise ValueError(f"Unexpected config keys: {joined_keys}")
+
+
+def _ensure_string_values(config: dict[str, Any]) -> None:
+    invalid_keys = sorted(key for key, value in config.items() if not isinstance(value, str))
+    if invalid_keys:
+        joined_keys = ", ".join(invalid_keys)
+        raise ValueError(f"Config values must be strings: {joined_keys}")

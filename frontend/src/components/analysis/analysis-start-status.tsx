@@ -49,7 +49,7 @@ export function AnalysisStartStatus({
               key={key}
               className="rounded-none border border-[var(--cp-border)] bg-white/5 px-3 py-1 text-xs text-[var(--cp-muted)]"
             >
-              {key}: {String(value)}
+              {formatConfigKey(key)}: {String(value)}
             </span>
           ))}
         </div>
@@ -75,6 +75,18 @@ export function AnalysisStartStatus({
       ) : null}
     </section>
   );
+}
+
+function formatConfigKey(key: string) {
+  const labels: Record<string, string> = {
+    expected_address: "Endereço",
+    expected_bairro: "Bairro",
+    expected_client: "Prefeitura / órgão",
+    expected_municipality: "Município",
+    expected_project_code: "Centro de custo",
+    expected_work_name: "Nome da obra",
+  };
+  return labels[key] ?? key;
 }
 
 function getStatusAppearance(state: NewAnalysisActionState) {

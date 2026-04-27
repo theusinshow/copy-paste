@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from app.core.expected_identity import extract_expected_identity
 from app.models.input_document import InputDocument
 
 PROJECT_CODE_PATTERN = re.compile(r"\b\d{2,4}[-_]\d{2}\b")
@@ -46,12 +47,16 @@ class _DocumentSummary:
 def build_package_summary(
     documents: list[InputDocument],
     page_texts_by_document_id: dict[int, dict[int, str]],
+    config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     document_summaries = [
         _summarize_document(document, page_texts_by_document_id.get(document.id, {}))
         for document in documents
     ]
-    identity = _build_identity(document_summaries, page_texts_by_document_id)
+    identity = _apply_expected_identity(
+        _build_identity(document_summaries, page_texts_by_document_id),
+        config,
+    )
     alerts = _build_alerts(document_summaries, identity)
 
     return {
@@ -255,6 +260,29 @@ def _extract_work_name(text: str) -> str | None:
             continue
         return part
     return None
+
+
+def _apply_expected_identity(
+    identity: dict[str, Any],
+    config: dict[str, Any] | None,
+) -> dict[str, Any]:
+    expected_identity = extract_expected_identity(config)
+    if not expected_identity:
+        return identity
+
+    merged_identity = dict(identity)
+    key_map = {
+        "bairro": "bairro",
+        "municipio": "municipality",
+        "nome_obra": "work_name",
+        "numero_projeto": "project_code",
+        "orgao_cliente": "client",
+    }
+    for field_name, value in expected_identity.items():
+        identity_key = key_map.get(field_name)
+        if identity_key:
+            merged_identity[identity_key] = value
+    return merged_identity
 
 
 def _extract_bairro(text: str) -> str | None:
