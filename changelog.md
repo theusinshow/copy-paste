@@ -177,6 +177,7 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- CSS utilitario do frontend agora declara explicitamente as fontes do App Router para o Tailwind, evitando deploy da Vercel com HTML renderizado sem estilos.
 - Deploy do frontend na Vercel corrigido removendo `turbopack.root` do `next.config.ts`, que conflitava com o `outputFileTracingRoot` aplicado pela plataforma.
 - Configuracao do PostCSS/Tailwind agora usa `process.cwd()` como base portavel, evitando caminho absoluto local no build de producao.
 - Configuracao do PostCSS/Tailwind no frontend agora fixa a base no diretorio `frontend`, evitando erro do `next dev` ao resolver `tailwindcss` pela raiz do repositorio.
