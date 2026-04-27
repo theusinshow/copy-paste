@@ -1,7 +1,7 @@
 const config = {
   plugins: {
     "@tailwindcss/postcss": {
-      base: "C:/Dev/pessoal/projetos/copy-paste/frontend",
+      base: process.cwd(),
     },
   },
 };
