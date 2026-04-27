@@ -48,8 +48,19 @@ export function IssueList({
   const activeFilterLabel =
     FILTERS.find((filter) => filter.id === activeFilter)?.label ?? "Todas";
   const visibleIssueIds = visibleIssues.map((issue) => issue.id);
+  const existingIssueIds = new Set(issues.map((issue) => issue.id));
+  const validSelectedIssueIds = selectedIssueIds.filter((issueId) =>
+    existingIssueIds.has(issueId),
+  );
+  const effectiveFocusedIssueId =
+    visibleIssues.length === 0
+      ? null
+      : focusedIssueId !== null &&
+          visibleIssues.some((issue) => issue.id === focusedIssueId)
+        ? focusedIssueId
+        : visibleIssues[0].id;
   const visibleSelectedCount = visibleIssueIds.filter((issueId) =>
-    selectedIssueIds.includes(issueId),
+    validSelectedIssueIds.includes(issueId),
   ).length;
 
   const filterCounts = {
@@ -65,40 +76,21 @@ export function IssueList({
   };
 
   useEffect(() => {
-    const existingIssueIds = new Set(issues.map((issue) => issue.id));
-    setSelectedIssueIds((currentIds) =>
-      currentIds.filter((issueId) => existingIssueIds.has(issueId)),
-    );
-  }, [issues]);
-
-  useEffect(() => {
-    if (visibleIssues.length === 0) {
-      setFocusedIssueId(null);
-      return;
-    }
-
-    const hasFocusedIssue = visibleIssues.some((issue) => issue.id === focusedIssueId);
-    if (!hasFocusedIssue) {
-      setFocusedIssueId(visibleIssues[0].id);
-    }
-  }, [focusedIssueId, visibleIssues]);
-
-  useEffect(() => {
-    focusedIssueIdRef.current = focusedIssueId;
-  }, [focusedIssueId]);
+    focusedIssueIdRef.current = effectiveFocusedIssueId;
+  }, [effectiveFocusedIssueId]);
 
   useEffect(() => {
     visibleIssuesRef.current = visibleIssues;
   }, [visibleIssues]);
 
   useEffect(() => {
-    if (focusedIssueId === null) {
+    if (effectiveFocusedIssueId === null) {
       return;
     }
 
-    const element = document.getElementById(`issue-card-${focusedIssueId}`);
+    const element = document.getElementById(`issue-card-${effectiveFocusedIssueId}`);
     element?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [focusedIssueId]);
+  }, [effectiveFocusedIssueId]);
 
   const handleQuickReview = useCallback(
     async (decision: string) => {
@@ -184,11 +176,13 @@ export function IssueList({
   }
 
   function handleMoveFocus(direction: -1 | 1) {
-    if (focusedIssueId === null) {
+    if (effectiveFocusedIssueId === null) {
       return;
     }
 
-    const currentIndex = visibleIssues.findIndex((issue) => issue.id === focusedIssueId);
+    const currentIndex = visibleIssues.findIndex(
+      (issue) => issue.id === effectiveFocusedIssueId,
+    );
     if (currentIndex === -1) {
       return;
     }
@@ -264,7 +258,10 @@ export function IssueList({
             <button
               type="button"
               onClick={() => handleMoveFocus(-1)}
-              disabled={visibleIssues.length === 0 || focusedIssueId === visibleIssues[0]?.id}
+              disabled={
+                visibleIssues.length === 0 ||
+                effectiveFocusedIssueId === visibleIssues[0]?.id
+              }
               className="rounded-none border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               Anterior
@@ -274,7 +271,7 @@ export function IssueList({
               onClick={() => handleMoveFocus(1)}
               disabled={
                 visibleIssues.length === 0 ||
-                focusedIssueId === visibleIssues[visibleIssues.length - 1]?.id
+                effectiveFocusedIssueId === visibleIssues[visibleIssues.length - 1]?.id
               }
               className="rounded-none border border-[var(--cp-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--cp-text)] transition-colors hover:border-[var(--cp-accent)] hover:text-[var(--cp-accent)] disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -290,8 +287,8 @@ export function IssueList({
             </button>
             <span className="text-xs uppercase tracking-[0.18em] text-[var(--cp-muted)]">
               Foco:{" "}
-              {focusedIssueId !== null
-                ? `#${focusedIssueId.toString().padStart(3, "0")}`
+              {effectiveFocusedIssueId !== null
+                ? `#${effectiveFocusedIssueId.toString().padStart(3, "0")}`
                 : "nenhum"}
             </span>
             <span className="ml-auto hidden text-xs text-[var(--cp-muted)] sm:block">
@@ -304,8 +301,8 @@ export function IssueList({
             analysisId={analysisId}
             onClearSelection={handleClearSelection}
             onSelectVisible={handleSelectVisible}
-            selectedCount={selectedIssueIds.length}
-            selectedIssueIds={selectedIssueIds}
+            selectedCount={validSelectedIssueIds.length}
+            selectedIssueIds={validSelectedIssueIds}
             visibleCount={visibleIssues.length}
           />
 
@@ -348,8 +345,8 @@ export function IssueList({
               key={issue.id}
               cardId={`issue-card-${issue.id}`}
               issue={issue}
-              isFocused={focusedIssueId === issue.id}
-              isSelected={selectedIssueIds.includes(issue.id)}
+              isFocused={effectiveFocusedIssueId === issue.id}
+              isSelected={validSelectedIssueIds.includes(issue.id)}
               onOpenPdf={onOpenPdf}
               onToggleSelection={handleToggleSelection}
             />

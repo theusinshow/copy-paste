@@ -34,14 +34,6 @@ export function PdfViewerPanel({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (targetDocumentId) setActiveDocId(targetDocumentId);
-  }, [targetDocumentId]);
-
-  useEffect(() => {
-    if (targetPage) setCurrentPage(targetPage);
-  }, [targetPage]);
-
-  useEffect(() => {
     const obs = new ResizeObserver((entries) => {
       const width = entries[0]?.contentRect.width;
       if (width) setContainerWidth(Math.floor(width) - 2);

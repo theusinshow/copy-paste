@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useState, useTransition } from "react";
+import { type FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -26,11 +26,6 @@ export function IssueReviewForm({ issueId, review }: IssueReviewFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    setDecision(normalizeReviewDecisionValue(review?.decision));
-    setComment(review?.comment ?? "");
-  }, [review?.comment, review?.decision]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

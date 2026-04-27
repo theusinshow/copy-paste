@@ -177,6 +177,9 @@
 - Pipeline inicial agora usa um dispatcher simples por `analysis_mode` para decidir recorte de documentos e execucao do rules engine sem reescrever o worker
 
 ### Fixed
+- Build do frontend corrigido ao fixar o root do Turbopack no diretorio `frontend`, evitando que o Next.js escolha um workspace externo quando existe outro lockfile em `C:\Dev`.
+- Lint do frontend corrigido ao ignorar o worker minificado do PDF.js e remover sincronizacoes de estado via `useEffect` que violavam as regras atuais do React Hooks.
+- Formularios de revisao humana e sign-off agora sao reinicializados por chave quando os dados salvos mudam, mantendo o estado local sem `setState` sincronico em efeito.
 - Leitura do selo das pranchas agora remove metadados administrativos como data, disciplina e arquivo, recupera melhor titulos proximos ao marcador de disciplina e reduz falso positivo no cruzamento entre lista e prancha quando o carimbo nao traz descricao util.
 - Backend voltou a iniciar com a rota de exportacao habilitada, desativando o `response_model` implicito de um retorno `PlainTextResponse | HTMLResponse` que quebrava o startup do FastAPI.
 - Fechamento executivo agora nao trata issue relevante sem revisao como conflito ativo confirmado; ela permanece pendente ate decisao humana.

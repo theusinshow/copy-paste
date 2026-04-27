@@ -142,6 +142,7 @@ async function ClosureSection({
       </section>
       <section id="encerramento">
         <AnalysisSignoffPanel
+          key={signoff?.updated_at ?? auditSummary?.status.code ?? "new"}
           analysisId={analysisId}
           analysisStatus={analysis.status}
           computedStatusCode={auditSummary?.status.code}

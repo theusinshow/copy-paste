@@ -9,10 +9,7 @@ import {
 } from "@/lib/analysis/analysis-modes";
 import { extractApiErrorMessage } from "@/lib/api/fetcher";
 import type { AnalysisRun, InputDocument } from "@/lib/types/analysis";
-import type {
-  NewAnalysisActionState,
-  NewAnalysisFlowStatus,
-} from "@/lib/types/new-analysis-action";
+import type { NewAnalysisActionState } from "@/lib/types/new-analysis-action";
 
 type RunNewAnalysisFlowOptions = {
   analysisMode: AnalysisMode;
@@ -103,16 +100,3 @@ async function safeGetAnalysis(analysisId: number) {
   }
 }
 
-function normalizeFlowStatus(status: string): NewAnalysisFlowStatus {
-  if (
-    status === "created" ||
-    status === "processing" ||
-    status === "completed" ||
-    status === "cancelled" ||
-    status === "failed"
-  ) {
-    return status;
-  }
-
-  return "failed";
-}

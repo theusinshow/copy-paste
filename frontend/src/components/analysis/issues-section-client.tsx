@@ -49,6 +49,7 @@ export function IssuesSectionClient({
       />
       {pdfOpen && documents.length > 0 ? (
         <PdfViewerPanel
+          key={`${targetDocId ?? "first"}-${targetPage ?? 1}`}
           analysisId={analysisId}
           documents={documents}
           targetDocumentId={targetDocId}

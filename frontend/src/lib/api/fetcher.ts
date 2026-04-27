@@ -32,7 +32,6 @@ export async function apiFetch<T>(
   const url = buildApiUrl(path);
   const requestInit = { ...init, headers };
 
-  let lastNetworkError: unknown;
   for (let attempt = 0; attempt < NETWORK_RETRY_ATTEMPTS; attempt++) {
     if (attempt > 0) {
       await new Promise((resolve) => setTimeout(resolve, NETWORK_RETRY_DELAY_MS));
@@ -50,7 +49,6 @@ export async function apiFetch<T>(
       return payload as T;
     } catch (error) {
       if (error instanceof TypeError) {
-        lastNetworkError = error;
         continue;
       }
       throw error;

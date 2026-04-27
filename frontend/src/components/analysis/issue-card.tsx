@@ -96,7 +96,11 @@ export function IssueCard({
           Revisao humana
         </p>
         <div className="mt-4">
-          <IssueReviewForm issueId={issue.id} review={issue.review} />
+          <IssueReviewForm
+            key={`${issue.id}-${issue.review?.decision ?? "new"}-${issue.review?.comment ?? ""}`}
+            issueId={issue.id}
+            review={issue.review}
+          />
         </div>
       </div>
     </article>
