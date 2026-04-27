@@ -5,6 +5,7 @@ export type AnalysisRun = {
   config: Record<string, unknown>;
   created_at: string;
   id: number;
+  progress: number;
   status: string;
 };
 

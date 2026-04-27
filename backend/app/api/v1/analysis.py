@@ -1,5 +1,6 @@
 import asyncio
 import json
+import threading
 from pathlib import Path
 
 from sqlalchemy import select
@@ -39,7 +40,7 @@ from app.db.detected_sheets import get_detected_sheets_by_analysis_id
 from app.db.drawing_lists import get_drawing_lists_by_analysis_id
 from app.db.extracted_fields import list_extracted_fields_by_analysis_id
 from app.db.footer_audit import get_footer_audit_by_analysis_id
-from app.db.input_documents import create_input_documents
+from app.db.input_documents import create_input_documents, list_input_documents_by_analysis_id
 from app.models.input_document import InputDocument
 from app.db.issues import (
     list_issues_by_ids,
@@ -77,7 +78,7 @@ from app.schemas.review import (
 )
 from app.schemas.signoff import AnalysisSignoffSchema, AnalysisSignoffWriteSchema
 from app.storage.uploads import delete_uploaded_files, save_pdf_upload
-from app.worker.analysis_processor import AnalysisProcessingError, process_analysis
+from app.worker.analysis_processor import process_analysis
 from app.worker.analysis_export import (
     build_analysis_export_html,
     build_analysis_export_markdown,
@@ -205,23 +206,35 @@ async def upload_analysis_files(
 
 @router.post("/{analysis_id}/start", response_model=AnalysisRunSchema)
 def start_analysis(analysis_id: int, session: DbSession) -> AnalysisRunSchema:
-    try:
-        return process_analysis(session, analysis_id)
-    except LookupError as exc:
+    analysis_run = get_analysis_run_by_id(session, analysis_id)
+    if analysis_run is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(exc),
-        ) from exc
-    except ValueError as exc:
+            detail="Analysis not found",
+        )
+
+    input_documents = list_input_documents_by_analysis_id(session, analysis_id)
+    if not input_documents:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc),
-        ) from exc
-    except AnalysisProcessingError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(exc),
-        ) from exc
+            detail="Analysis has no input documents",
+        )
+
+    processing_run = set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_PROCESSING)
+
+    def _run_in_background() -> None:
+        from app.db.session import SessionLocal
+
+        bg_session = SessionLocal()
+        try:
+            process_analysis(bg_session, analysis_id)
+        except Exception:
+            pass
+        finally:
+            bg_session.close()
+
+    threading.Thread(target=_run_in_background, daemon=True).start()
+    return processing_run
 
 
 @router.post("/{analysis_id}/cancel", response_model=AnalysisRunSchema)

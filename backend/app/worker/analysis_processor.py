@@ -7,6 +7,7 @@ from app.db.analysis_runs import (
     ANALYSIS_STATUS_COMPLETED,
     ANALYSIS_STATUS_FAILED,
     ANALYSIS_STATUS_PROCESSING,
+    emit_analysis_progress,
     get_analysis_run_by_id,
     set_analysis_run_status,
 )
@@ -38,6 +39,7 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
         raise ValueError("Analysis has no input documents")
 
     set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_PROCESSING)
+    emit_analysis_progress(analysis_id, 5)
 
     try:
         if _is_cancelled(session, analysis_run):
@@ -45,12 +47,14 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
 
         execution_plan = build_analysis_execution_plan(analysis_run, input_documents)
         extracted_pages_by_document = []
-        for input_document in input_documents:
+        doc_count = len(input_documents)
+        for i, input_document in enumerate(input_documents):
             if _is_cancelled(session, analysis_run):
                 return analysis_run
             extracted_pages_by_document.append(
                 (input_document.id, read_pdf_pages(input_document.file_path))
             )
+            emit_analysis_progress(analysis_id, 5 + round((i + 1) / doc_count * 55))
 
         if _is_cancelled(session, analysis_run):
             return analysis_run
@@ -88,6 +92,7 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
                 for extracted_page in extracted_pages
             ],
         )
+        emit_analysis_progress(analysis_id, 72)
         if _is_cancelled(session, analysis_run):
             return analysis_run
 
@@ -115,6 +120,7 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
                 )
             ],
         )
+        emit_analysis_progress(analysis_id, 85)
         if _is_cancelled(session, analysis_run):
             return analysis_run
 
@@ -149,6 +155,7 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
             )
         else:
             replace_analysis_issues(session, analysis_id, [])
+        emit_analysis_progress(analysis_id, 95)
         if _is_cancelled(session, analysis_run):
             return analysis_run
 
@@ -181,6 +188,7 @@ def process_analysis(session: Session, analysis_id: int) -> AnalysisRun:
         ).start()
         raise AnalysisProcessingError("Analysis processing failed") from exc
 
+    emit_analysis_progress(analysis_id, 100)
     completed = set_analysis_run_status(session, analysis_run, ANALYSIS_STATUS_COMPLETED)
     threading.Thread(
         target=send_analysis_notification,

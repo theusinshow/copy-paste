@@ -182,7 +182,8 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
 
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="rounded-lg border border-[var(--cp-border)] bg-black/12 p-5">
-          <div className="grid gap-3">
+          <ProgressBar status={currentStatus} progress={analysis.progress ?? 0} />
+          <div className="mt-4 grid gap-3">
             {STEPS.map((step, index) => (
               <ProcessingStep
                 key={step.key}
@@ -250,6 +251,55 @@ export function ProcessingMonitor({ initialAnalysis }: ProcessingMonitorProps) {
             O status e atualizado em tempo real via conexao direta.
           </p>
         ) : null}
+      </div>
+    </div>
+  );
+}
+
+function ProgressBar({
+  progress,
+  status,
+}: {
+  progress: number;
+  status: string;
+}) {
+  const isFailed = status === "failed";
+  const isCancelled = status === "cancelled";
+  const isFinished = status === "completed";
+
+  const displayPct = isFinished ? 100 : Math.max(0, Math.min(100, progress));
+
+  const trackColor = isFailed || isCancelled
+    ? "border-[var(--cp-error)]/30"
+    : "border-[var(--cp-border)]";
+
+  const fillColor = isFailed || isCancelled
+    ? "bg-[var(--cp-error)]"
+    : isFinished
+    ? "bg-[var(--cp-success)]"
+    : "bg-[var(--cp-accent)]";
+
+  const labelColor = isFailed || isCancelled
+    ? "text-[var(--cp-error)]"
+    : isFinished
+    ? "text-[var(--cp-success)]"
+    : "text-[var(--cp-accent)]";
+
+  return (
+    <div className="grid gap-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--cp-muted)]">
+          Progresso
+        </p>
+        <span className={`font-mono text-sm font-semibold tabular-nums ${labelColor}`}>
+          {displayPct}%
+        </span>
+      </div>
+      <div className={`h-2 w-full overflow-hidden rounded-none border ${trackColor} bg-black/20`}>
+        <div
+          className={`h-full rounded-none transition-all duration-700 ease-out ${fillColor}`}
+          style={{ width: `${displayPct}%` }}
+        />
       </div>
     </div>
   );

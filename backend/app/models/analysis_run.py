@@ -15,3 +15,4 @@ class AnalysisRun(Base):
     analysis_mode: Mapped[str] = mapped_column(String(50))
     config: Mapped[dict[str, Any]] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    progress: Mapped[int] = mapped_column(Integer, default=0, server_default="0")

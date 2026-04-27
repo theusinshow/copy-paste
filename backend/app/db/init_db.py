@@ -38,6 +38,12 @@ def _sync_sqlite_analysis_runs_schema() -> None:
             "ADD COLUMN config JSON NOT NULL DEFAULT '{}'"
         )
 
+    if "progress" not in columns:
+        statements.append(
+            "ALTER TABLE analysis_runs "
+            "ADD COLUMN progress INTEGER NOT NULL DEFAULT 0"
+        )
+
     if not statements:
         return
 

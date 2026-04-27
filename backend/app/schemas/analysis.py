@@ -19,6 +19,7 @@ class AnalysisRunSchema(BaseModel):
     analysis_mode: str
     config: dict[str, Any]
     created_at: datetime
+    progress: int = 0
 
 
 class InputDocumentSchema(BaseModel):

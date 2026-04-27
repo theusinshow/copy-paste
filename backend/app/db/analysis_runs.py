@@ -65,3 +65,17 @@ def set_analysis_run_status(
     session.commit()
     session.refresh(analysis_run)
     return analysis_run
+
+
+def emit_analysis_progress(analysis_id: int, progress: int) -> None:
+    """Commit a progress update via a dedicated connection to avoid interfering
+    with the caller's open transaction."""
+    from app.db.session import engine
+    from sqlalchemy import text
+
+    clamped = max(0, min(100, progress))
+    with engine.begin() as conn:
+        conn.execute(
+            text("UPDATE analysis_runs SET progress = :p WHERE id = :id"),
+            {"p": clamped, "id": analysis_id},
+        )
