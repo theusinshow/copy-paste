@@ -24,6 +24,7 @@ from app.db.analysis_runs import (
     ANALYSIS_STATUS_CANCELLED,
     ANALYSIS_STATUS_COMPLETED,
     ANALYSIS_STATUS_FAILED,
+    ANALYSIS_STATUS_PROCESSING,
     create_analysis_run,
     get_analysis_run_by_id,
     list_analysis_runs,
