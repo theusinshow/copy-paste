@@ -11,6 +11,9 @@ export class ApiError extends Error {
   }
 }
 
+const NETWORK_RETRY_ATTEMPTS = 3;
+const NETWORK_RETRY_DELAY_MS = 5000;
+
 export async function apiFetch<T>(
   path: string,
   init: RequestInit = {},
@@ -26,21 +29,39 @@ export async function apiFetch<T>(
     headers.set("Content-Type", "application/json");
   }
 
-  const response = await fetch(buildApiUrl(path), {
-    ...init,
-    headers,
-  });
-  const payload = await readResponsePayload(response);
+  const url = buildApiUrl(path);
+  const requestInit = { ...init, headers };
 
-  if (!response.ok) {
-    throw new ApiError(
-      response.status,
-      payload,
-      getPayloadMessage(payload, response.statusText),
-    );
+  let lastNetworkError: unknown;
+  for (let attempt = 0; attempt < NETWORK_RETRY_ATTEMPTS; attempt++) {
+    if (attempt > 0) {
+      await new Promise((resolve) => setTimeout(resolve, NETWORK_RETRY_DELAY_MS));
+    }
+    try {
+      const response = await fetch(url, requestInit);
+      const payload = await readResponsePayload(response);
+      if (!response.ok) {
+        throw new ApiError(
+          response.status,
+          payload,
+          getPayloadMessage(payload, response.statusText),
+        );
+      }
+      return payload as T;
+    } catch (error) {
+      if (error instanceof TypeError) {
+        lastNetworkError = error;
+        continue;
+      }
+      throw error;
+    }
   }
 
-  return payload as T;
+  throw new ApiError(
+    0,
+    null,
+    "O servidor esta iniciando. Aguarde alguns segundos e tente novamente.",
+  );
 }
 
 export function extractApiErrorMessage(error: unknown, fallback: string) {

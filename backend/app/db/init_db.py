@@ -13,6 +13,7 @@ def init_db() -> None:
     _sync_sqlite_extracted_fields_schema()
     _sync_sqlite_issues_schema()
     _sync_sqlite_issue_evidences_schema()
+    _sync_postgres_schema()
 
 
 def _sync_sqlite_analysis_runs_schema() -> None:
@@ -169,3 +170,21 @@ def _sync_sqlite_issue_evidences_schema() -> None:
     with engine.begin() as connection:
         for statement in statements:
             connection.execute(text(statement))
+
+
+def _sync_postgres_schema() -> None:
+    if engine.url.drivername.startswith("sqlite"):
+        return
+
+    inspector = inspect(engine)
+
+    if "analysis_runs" in inspector.get_table_names():
+        columns = {col["name"] for col in inspector.get_columns("analysis_runs")}
+        if "progress" not in columns:
+            with engine.begin() as connection:
+                connection.execute(
+                    text(
+                        "ALTER TABLE analysis_runs "
+                        "ADD COLUMN IF NOT EXISTS progress INTEGER NOT NULL DEFAULT 0"
+                    )
+                )
